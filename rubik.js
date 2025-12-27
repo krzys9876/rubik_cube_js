@@ -43,9 +43,6 @@ class Point3D {
 
     project() {
         // Close Z makes point with infinite X and Y, very far Z makes point of X=0 and Y=0
-        let projectedX = this.x * canvas.width;
-        let projectedY = this.y * canvas.height;
-        //console.log("projected: ", this.x, this.y,this.z, " to: ",projectedX, projectedY);
         return new Point2D(this.x / (this.z * Point3D.#scaleZ), this.y / (this.z * Point3D.#scaleZ));
     }
 
