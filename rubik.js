@@ -13,11 +13,9 @@ class Point2D {
         this.y = y;
     }
 
-    draw(style = 'red') {
-        let restoreStyle = ctx.fillStyle;
-        ctx.fillStyle = style;
+    draw(pointStyle) {
+        ctx.fillStyle = pointStyle;
         ctx.fillRect(this.actualX() - Point2D.#size / 2, this.actualY() - Point2D.#size / 2, Point2D.#size, Point2D.#size);
-        ctx.fillStyle = restoreStyle;
     }
 
 
@@ -33,7 +31,7 @@ class Point2D {
 }
 
 class Point3D {
-    static #scaleZ = 10;
+    static #scaleZ = 2;
 
     x = 0;
     y = 0;
@@ -71,8 +69,11 @@ class Point3D {
         return this;
     }
 
-    rotate(angleX, angleY, angleZ) {
-        return this.#rotateX(angleX).#rotateY(angleY).#rotateZ(angleZ);
+    rotate(angleX, angleY, angleZ, center) {
+        this.moveBy(center, true);
+        this.#rotateX(angleX).#rotateY(angleY).#rotateZ(angleZ);
+        this.moveBy(center, false);
+        return this;
     }
 
     static rotateOne({a, b}, angle) {
@@ -81,6 +82,18 @@ class Point3D {
         let rotatedA = a * cos - b * sin;
         let rotatedB = a * sin + b * cos;
         return {a: rotatedA, b: rotatedB};
+    }
+
+    moveBy(vector, reverse = false) {
+        if(reverse) {
+            this.x -= vector.x;
+            this.y -= vector.y;
+            this.z -= vector.z;
+        } else {
+            this.x += vector.x;
+            this.y += vector.y;
+            this.z += vector.z;
+        }
     }
 }
 
@@ -93,14 +106,14 @@ class Line2D {
         this.lineEnd = lineEnd;
     }
 
-    draw(style = 'red', drawPoints = false) {
+    draw(lineStyle, pointStyle, drawPoints = false) {
         if(drawPoints) {
-            this.lineStart.draw(style);
-            this.lineEnd.draw(style);
+            this.lineStart.draw(pointStyle);
+            this.lineEnd.draw(pointStyle);
         }
 
         ctx.beginPath();
-        ctx.strokeStyle = 'red';
+        ctx.strokeStyle = lineStyle;
         ctx.lineWidth = 2;
         ctx.moveTo(this.lineStart.actualX(), this.lineStart.actualY());
         ctx.lineTo(this.lineEnd.actualX(), this.lineEnd.actualY());
@@ -121,9 +134,9 @@ class Line3D {
         return new Line2D(this.lineStart.project(), this.lineEnd.project());
     }
 
-    rotate(angleX, angleY, angleZ) {
-        this.lineStart.rotate(angleX, angleY, angleZ);
-        this.lineEnd.rotate(angleX, angleY, angleZ);
+    rotate(angleX, angleY, angleZ, center) {
+        this.lineStart.rotate(angleX, angleY, angleZ, center);
+        this.lineEnd.rotate(angleX, angleY, angleZ, center);
         return this;
     }
 }
@@ -135,17 +148,27 @@ class Plane2D {
         this.points = points;
     }
 
-    draw(style = 'red', drawPoints = false, drawLines = false) {
-        if(drawPoints) {
-            for(let point of this.points) {
-                point.draw(style);
-            }
-        }
+    draw(pointStyle, lineStyle, fillStyle, drawPoints = false, drawLines = false, fill = true) {
         if(drawLines) {
             for(let i=0; i<this.points.length; i++) {
                 let endPointIndex = (i+1) % this.points.length;
-                new Line2D(this.points[i], this.points[endPointIndex]).draw(style, drawPoints);
+                new Line2D(this.points[i], this.points[endPointIndex]).draw(lineStyle, pointStyle, drawPoints);
             }
+        }
+        if(!drawLines && drawPoints) {
+            for(let point of this.points) {
+                point.draw(pointStyle);
+            }
+        }
+        if(fill && points.length > 0) {
+            ctx.fillStyle = fillStyle;
+            ctx.beginPath();
+            ctx.moveTo(this.points[0].actualX(), this.points[0].actualY());
+            for(let i=1; i<this.points.length; i++) {
+                ctx.lineTo(this.points[i].actualX(), this.points[i].actualY());
+            }
+            ctx.closePath();
+            ctx.fill();
         }
     }
 }
@@ -161,9 +184,9 @@ class Plane3D {
         return new Plane2D(this.points.map((point) => point.project()));
     }
 
-    rotate(angleX, angleY, angleZ) {
+    rotate(angleX, angleY, angleZ, center) {
         for(let point of this.points) {
-            point.rotate(angleX, angleY, angleZ);
+            point.rotate(angleX, angleY, angleZ, center);
         }
         return this;
     }
@@ -174,10 +197,10 @@ points = []
     points.push(new Point3D(0.5, 0.5, 0.1 + i / 20));
 }*/
 
-points.push(new Point3D(0.5,0.5, 0.3));
-points.push(new Point3D(-0.5,0.5, 0.3));
-points.push(new Point3D(-0.5,-0.5, 0.3));
-points.push(new Point3D(0.5,-0.5, 0.3));
+points.push(new Point3D(0.5,0.5, 2));
+points.push(new Point3D(-0.5,0.5, 2));
+points.push(new Point3D(-0.5,-0.5, 2));
+points.push(new Point3D(0.5,-0.5, 2));
 
 //let line = new Line3D(points[0], points[1]);
 
@@ -185,19 +208,24 @@ let plane = new Plane3D(points);
 
 const deg2rad = Math.PI / 180;
 let counter = 0;
-const stepZ = 0;
-const stepX = 3;
-const stepY = 0;
+const stepZ = 4;
+const stepX = 1;
+const stepY = 5;
+
+const rotationCenter = new Point3D(0,0,3);
 
 const bkStyle = 'lightgray';
-const fgStyle = 'red';
+const pointStyle = 'red';
+const lineStyle = 'blue';
+const fillStyle = 'purple';
 
 function drawLoop() {
 
     ctx.fillStyle = bkStyle;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    plane.rotate(stepX * deg2rad, stepY * deg2rad, stepZ * deg2rad).project().draw(fgStyle, true, true);
+    plane.rotate(stepX * deg2rad, stepY * deg2rad, stepZ * deg2rad, rotationCenter)
+        .project().draw(pointStyle, lineStyle, fillStyle, true, true, true);
 
     /*for (let point of points) {
         point
