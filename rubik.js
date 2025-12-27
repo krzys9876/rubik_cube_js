@@ -93,9 +93,11 @@ class Line2D {
         this.lineEnd = lineEnd;
     }
 
-    draw(style = 'red') {
-        this.lineStart.draw(style);
-        this.lineEnd.draw(style);
+    draw(style = 'red', drawPoints = false) {
+        if(drawPoints) {
+            this.lineStart.draw(style);
+            this.lineEnd.draw(style);
+        }
 
         ctx.beginPath();
         ctx.strokeStyle = 'red';
@@ -126,35 +128,76 @@ class Line3D {
     }
 }
 
-points = []
-for (let i = 0; i < 2; i++) {
-    points.push(new Point3D(0.5, 0.5, 0.1 + i / 20));
+class Plane2D {
+    points = [];
+
+    constructor(points) {
+        this.points = points;
+    }
+
+    draw(style = 'red', drawPoints = false, drawLines = false) {
+        if(drawPoints) {
+            for(let point of this.points) {
+                point.draw(style);
+            }
+        }
+        if(drawLines) {
+            for(let i=0; i<this.points.length; i++) {
+                let endPointIndex = (i+1) % this.points.length;
+                new Line2D(this.points[i], this.points[endPointIndex]).draw(style, drawPoints);
+            }
+        }
+    }
 }
 
-let line = new Line3D(points[0], points[1]);
+class Plane3D {
+    points = [];
+
+    constructor(points) {
+        this.points = points;
+    }
+
+    project() {
+        return new Plane2D(this.points.map((point) => point.project()));
+    }
+
+    rotate(angleX, angleY, angleZ) {
+        for(let point of this.points) {
+            point.rotate(angleX, angleY, angleZ);
+        }
+        return this;
+    }
+}
+
+points = []
+/*for (let i = 0; i < 2; i++) {
+    points.push(new Point3D(0.5, 0.5, 0.1 + i / 20));
+}*/
+
+points.push(new Point3D(0.5,0.5, 0.3));
+points.push(new Point3D(-0.5,0.5, 0.3));
+points.push(new Point3D(-0.5,-0.5, 0.3));
+points.push(new Point3D(0.5,-0.5, 0.3));
+
+//let line = new Line3D(points[0], points[1]);
+
+let plane = new Plane3D(points);
 
 const deg2rad = Math.PI / 180;
 let counter = 0;
-const stepZ = 3;
-const stepX = 1;
-const stepY = 0.5;
+const stepZ = 0;
+const stepX = 3;
+const stepY = 0;
 
-const bkStyle = 'blue';
+const bkStyle = 'lightgray';
+const fgStyle = 'red';
 
 function drawLoop() {
 
     ctx.fillStyle = bkStyle;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-/*    ctx.beginPath();
-    ctx.strokeStyle = 'red';
-    ctx.lineWidth = 2;
-    ctx.moveTo(0, 0);
-    ctx.lineTo(100, 100);
-    ctx.stroke();
-*/
-
-    line.rotate(stepX * deg2rad, stepY * deg2rad, stepZ * deg2rad).project().draw();
+    plane.rotate(stepX * deg2rad, stepY * deg2rad, stepZ * deg2rad).project().draw(fgStyle, true, true);
 
     /*for (let point of points) {
         point
