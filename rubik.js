@@ -16,15 +16,19 @@ class Point2D {
     draw(style = 'red') {
         let restoreStyle = ctx.fillStyle;
         ctx.fillStyle = style;
-        // 3D point's X and Y are in range -1 to 1, so point 0.0 is in the middle of the screen
-        // and axis grow up and right
-        let actualX = (this.x + 1) * canvas.width / 2;
-        let actualY = (1 - this.y) * canvas.height /2;
-
-        //console.log("draw: ",actualX, actualY);
-
-        ctx.fillRect(actualX, actualY, Point2D.#size, Point2D.#size);
+        ctx.fillRect(this.actualX() - Point2D.#size / 2, this.actualY() - Point2D.#size / 2, Point2D.#size, Point2D.#size);
         ctx.fillStyle = restoreStyle;
+    }
+
+
+    // 3D point's X and Y are in range -1 to 1, so point 0.0 is in the middle of the screen
+    // and axis grow up and right
+    actualX() {
+        return (this.x + 1) * canvas.width / 2;
+    }
+
+    actualY() {
+        return (1 - this.y) * canvas.height /2;
     }
 }
 
@@ -80,10 +84,55 @@ class Point3D {
     }
 }
 
-points = []
-for (let i = 0; i < 30; i++) {
-    points.push(new Point3D(1.0, 1.0, i / 20));
+class Line2D {
+    lineStart = null;
+    lineEnd = null;
+
+    constructor(lineStart, lineEnd) {
+        this.lineStart = lineStart;
+        this.lineEnd = lineEnd;
+    }
+
+    draw(style = 'red') {
+        this.lineStart.draw(style);
+        this.lineEnd.draw(style);
+
+        ctx.beginPath();
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 2;
+        ctx.moveTo(this.lineStart.actualX(), this.lineStart.actualY());
+        ctx.lineTo(this.lineEnd.actualX(), this.lineEnd.actualY());
+        ctx.stroke();
+    }
 }
+
+class Line3D {
+    lineStart = null;
+    lineEnd = null;
+
+    constructor(lineStart, lineEnd) {
+        this.lineStart = lineStart;
+        this.lineEnd = lineEnd;
+    }
+
+    project() {
+        return new Line2D(this.lineStart.project(), this.lineEnd.project());
+    }
+
+    rotate(angleX, angleY, angleZ) {
+        this.lineStart.rotate(angleX, angleY, angleZ);
+        this.lineEnd.rotate(angleX, angleY, angleZ);
+        return this;
+    }
+}
+
+points = []
+for (let i = 0; i < 2; i++) {
+    points.push(new Point3D(0.5, 0.5, 0.1 + i / 20));
+}
+
+let line = new Line3D(points[0], points[1]);
+
 const deg2rad = Math.PI / 180;
 let counter = 0;
 const stepZ = 3;
@@ -97,11 +146,22 @@ function drawLoop() {
     ctx.fillStyle = bkStyle;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    for (let point of points) {
+/*    ctx.beginPath();
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 2;
+    ctx.moveTo(0, 0);
+    ctx.lineTo(100, 100);
+    ctx.stroke();
+*/
+
+    line.rotate(stepX * deg2rad, stepY * deg2rad, stepZ * deg2rad).project().draw();
+
+    /*for (let point of points) {
         point
             .rotate(stepX * deg2rad, stepY * deg2rad, stepZ * deg2rad)
             .project().draw();
-    }
+    }*/
+
 
     counter ++;
 
