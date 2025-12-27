@@ -4,7 +4,7 @@ const canvas = document.getElementById('drawing');
 const ctx = canvas.getContext('2d');
 
 class Point2D {
-    static size = 5;
+    static #size = 5;
     x = 0;
     y = 0;
 
@@ -23,13 +23,13 @@ class Point2D {
 
         //console.log("draw: ",actualX, actualY);
 
-        ctx.fillRect(actualX, actualY, Point2D.size, Point2D.size);
+        ctx.fillRect(actualX, actualY, Point2D.#size, Point2D.#size);
         ctx.fillStyle = restoreStyle;
     }
 }
 
 class Point3D {
-    static scaleZ = 10;
+    static #scaleZ = 10;
 
     x = 0;
     y = 0;
@@ -46,37 +46,42 @@ class Point3D {
         let projectedX = this.x * canvas.width;
         let projectedY = this.y * canvas.height;
         //console.log("projected: ", this.x, this.y,this.z, " to: ",projectedX, projectedY);
-        return new Point2D(this.x / (this.z * Point3D.scaleZ), this.y / (this.z * Point3D.scaleZ));
+        return new Point2D(this.x / (this.z * Point3D.#scaleZ), this.y / (this.z * Point3D.#scaleZ));
     }
 
-    rotateZ(angle) {
-        let cos = Math.cos(angle);
-        let sin = Math.sin(angle);
-        let tmpX = this.x
-        this.x = this.x * cos - this.y * sin;
-        this.y = tmpX * sin + this.y * cos;
+    #rotateZ(angle) {
+        let rotated = Point3D.rotateOne({a: this.x, b: this.y}, angle)
+        this.x = rotated.a;
+        this.y = rotated.b;
         return this;
     }
 
-    rotateX(angle) {
-        let cos = Math.cos(angle);
-        let sin = Math.sin(angle);
-        let tmpY = this.y
-        this.y = this.y * cos - this.z * sin;
-        this.z = tmpY * sin + this.z * cos;
+    #rotateX(angle) {
+        let rotated = Point3D.rotateOne({a: this.y, b: this.z}, angle)
+        this.y = rotated.a;
+        this.z = rotated.b;
         return this;
     }
 
-    rotateY(angle) {
+    #rotateY(angle) {
+        let rotated = Point3D.rotateOne({a: this.z, b: this.x}, angle)
+        this.z = rotated.a;
+        this.x = rotated.b;
+        return this;
+    }
+
+    rotate(angleX, angleY, angleZ) {
+        return this.#rotateX(angleX).#rotateY(angleY).#rotateZ(angleZ);
+    }
+
+    static rotateOne({a, b}, angle) {
         let cos = Math.cos(angle);
         let sin = Math.sin(angle);
-        let tmpZ = this.z
-        this.z = this.z * cos - this.x * sin;
-        this.x = tmpZ * sin + this.x * cos;
-        return this;
+        let rotatedA = a * cos - b * sin;
+        let rotatedB = a * sin + b * cos;
+        return {a: rotatedA, b: rotatedB};
     }
 }
-
 
 points = []
 for (let i = 0; i < 30; i++) {
@@ -97,9 +102,7 @@ function drawLoop() {
 
     for (let point of points) {
         point
-            .rotateZ(stepZ * deg2rad)
-            .rotateX(stepX * deg2rad)
-            .rotateY(stepY * deg2rad)
+            .rotate(stepX * deg2rad, stepY * deg2rad, stepZ * deg2rad)
             .project().draw();
     }
 
@@ -107,9 +110,11 @@ function drawLoop() {
 
     if(counter < 1000) {
         setTimeout(drawLoop, 1000 / 60);
+    } else {
+        console.log("END (drawLoop)");
     }
 }
 
 drawLoop();
 
-console.log("END");
+console.log("END (init)");
