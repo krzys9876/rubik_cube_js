@@ -52,11 +52,27 @@ class Point3D {
     rotateZ(angle) {
         let cos = Math.cos(angle);
         let sin = Math.sin(angle);
-        //console.log("angle: ",angle / deg2rad, " sin: ",sin, " cos: ", cos, " x, y: ", this.x, this.y);
         let tmpX = this.x
         this.x = this.x * cos - this.y * sin;
         this.y = tmpX * sin + this.y * cos;
-        //console.log("new x, y: ",this.x, this.y);
+        return this;
+    }
+
+    rotateX(angle) {
+        let cos = Math.cos(angle);
+        let sin = Math.sin(angle);
+        let tmpY = this.y
+        this.y = this.y * cos - this.z * sin;
+        this.z = tmpY * sin + this.z * cos;
+        return this;
+    }
+
+    rotateY(angle) {
+        let cos = Math.cos(angle);
+        let sin = Math.sin(angle);
+        let tmpZ = this.z
+        this.z = this.z * cos - this.x * sin;
+        this.x = tmpZ * sin + this.x * cos;
         return this;
     }
 }
@@ -68,7 +84,9 @@ for (let i = 0; i < 30; i++) {
 }
 const deg2rad = Math.PI / 180;
 let counter = 0;
-const step = 3;
+const stepZ = 3;
+const stepX = 1;
+const stepY = 0.5;
 
 const bkStyle = 'blue';
 
@@ -78,7 +96,11 @@ function drawLoop() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     for (let point of points) {
-        point.rotateZ(step * deg2rad).project().draw();
+        point
+            .rotateZ(stepZ * deg2rad)
+            .rotateX(stepX * deg2rad)
+            .rotateY(stepY * deg2rad)
+            .project().draw();
     }
 
     counter ++;
