@@ -3,6 +3,7 @@ export class Scene {
 
     // Rotation matrix (3x3) representing the current scene rotation
     // Initially identity matrix (no rotation, hence 1s on diagonal)
+    // see: e.g. https://en.wikipedia.org/wiki/Rotation_matrix#Basic_3D_rotations
     rotationMatrix = [
         [1, 0, 0],
         [0, 1, 0],
