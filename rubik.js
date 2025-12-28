@@ -244,7 +244,7 @@ class Plane3D {
     project(observer) {
         let isVisible = this.normalLine != null && this.normalLine.isFacing(observer);
 
-        console.log(this.normalLine);
+        //console.log(this.normalLine);
 
         let points2D = this.points.map((point) => point.project());
         let center2D = this.center != null ? this.center.project() : null;
@@ -308,12 +308,35 @@ let plane = new Plane3D(points);
 
 const deg2rad = Math.PI / 180;
 let counter = 0;
-const stepZ = 0 / 5;
-const stepX = 1 / 5;
+const stepZ = 3 / 5;
+const stepX = 3 / 5;
 const stepY = 3 / 5;
 
+let rotateZ = 0;
+let rotateX = 0;
+let rotateY = 0;
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowLeft') rotateY = stepY;
+    if (event.key === 'ArrowRight') rotateY = -stepY;
+    if (event.key === 'ArrowUp') rotateX = stepX;
+    if (event.key === 'ArrowDown') rotateX = -stepX;
+    if (event.key === ',') rotateZ = stepZ;
+    if (event.key === '.') rotateZ = -stepZ;
+});
+
+document.addEventListener('keyup', (event) => {
+    if (event.key === 'ArrowLeft') rotateY = 0;
+    if (event.key === 'ArrowRight') rotateY = 0;
+    if (event.key === 'ArrowUp') rotateX = 0;
+    if (event.key === 'ArrowDown') rotateX = 0;
+    if (event.key === ',') rotateZ = 0;
+    if (event.key === '.') rotateZ = 0;
+});
+
+
 const rotationCenter = new Point3D(0,0,3);
-const observer = new Point3D(0,0,2);
+const observer = new Point3D(0,0,-5);
 
 const bkStyle = 'lightgray';
 const pointStyle = 'red';
@@ -325,7 +348,7 @@ function drawLoop() {
     ctx.fillStyle = bkStyle;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    plane.rotate(stepX * deg2rad, stepY * deg2rad, stepZ * deg2rad, rotationCenter)
+    plane.rotate(rotateX * deg2rad, rotateY * deg2rad, rotateZ * deg2rad, rotationCenter)
         .project(observer).draw(pointStyle, lineStyle, fillStyle, true, true, true);
 
     /*for (let point of points) {
