@@ -170,7 +170,7 @@ class Plane2D {
     }
 
     draw(pointStyle, lineStyle, fillStyle, drawPoints = false, drawLines = false, fill = true) {
-        if(this.isVisible && fill && points.length > 0) {
+        if(this.isVisible && fill && this.points.length > 0) {
             ctx.fillStyle = fillStyle;
             ctx.beginPath();
             ctx.moveTo(this.points[0].actualX(), this.points[0].actualY());
@@ -217,11 +217,11 @@ class Plane3D {
     }
 
     #calculateNormal() {
-        if(points.length < 3) return null;
+        if(this.points.length < 3) return null;
 
         // Assume that first 3 points form a flat plane, co we carrange them into two vectors
-        let w1 = Vector3D.fromPoints(points[0], points[1]);
-        let w2 = Vector3D.fromPoints(points[1], points[2]);
+        let w1 = Vector3D.fromPoints(this.points[0], this.points[1]);
+        let w2 = Vector3D.fromPoints(this.points[1], this.points[2]);
 
         // According to obliczeniowo.com.pl/61
         let x = w1.y * w2.z - w1.z * w2.y;
@@ -234,10 +234,12 @@ class Plane3D {
     }
 
     #calculateCenter() {
-        if(points.length < 3) return null;
-        let x = points.map(point => point.x).reduce((a, b) => a + b) / points.length;
-        let y = points.map(point => point.y).reduce((a, b) => a + b) / points.length;
-        let z = points.map(point => point.z).reduce((a, b) => a + b) / points.length;
+        if(this.points.length < 3) return null;
+        let x = this.points.map(point => point.x).reduce((a, b) => a + b) / this.points.length;
+        let y = this.points.map(point => point.y).reduce((a, b) => a + b) / this.points.length;
+        let z = this.points.map(point => point.z).reduce((a, b) => a + b) / this.points.length;
+
+        console.log(x, y, z);
 
         return new Point3D(x, y, z);
     }
