@@ -392,7 +392,7 @@ const orangeStyle = new Style('black', 'black', 'orange');
 const rotationCenter = new Point3D(0,0,3);
 const observer = new Point3D(0,0,0);
 
-let cubeCenter = rotationCenter;
+let cubeCenter = rotationCenter.clone().moveBy(new Vector3D(-0.2, 0.3, 0));
 
 let cube = Cube.generate(cubeCenter,1,1,1, [redStyle, yellowStyle, blueStyle, whiteStyle, greenStyle, orangeStyle]);
 
