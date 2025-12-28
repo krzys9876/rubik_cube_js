@@ -29,7 +29,7 @@ export class Point2D {
 }
 
 export class Point3D {
-    static #focalLength = 7;
+    static focalLength = 7;
     x;
     y;
     z;
@@ -44,7 +44,7 @@ export class Point3D {
 
     project() {
         // Close Z makes point with infinite X and Y, very far Z makes point of X=0 and Y=0
-        let zRatio = Point3D.#focalLength / (this.z + Point3D.#focalLength);
+        let zRatio = Point3D.focalLength / (this.z + Point3D.focalLength);
         return new Point2D(this.x * zRatio, this.y * zRatio, this.style);
     }
 
@@ -150,12 +150,26 @@ export class Line3D {
     }
 
     isFacing(point) {
-        let vectorToStart = Vector3D.fromPoints(point, this.lineStart);
-        let vectorToEnd = Vector3D.fromPoints(point, this.lineEnd);
+        let vectorToStart = Vector3D.fromPoints(point, this.lineStart).length();
+        let vectorToEnd = Vector3D.fromPoints(point, this.lineEnd).length();
+        let vectorBetween = Vector3D.fromPoints(this.lineStart, this.lineEnd).length();
 
         //console.log(point, this.lineStart, this.lineEnd, vectorToStart.length(), vectorToEnd.length());
 
-        return vectorToStart.length() <= vectorToEnd.length();
+        return (vectorToEnd * vectorToEnd) > (vectorToStart * vectorToStart + vectorBetween * vectorBetween);
+
+        /*
+
+                let vectorToStart = Vector3D.fromPoints(point, this.lineStart).length();
+        let vectorToEnd = Vector3D.fromPoints(point, this.lineEnd).length();
+        let vectorBetween = Vector3D.fromPoints(vectorToStart, vectorToEnd).length();
+
+        // We want to assess if the agle: point - start - end is accute (<90) or obtuse (>90),
+        // It is acute if |point-end vector|^2 < [point-start]^2 + |start-end|^2 (Pythagoras' theorem)
+
+        return vectorToEnd*vectorToEnd < vectorBetween * vectorToStart + vectorBetween * vectorToEnd;
+
+         */
     }
 }
 

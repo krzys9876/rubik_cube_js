@@ -13,4 +13,4 @@ export class Style {
 export const canvas = document.getElementById('drawing');
 export const ctx = canvas.getContext('2d');
 
-export const globalStyle = new Style('black', 'black', null);
+export const globalStyle = new Style('black', 'black', 'darkgray');
