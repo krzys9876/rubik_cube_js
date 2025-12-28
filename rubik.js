@@ -31,7 +31,7 @@ class Point2D {
 }
 
 class Point3D {
-    static #scaleZ = 1;
+    static #focalLength = 7;
 
     x = 0;
     y = 0;
@@ -45,7 +45,8 @@ class Point3D {
 
     project() {
         // Close Z makes point with infinite X and Y, very far Z makes point of X=0 and Y=0
-        return new Point2D(this.x / (this.z * Point3D.#scaleZ), this.y / (this.z * Point3D.#scaleZ));
+        let zRatio = Point3D.#focalLength / (this.z + Point3D.#focalLength);
+        return new Point2D(this.x * zRatio, this.y * zRatio);
     }
 
     #rotateZ(angle) {
@@ -342,7 +343,7 @@ document.addEventListener('keyup', (event) => {
 
 
 const rotationCenter = new Point3D(0,0,3);
-const observer = new Point3D(0,0,2);
+const observer = new Point3D(0,0,0);
 
 const bkStyle = 'lightgray';
 const pointStyle = 'red';
