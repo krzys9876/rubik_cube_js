@@ -318,7 +318,7 @@ class Vector3D {
     }
 }
 
-const globalStyle = new Style('red', 'blue', null);
+const globalStyle = new Style('black', 'black', null);
 const redStyle = new Style('black', 'black', 'red');
 const yellowStyle = new Style('black', 'black', 'yellow');
 const blueStyle = new Style('black', 'black', 'blue');
