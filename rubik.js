@@ -94,6 +94,11 @@ class Point3D {
             this.y += vector.y;
             this.z += vector.z;
         }
+        return this;
+    }
+
+    clone() {
+        return new Point3D(this.x, this.y, this.z);
     }
 }
 
@@ -139,21 +144,32 @@ class Line3D {
         this.lineEnd.rotate(angleX, angleY, angleZ, center);
         return this;
     }
+
+    isFacing(point) {
+        let vectorToStart = Vector3D.fromPoints(point, this.lineStart);
+        let vectorToEnd = Vector3D.fromPoints(point, this.lineEnd);
+
+        //console.log(point, this.lineStart, this.lineEnd, vectorToStart.length(), vectorToEnd.length());
+
+        return vectorToStart.length() <= vectorToEnd.length();
+    }
 }
 
 class Plane2D {
     points = [];
     center = null;
     normalLine = null;
+    isVisible = true;
 
-    constructor(points, center, normalLine) {
+    constructor(points, center, normalLine, isVisible) {
         this.points = points;
         this.center = center;
         this.normalLine = normalLine;
+        this.isVisible = isVisible;
     }
 
     draw(pointStyle, lineStyle, fillStyle, drawPoints = false, drawLines = false, fill = true) {
-        if(fill && points.length > 0) {
+        if(this.isVisible && fill && points.length > 0) {
             ctx.fillStyle = fillStyle;
             ctx.beginPath();
             ctx.moveTo(this.points[0].actualX(), this.points[0].actualY());
@@ -209,7 +225,9 @@ class Plane3D {
         // According to obliczeniowo.com.pl/61
         let x = w1.y * w2.z - w1.z * w2.y;
         let y = w1.z * w2.x - w1.x * w2.z;
-        let z = w1.z * w2.y - w1.y * w2.z;
+        let z = w1.x * w2.y - w1.y * w2.x;
+
+        console.log(w1, w2, x, y, z);
 
         return new Vector3D(x, y, z);
     }
@@ -223,11 +241,15 @@ class Plane3D {
         return new Point3D(x, y, z);
     }
 
-    project() {
+    project(observer) {
+        let isVisible = this.normalLine != null && this.normalLine.isFacing(observer);
+
+        console.log(this.normalLine);
+
         let points2D = this.points.map((point) => point.project());
         let center2D = this.center != null ? this.center.project() : null;
         let normal2D = this.normal != null ? this.normalLine.project() : null;
-        return new Plane2D(points2D, center2D, normal2D);
+        return new Plane2D(points2D, center2D, normal2D, isVisible);
     }
 
     rotate(angleX, angleY, angleZ, center) {
@@ -236,6 +258,9 @@ class Plane3D {
         }
         if(this.center != null) {
             this.center.rotate(angleX, angleY, angleZ, center);
+        }
+        if(this.normalLine != null) {
+            this.normalLine.rotate(angleX, angleY, angleZ, center);
         }
         return this;
     }
@@ -259,7 +284,11 @@ class Vector3D {
     toLine(startPoint) {
         if(startPoint == null) return null;
 
-        return new Line3D(startPoint, new Point3D(startPoint.x + this.x, startPoint.y + this.y, startPoint.z + this.z));
+        return new Line3D(startPoint.clone(), new Point3D(startPoint.x + this.x, startPoint.y + this.y, startPoint.z + this.z));
+    }
+
+    length() {
+        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
 }
 
@@ -269,9 +298,9 @@ points = []
 }*/
 
 points.push(new Point3D(0.5,0.5, 2));
-points.push(new Point3D(-0.5,0.5, 2));
-points.push(new Point3D(-0.5,-0.5, 2));
-points.push(new Point3D(0.5,-0.5, 2));
+points.push(new Point3D(-0.7,0.5, 2));
+points.push(new Point3D(-0.7,-0.7, 2));
+points.push(new Point3D(0.5,-0.7, 2));
 
 //let line = new Line3D(points[0], points[1]);
 
@@ -279,11 +308,12 @@ let plane = new Plane3D(points);
 
 const deg2rad = Math.PI / 180;
 let counter = 0;
-const stepZ = 3;
-const stepX = 1;
-const stepY = 2;
+const stepZ = 0 / 5;
+const stepX = 1 / 5;
+const stepY = 3 / 5;
 
 const rotationCenter = new Point3D(0,0,3);
+const observer = new Point3D(0,0,2);
 
 const bkStyle = 'lightgray';
 const pointStyle = 'red';
@@ -296,7 +326,7 @@ function drawLoop() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     plane.rotate(stepX * deg2rad, stepY * deg2rad, stepZ * deg2rad, rotationCenter)
-        .project().draw(pointStyle, lineStyle, fillStyle, true, true, true);
+        .project(observer).draw(pointStyle, lineStyle, fillStyle, true, true, true);
 
     /*for (let point of points) {
         point
@@ -307,7 +337,7 @@ function drawLoop() {
 
     counter ++;
 
-    if(counter < 1000) {
+    if(counter < 10000) {
         setTimeout(drawLoop, 1000 / 60);
     } else {
         console.log("END (drawLoop)");
