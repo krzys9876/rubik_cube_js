@@ -396,8 +396,41 @@ class RubikCube {
     }
 
     #generateCubes() {
-        let cube1 = Cube.generate(this.center,this.size,this.size,this.size, this.styles);
-        return [cube1];
+        let generated = [];
+        let singleCubeSize = this.size / 3;
+
+        generated.push(Cube.generate(this.center,
+            singleCubeSize,singleCubeSize,singleCubeSize,
+            [globalStyle,globalStyle,globalStyle,globalStyle,globalStyle,globalStyle]));
+        generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, 0, -singleCubeSize)),
+            singleCubeSize,singleCubeSize,singleCubeSize,
+            [this.styles[0],globalStyle,globalStyle,globalStyle,globalStyle,globalStyle]));
+        generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, singleCubeSize, -singleCubeSize)),
+            singleCubeSize,singleCubeSize,singleCubeSize,
+            [this.styles[0],globalStyle,this.styles[2],globalStyle,globalStyle,globalStyle]));
+        generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, -singleCubeSize, -singleCubeSize)),
+            singleCubeSize,singleCubeSize,singleCubeSize,
+            [this.styles[0],globalStyle,globalStyle,this.styles[3],globalStyle,globalStyle]));
+        generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, 0, -singleCubeSize)),
+            singleCubeSize,singleCubeSize,singleCubeSize,
+            [this.styles[0],globalStyle,globalStyle,globalStyle,this.styles[4],globalStyle]));
+        generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, 0, -singleCubeSize)),
+            singleCubeSize,singleCubeSize,singleCubeSize,
+            [this.styles[0],globalStyle,globalStyle,globalStyle,globalStyle,this.styles[5]]));
+        generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, singleCubeSize, -singleCubeSize)),
+            singleCubeSize,singleCubeSize,singleCubeSize,
+            [this.styles[0],globalStyle,this.styles[2],globalStyle,this.styles[4],globalStyle]));
+        generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, singleCubeSize, -singleCubeSize)),
+            singleCubeSize,singleCubeSize,singleCubeSize,
+            [this.styles[0],globalStyle,this.styles[2],globalStyle,globalStyle,this.styles[5]]));
+        generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, -singleCubeSize, -singleCubeSize)),
+            singleCubeSize,singleCubeSize,singleCubeSize,
+            [this.styles[0],globalStyle,globalStyle,this.styles[3],this.styles[4],globalStyle]));
+        generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, -singleCubeSize, -singleCubeSize)),
+            singleCubeSize,singleCubeSize,singleCubeSize,
+            [this.styles[0],globalStyle,globalStyle,this.styles[3],globalStyle,this.styles[5]]));
+
+        return generated;
     }
 
     rotate(angleX, angleY, angleZ, center) {
