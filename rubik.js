@@ -316,6 +316,8 @@ let rotateZ = 0;
 let rotateX = 0;
 let rotateY = 0;
 
+let globalKeyDown = false;
+
 document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowLeft') rotateY = stepY;
     if (event.key === 'ArrowRight') rotateY = -stepY;
@@ -323,6 +325,8 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowDown') rotateX = -stepX;
     if (event.key === ',') rotateZ = stepZ;
     if (event.key === '.') rotateZ = -stepZ;
+
+    globalKeyDown = true;
 });
 
 document.addEventListener('keyup', (event) => {
@@ -332,11 +336,13 @@ document.addEventListener('keyup', (event) => {
     if (event.key === 'ArrowDown') rotateX = 0;
     if (event.key === ',') rotateZ = 0;
     if (event.key === '.') rotateZ = 0;
+
+    globalKeyDown = false;
 });
 
 
 const rotationCenter = new Point3D(0,0,3);
-const observer = new Point3D(0,0,-5);
+const observer = new Point3D(0,0,2);
 
 const bkStyle = 'lightgray';
 const pointStyle = 'red';
@@ -350,6 +356,17 @@ function drawLoop() {
 
     plane.rotate(rotateX * deg2rad, rotateY * deg2rad, rotateZ * deg2rad, rotationCenter)
         .project(observer).draw(pointStyle, lineStyle, fillStyle, true, true, true);
+
+    if(globalKeyDown) {
+        console.log("start: ",
+            Math.round(plane.normalLine.lineStart.x * 1000)/1000,
+            Math.round(plane.normalLine.lineStart.y * 1000)/1000,
+            Math.round(plane.normalLine.lineStart.z * 1000)/1000,
+            "end: "+
+            Math.round(plane.normalLine.lineEnd.x * 1000)/1000,
+            Math.round(plane.normalLine.lineEnd.y * 1000)/1000,
+            Math.round(plane.normalLine.lineEnd.z * 1000)/1000);
+    }
 
     /*for (let point of points) {
         point
