@@ -15,6 +15,8 @@ class Style {
     }
 }
 
+const globalStyle = new Style('black', 'black', null);
+
 class Point2D {
     static #size = 5;
     x;
@@ -51,7 +53,7 @@ class Point3D {
     z;
     style;
 
-    constructor(x, y, z, style) {
+    constructor(x, y, z, style = globalStyle) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -318,7 +320,52 @@ class Vector3D {
     }
 }
 
-const globalStyle = new Style('black', 'black', null);
+class Cube {
+    points = [];
+    styles = [];
+    planes = [];
+
+    constructor(points, styles) {
+        if(points.length !== 8 || styles.length !== 6) throw new Error("Cube requires exactly 8 points and 6 styles");
+
+        this.points = points;
+        this.styles = styles;
+
+        /* The points should be arranged in the following order:
+            1---------0
+            |\       /|
+            | 5-----4 |
+            | |     | |
+            | 6-----7 |
+            |/       \|
+            2---------3
+         */
+
+        this.planes.push(new Plane3D([this.points[0].clone(), this.points[1].clone(), this.points[2].clone(), this.points[3].clone()], styles[0])); // front
+        this.planes.push(new Plane3D([this.points[7].clone(), this.points[6].clone(), this.points[5].clone(), this.points[4].clone()], styles[1])); // back
+        this.planes.push(new Plane3D([this.points[4].clone(), this.points[5].clone(), this.points[1].clone(), this.points[0].clone()], styles[2])); // top
+        this.planes.push(new Plane3D([this.points[3].clone(), this.points[2].clone(), this.points[6].clone(), this.points[7].clone()], styles[3])); // bottom
+        this.planes.push(new Plane3D([this.points[1].clone(), this.points[5].clone(), this.points[6].clone(), this.points[2].clone()], styles[4])); // left
+        this.planes.push(new Plane3D([this.points[4].clone(), this.points[0].clone(), this.points[3].clone(), this.points[7].clone()], styles[5])); // right
+    }
+
+    rotate(angleX, angleY, angleZ, center) {
+        for (let plane of this.planes) plane.rotate(angleX, angleY, angleZ, center)
+    }
+
+    draw(observer) {
+        this.planes.sort((a, b) => {
+            let distA = Vector3D.fromPoints(observer, a.center).length();
+            let distB = Vector3D.fromPoints(observer, b.center).length();
+            return distB - distA;
+        });
+
+        for (let plane of this.planes) {
+            plane.project(observer).draw(false, true, true);
+        }
+    }
+}
+
 const redStyle = new Style('black', 'black', 'red');
 const yellowStyle = new Style('black', 'black', 'yellow');
 const blueStyle = new Style('black', 'black', 'blue');
@@ -327,31 +374,18 @@ const greenStyle = new Style('black', 'black', 'green');
 const orangeStyle = new Style('black', 'black', 'orange');
 
 let points = []
-/*for (let i = 0; i < 2; i++) {
-    points.push(new Point3D(0.5, 0.5, 0.1 + i / 20));
-}*/
 
-points.push(new Point3D(0.5,0.5, 2.5, globalStyle));
-points.push(new Point3D(-0.7,0.5, 2.5, globalStyle));
-points.push(new Point3D(-0.7,-0.7, 2.5, globalStyle));
-points.push(new Point3D(0.5,-0.7, 2.5, globalStyle));
+points.push(new Point3D(0.5,0.5, 2.5));
+points.push(new Point3D(-0.7,0.5, 2.5));
+points.push(new Point3D(-0.7,-0.7, 2.5));
+points.push(new Point3D(0.5,-0.7, 2.5));
 
-points.push(new Point3D(0.5,0.5, 3.7, globalStyle));
-points.push(new Point3D(-0.7,0.5, 3.7, globalStyle));
-points.push(new Point3D(-0.7,-0.7, 3.7, globalStyle));
-points.push(new Point3D(0.5,-0.7, 3.7, globalStyle));
+points.push(new Point3D(0.5,0.5, 3.7));
+points.push(new Point3D(-0.7,0.5, 3.7));
+points.push(new Point3D(-0.7,-0.7, 3.7));
+points.push(new Point3D(0.5,-0.7, 3.7));
 
-//let line = new Line3D(points[0], points[1]);
-
-let planes = [];
-
-
-planes.push(new Plane3D([points[7].clone(), points[6].clone(), points[5].clone(), points[4].clone()], redStyle)); // back
-planes.push(new Plane3D([points[4].clone(), points[5].clone(), points[1].clone(), points[0].clone()], yellowStyle)); // top
-planes.push(new Plane3D([points[3].clone(), points[2].clone(), points[6].clone(), points[7].clone()], blueStyle)); // bottom
-planes.push(new Plane3D([points[1].clone(), points[5].clone(), points[6].clone(), points[2].clone()], whiteStyle)); // left
-planes.push(new Plane3D([points[4].clone(), points[0].clone(), points[3].clone(), points[7].clone()], greenStyle)); // right
-planes.push(new Plane3D([points[0].clone(), points[1].clone(), points[2].clone(), points[3].clone()], globalStyle)); // front
+let cube = new Cube(points, [redStyle, yellowStyle, blueStyle, whiteStyle, greenStyle, orangeStyle]);
 
 const deg2rad = Math.PI / 180;
 let counter = 0;
@@ -398,37 +432,8 @@ function drawLoop() {
     ctx.fillStyle = bkStyle;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    for (let plane of planes) plane.rotate(rotateX * deg2rad, rotateY * deg2rad, rotateZ * deg2rad, rotationCenter)
-
-    planes.sort((a, b) => {
-        let distA = Vector3D.fromPoints(observer, a.center).length();
-        let distB = Vector3D.fromPoints(observer, b.center).length();
-        return distB - distA;
-    });
-
-
-    for (let plane of planes) {
-        plane.project(observer).draw(false, true, true);
-
-        /*if (globalKeyDown) {
-            console.log("start: ",
-                Math.round(plane.normalLine.lineStart.x * 1000) / 1000,
-                Math.round(plane.normalLine.lineStart.y * 1000) / 1000,
-                Math.round(plane.normalLine.lineStart.z * 1000) / 1000,
-                "end: " +
-                Math.round(plane.normalLine.lineEnd.x * 1000) / 1000,
-                Math.round(plane.normalLine.lineEnd.y * 1000) / 1000,
-                Math.round(plane.normalLine.lineEnd.z * 1000) / 1000);
-        }*/
-
-    }
-
-    /*for (let point of points) {
-        point
-            .rotate(stepX * deg2rad, stepY * deg2rad, stepZ * deg2rad)
-            .project().draw();
-    }*/
-
+    cube.rotate(rotateX * deg2rad, rotateY * deg2rad, rotateZ * deg2rad, rotationCenter);
+    cube.draw(observer);
 
     counter ++;
 
