@@ -9,6 +9,8 @@ class RubikCube {
     size;
     styles;
     cubes = [];
+    static topSideIndices = [2, 6, 7, 11, 15, 16, 19, 20, 21 ];
+    static bottomSideIndices = [3, 8, 9, 12, 17, 18, 22, 23, 24 ];
 
     constructor(center, size, styles) {
         this.center = center;
@@ -21,95 +23,122 @@ class RubikCube {
         let generated = [];
         let singleCubeSize = this.size / 3;
 
+        // 0
         generated.push(Cube.generate(this.center,
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,globalStyle,globalStyle,globalStyle,globalStyle,globalStyle]));
         // Front
+        // 1
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, 0, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [this.styles[0],globalStyle,globalStyle,globalStyle,globalStyle,globalStyle]));
+        // 2
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, singleCubeSize, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [this.styles[0],globalStyle,this.styles[2],globalStyle,globalStyle,globalStyle]));
+        // 3
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, -singleCubeSize, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [this.styles[0],globalStyle,globalStyle,this.styles[3],globalStyle,globalStyle]));
+        // 4
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, 0, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [this.styles[0],globalStyle,globalStyle,globalStyle,this.styles[4],globalStyle]));
+        // 5
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, 0, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [this.styles[0],globalStyle,globalStyle,globalStyle,globalStyle,this.styles[5]]));
+        // 6
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, singleCubeSize, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [this.styles[0],globalStyle,this.styles[2],globalStyle,this.styles[4],globalStyle]));
+        // 7
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, singleCubeSize, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [this.styles[0],globalStyle,this.styles[2],globalStyle,globalStyle,this.styles[5]]));
+        // 8
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, -singleCubeSize, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [this.styles[0],globalStyle,globalStyle,this.styles[3],this.styles[4],globalStyle]));
+        // 9
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, -singleCubeSize, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [this.styles[0],globalStyle,globalStyle,this.styles[3],globalStyle,this.styles[5]]));
 
         // Back
+        // 10
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, 0, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,this.styles[1],globalStyle,globalStyle,globalStyle,globalStyle]));
+        // 11
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, singleCubeSize, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,this.styles[1],this.styles[2],globalStyle,globalStyle,globalStyle]));
+        // 12
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, -singleCubeSize, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,this.styles[1],globalStyle,this.styles[3],globalStyle,globalStyle]));
+        // 13
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, 0, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,this.styles[1],globalStyle,globalStyle,this.styles[4],globalStyle]));
+        // 14
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, 0, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,this.styles[1],globalStyle,globalStyle,globalStyle,this.styles[5]]));
+        // 15
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, singleCubeSize, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,this.styles[1],this.styles[2],globalStyle,this.styles[4],globalStyle]));
+        // 16
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, singleCubeSize, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,this.styles[1],this.styles[2],globalStyle,globalStyle,this.styles[5]]));
+        // 17
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, -singleCubeSize, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,this.styles[1],globalStyle,this.styles[3],this.styles[4],globalStyle]));
+        // 18
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, -singleCubeSize, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,this.styles[1],globalStyle,this.styles[3],globalStyle,this.styles[5]]));
 
         // Top
+        // 19
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, singleCubeSize, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,globalStyle,this.styles[2],globalStyle,globalStyle,globalStyle]));
+        // 20
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, singleCubeSize, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,globalStyle,this.styles[2],globalStyle,this.styles[4],globalStyle]));
+        // 21
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, singleCubeSize, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,globalStyle,this.styles[2],globalStyle,globalStyle,this.styles[5]]));
 
         // Bottom
+        // 22
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, -singleCubeSize, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,globalStyle,globalStyle,this.styles[3],globalStyle,globalStyle]));
+        // 23
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, -singleCubeSize, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,globalStyle,globalStyle,this.styles[3],this.styles[4],globalStyle]));
+        // 24
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, -singleCubeSize, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,globalStyle,globalStyle,this.styles[3],globalStyle,this.styles[5]]));
 
         // Left
+        // 25
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, 0, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,globalStyle,globalStyle,globalStyle,this.styles[4],globalStyle]));
 
         // Right
+        // 26
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, 0, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,globalStyle,globalStyle,globalStyle,globalStyle,this.styles[5]]));
@@ -143,6 +172,24 @@ class RubikCube {
             plane.project(observer).draw(false, true, true);
         }
     }
+
+    moveTop(counterClockwise) {
+        let rotationCenter = this.center.clone().moveBy(new Vector3D(0, this.size / 3, 0));
+        let rotationMatrix = Scene.rotationMatrixY(90 * Scene.deg2rad);
+        this.#moveSide(RubikCube.topSideIndices, rotationMatrix, rotationCenter, counterClockwise);
+    }
+
+    moveBottom(counterClockwise) {
+        let rotationCenter = this.center.clone().moveBy(new Vector3D(0, -this.size / 3, 0));
+        let rotationMatrix = Scene.rotationMatrixY(90 * Scene.deg2rad);
+        this.#moveSide(RubikCube.bottomSideIndices, rotationMatrix, rotationCenter, counterClockwise);
+    }
+
+    #moveSide(cubeIndices, matrix, center, counterClockwise) {
+        for (let i of cubeIndices) {
+            this.cubes[i].rotate(matrix, center, counterClockwise);
+        }
+    }
 }
 
 const redStyle = new Style('black', 'black', 'red');
@@ -167,6 +214,8 @@ const stepY = 3 / 5;
 let rotateZ = 0;
 let rotateX = 0;
 let rotateY = 0;
+let moveTop = 0;
+let moveBottom = 0;
 
 let globalKeyDown = false;
 
@@ -177,6 +226,10 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowDown') rotateX = -stepX;
     if (event.key === ',') rotateZ = stepZ;
     if (event.key === '.') rotateZ = -stepZ;
+    if (event.key === 'q') moveTop = -1;
+    if (event.key === 'w') moveTop = 1;
+    if (event.key === 'a') moveBottom = -1;
+    if (event.key === 's') moveBottom = 1;
 
     globalKeyDown = true;
 });
@@ -206,6 +259,16 @@ function drawLoop() {
     cube.rotate(scene.rotationMatrix, rotationCenter, false);
     cube.draw(observer);
     cube.rotate(scene.rotationMatrix, rotationCenter, true);
+
+    if(moveTop !== 0) {
+        cube.moveTop(moveTop > 0);
+        moveTop = 0;
+    }
+
+    if(moveBottom !== 0) {
+        cube.moveBottom(moveBottom > 0);
+        moveBottom = 0;
+    }
 
     counter ++;
 
