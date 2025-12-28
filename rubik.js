@@ -316,11 +316,10 @@ let planes = [];
 
 
 planes.push(new Plane3D([points[7].clone(), points[6].clone(), points[5].clone(), points[4].clone()])); // back
-
 planes.push(new Plane3D([points[4].clone(), points[5].clone(), points[1].clone(), points[0].clone()])); // top
-
 planes.push(new Plane3D([points[3].clone(), points[2].clone(), points[6].clone(), points[7].clone()])); // bottom
-
+planes.push(new Plane3D([points[1].clone(), points[5].clone(), points[6].clone(), points[2].clone()])); // left
+planes.push(new Plane3D([points[4].clone(), points[0].clone(), points[3].clone(), points[7].clone()])); // right
 planes.push(new Plane3D([points[0].clone(), points[1].clone(), points[2].clone(), points[3].clone()])); // front
 
 const deg2rad = Math.PI / 180;
