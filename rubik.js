@@ -191,7 +191,7 @@ class Plane2D {
     }
 
     draw(drawPoints = false, drawLines = false, fill = true) {
-        if(this.isVisible && fill && this.points.length > 0) {
+        if(this.isVisible && fill && this.style.fillStyle && this.points.length > 0) {
             ctx.fillStyle = this.style.fillStyle;
             ctx.beginPath();
             ctx.moveTo(this.points[0].actualX(), this.points[0].actualY());
@@ -218,7 +218,7 @@ class Plane2D {
             }
         }
 
-        if(drawPoints && this.center != null) {
+        if(drawPoints && this.center) {
             this.center.draw();
         }
     }
@@ -236,7 +236,7 @@ class Plane3D {
         this.style = style;
         this.normal = this.#calculateNormal();
         this.center = this.#calculateCenter();
-        this.normalLine = this.normal != null ? this.normal.toLine(this.center) : null;
+        this.normalLine = this.normal ? this.normal.toLine(this.center) : null;
     }
 
     #calculateNormal() {
@@ -268,13 +268,13 @@ class Plane3D {
     }
 
     project(observer) {
-        let isVisible = this.normalLine != null && this.normalLine.isFacing(observer);
+        let isVisible = this.normalLine && this.normalLine.isFacing(observer);
 
         //console.log(this.normalLine);
 
         let points2D = this.points.map((point) => point.project());
-        let center2D = this.center != null ? this.center.project() : null;
-        let normal2D = this.normal != null ? this.normalLine.project() : null;
+        let center2D = this.center ? this.center.project() : null;
+        let normal2D = this.normal ? this.normalLine.project() : null;
         return new Plane2D(points2D, center2D, normal2D, isVisible, this.style);
     }
 
@@ -282,10 +282,10 @@ class Plane3D {
         for(let point of this.points) {
             point.rotate(angleX, angleY, angleZ, center);
         }
-        if(this.center != null) {
+        if(this.center) {
             this.center.rotate(angleX, angleY, angleZ, center);
         }
-        if(this.normalLine != null) {
+        if(this.normalLine) {
             this.normalLine.rotate(angleX, angleY, angleZ, center);
         }
         return this;
@@ -308,7 +308,7 @@ class Vector3D {
     }
 
     toLine(startPoint) {
-        if(startPoint == null) return null;
+        if(!startPoint) return null;
 
         return new Line3D(startPoint.clone(), new Point3D(startPoint.x + this.x, startPoint.y + this.y, startPoint.z + this.z), startPoint.style);
     }
@@ -318,7 +318,7 @@ class Vector3D {
     }
 }
 
-const globalStyle = new Style('red', 'blue', 'purple');
+const globalStyle = new Style('red', 'blue', null);
 const redStyle = new Style('black', 'black', 'red');
 const yellowStyle = new Style('black', 'black', 'yellow');
 const blueStyle = new Style('black', 'black', 'blue');
@@ -351,7 +351,7 @@ planes.push(new Plane3D([points[4].clone(), points[5].clone(), points[1].clone()
 planes.push(new Plane3D([points[3].clone(), points[2].clone(), points[6].clone(), points[7].clone()], blueStyle)); // bottom
 planes.push(new Plane3D([points[1].clone(), points[5].clone(), points[6].clone(), points[2].clone()], whiteStyle)); // left
 planes.push(new Plane3D([points[4].clone(), points[0].clone(), points[3].clone(), points[7].clone()], greenStyle)); // right
-planes.push(new Plane3D([points[0].clone(), points[1].clone(), points[2].clone(), points[3].clone()], orangeStyle)); // front
+planes.push(new Plane3D([points[0].clone(), points[1].clone(), points[2].clone(), points[3].clone()], globalStyle)); // front
 
 const deg2rad = Math.PI / 180;
 let counter = 0;
@@ -408,7 +408,7 @@ function drawLoop() {
 
 
     for (let plane of planes) {
-        plane.project(observer).draw(false, false, true);
+        plane.project(observer).draw(false, true, true);
 
         /*if (globalKeyDown) {
             console.log("start: ",
