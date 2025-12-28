@@ -364,6 +364,22 @@ class Cube {
             plane.project(observer).draw(false, true, true);
         }
     }
+
+    static generate(center, sizeX, sizeY, sizeZ, styles) {
+        let points = []
+
+        points.push(new Point3D(center.x + sizeX / 2,center.y + sizeY / 2, center.z - sizeZ / 2));
+        points.push(new Point3D(center.x - sizeX / 2,center.y + sizeY / 2, center.z - sizeZ / 2));
+        points.push(new Point3D(center.x - sizeX / 2,center.y - sizeY / 2, center.z - sizeZ / 2));
+        points.push(new Point3D(center.x + sizeX / 2,center.y - sizeY / 2, center.z - sizeZ / 2));
+
+        points.push(new Point3D(center.x + sizeX / 2,center.y + sizeY / 2, center.z + sizeZ / 2));
+        points.push(new Point3D(center.x - sizeX / 2,center.y + sizeY / 2, center.z + sizeZ / 2));
+        points.push(new Point3D(center.x - sizeX / 2,center.y - sizeY / 2, center.z + sizeZ / 2));
+        points.push(new Point3D(center.x + sizeX / 2,center.y - sizeY / 2, center.z + sizeZ / 2));
+
+        return new Cube(points, styles);
+    }
 }
 
 const redStyle = new Style('black', 'black', 'red');
@@ -373,19 +389,12 @@ const whiteStyle = new Style('black', 'black', 'white');
 const greenStyle = new Style('black', 'black', 'green');
 const orangeStyle = new Style('black', 'black', 'orange');
 
-let points = []
+const rotationCenter = new Point3D(0,0,3);
+const observer = new Point3D(0,0,0);
 
-points.push(new Point3D(0.5,0.5, 2.5));
-points.push(new Point3D(-0.7,0.5, 2.5));
-points.push(new Point3D(-0.7,-0.7, 2.5));
-points.push(new Point3D(0.5,-0.7, 2.5));
+let cubeCenter = rotationCenter;
 
-points.push(new Point3D(0.5,0.5, 3.7));
-points.push(new Point3D(-0.7,0.5, 3.7));
-points.push(new Point3D(-0.7,-0.7, 3.7));
-points.push(new Point3D(0.5,-0.7, 3.7));
-
-let cube = new Cube(points, [redStyle, yellowStyle, blueStyle, whiteStyle, greenStyle, orangeStyle]);
+let cube = Cube.generate(cubeCenter,1,1,1, [redStyle, yellowStyle, blueStyle, whiteStyle, greenStyle, orangeStyle]);
 
 const deg2rad = Math.PI / 180;
 let counter = 0;
@@ -422,8 +431,6 @@ document.addEventListener('keyup', (event) => {
 });
 
 
-const rotationCenter = new Point3D(0,0,3);
-const observer = new Point3D(0,0,0);
 
 const bkStyle = 'lightgray';
 
