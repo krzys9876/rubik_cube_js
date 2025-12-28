@@ -186,9 +186,9 @@ class Plane2D {
                 let endPointIndex = (i+1) % this.points.length;
                 new Line2D(this.points[i], this.points[endPointIndex]).draw(lineStyle, pointStyle, drawPoints);
             }
-            if(this.normalLine != null) {
+            /*if(this.normalLine != null) {
                 this.normalLine.draw(lineStyle, pointStyle, drawPoints);
-            }
+            }*/
         }
 
         if(!drawLines && drawPoints) {
@@ -305,10 +305,10 @@ points.push(new Point3D(-0.7,0.5, 2.5));
 points.push(new Point3D(-0.7,-0.7, 2.5));
 points.push(new Point3D(0.5,-0.7, 2.5));
 
-points.push(new Point3D(0.5,0.5, 3.5));
-points.push(new Point3D(-0.7,0.5, 3.5));
-points.push(new Point3D(-0.7,-0.7, 3.5));
-points.push(new Point3D(0.5,-0.7, 3.5));
+points.push(new Point3D(0.5,0.5, 3.7));
+points.push(new Point3D(-0.7,0.5, 3.7));
+points.push(new Point3D(-0.7,-0.7, 3.7));
+points.push(new Point3D(0.5,-0.7, 3.7));
 
 //let line = new Line3D(points[0], points[1]);
 
@@ -370,9 +370,17 @@ function drawLoop() {
     ctx.fillStyle = bkStyle;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    for (let plane of planes) plane.rotate(rotateX * deg2rad, rotateY * deg2rad, rotateZ * deg2rad, rotationCenter)
+
+    planes.sort((a, b) => {
+        let distA = Vector3D.fromPoints(observer, a.center).length();
+        let distB = Vector3D.fromPoints(observer, b.center).length();
+        return distB - distA;
+    });
+
+
     for (let plane of planes) {
-        plane.rotate(rotateX * deg2rad, rotateY * deg2rad, rotateZ * deg2rad, rotationCenter)
-            .project(observer).draw(pointStyle, lineStyle, fillStyle, true, true, true);
+        plane.project(observer).draw(pointStyle, lineStyle, fillStyle, true, true, true);
 
         /*if (globalKeyDown) {
             console.log("start: ",
