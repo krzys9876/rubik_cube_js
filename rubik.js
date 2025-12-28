@@ -382,6 +382,48 @@ class Cube {
     }
 }
 
+class RubikCube {
+    center;
+    size;
+    styles;
+    cubes = [];
+
+    constructor(center, size, styles) {
+        this.center = center;
+        this.size = size;
+        this.styles = styles;
+        this.cubes = this.#generateCubes();
+    }
+
+    #generateCubes() {
+        let cube1 = Cube.generate(this.center,this.size,this.size,this.size, this.styles);
+        return [cube1];
+    }
+
+    rotate(angleX, angleY, angleZ, center) {
+        for (let cube of this.cubes) cube.rotate(angleX, angleY, angleZ, center)
+    }
+
+    draw(observer) {
+        // Draw all cubes' planes instead of drawing cubes. We must sort planes anyway in order to properly render image.
+        let allPlanes = [];
+        for (let cube of this.cubes) {
+            for (let plane of cube.planes) {
+                allPlanes.push(plane);
+            }
+        }
+        allPlanes.sort((a, b) => {
+            let distA = Vector3D.fromPoints(observer, a.center).length();
+            let distB = Vector3D.fromPoints(observer, b.center).length();
+            return distB - distA;
+        });
+
+        for (let plane of allPlanes) {
+            plane.project(observer).draw(false, true, true);
+        }
+    }
+}
+
 const redStyle = new Style('black', 'black', 'red');
 const yellowStyle = new Style('black', 'black', 'yellow');
 const blueStyle = new Style('black', 'black', 'blue');
@@ -394,7 +436,7 @@ const observer = new Point3D(0,0,0);
 
 let cubeCenter = rotationCenter.clone().moveBy(new Vector3D(-0.2, 0.3, 0));
 
-let cube = Cube.generate(cubeCenter,1,1,1, [redStyle, yellowStyle, blueStyle, whiteStyle, greenStyle, orangeStyle]);
+let cube = new RubikCube(cubeCenter, 1, [redStyle, yellowStyle, blueStyle, whiteStyle, greenStyle, orangeStyle]);
 
 const deg2rad = Math.PI / 180;
 let counter = 0;
@@ -441,6 +483,7 @@ function drawLoop() {
 
     cube.rotate(rotateX * deg2rad, rotateY * deg2rad, rotateZ * deg2rad, rotationCenter);
     cube.draw(observer);
+
 
     counter ++;
 
