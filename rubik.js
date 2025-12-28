@@ -3,18 +3,32 @@ console.log("START");
 const canvas = document.getElementById('drawing');
 const ctx = canvas.getContext('2d');
 
+class Style {
+    pointStyle = 'red';
+    lineStyle = 'blue';
+    fillStyle = 'purple';
+
+    constructor(pointStyle, lineStyle, fillStyle) {
+        this.pointStyle = pointStyle;
+        this.lineStyle = lineStyle;
+        this.fillStyle = fillStyle;
+    }
+}
+
 class Point2D {
     static #size = 5;
-    x = 0;
-    y = 0;
+    x;
+    y;
+    style;
 
-    constructor(x, y) {
+    constructor(x, y, style) {
         this.x = x;
         this.y = y;
+        this.style = style;
     }
 
-    draw(pointStyle) {
-        ctx.fillStyle = pointStyle;
+    draw() {
+        ctx.fillStyle = this.style.pointStyle;
         ctx.fillRect(this.actualX() - Point2D.#size / 2, this.actualY() - Point2D.#size / 2, Point2D.#size, Point2D.#size);
     }
 
@@ -32,21 +46,22 @@ class Point2D {
 
 class Point3D {
     static #focalLength = 7;
+    x;
+    y;
+    z;
+    style;
 
-    x = 0;
-    y = 0;
-    z = 0;
-
-    constructor(x, y, z) {
+    constructor(x, y, z, style) {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.style = style;
     }
 
     project() {
         // Close Z makes point with infinite X and Y, very far Z makes point of X=0 and Y=0
         let zRatio = Point3D.#focalLength / (this.z + Point3D.#focalLength);
-        return new Point2D(this.x * zRatio, this.y * zRatio);
+        return new Point2D(this.x * zRatio, this.y * zRatio, this.style);
     }
 
     #rotateZ(angle) {
@@ -99,27 +114,29 @@ class Point3D {
     }
 
     clone() {
-        return new Point3D(this.x, this.y, this.z);
+        return new Point3D(this.x, this.y, this.z, this.style);
     }
 }
 
 class Line2D {
-    lineStart = null;
-    lineEnd = null;
+    lineStart;
+    lineEnd;
+    style;
 
-    constructor(lineStart, lineEnd) {
+    constructor(lineStart, lineEnd, style) {
         this.lineStart = lineStart;
         this.lineEnd = lineEnd;
+        this.style = style;
     }
 
-    draw(lineStyle, pointStyle, drawPoints = false) {
+    draw(drawPoints = false) {
         if(drawPoints) {
-            this.lineStart.draw(pointStyle);
-            this.lineEnd.draw(pointStyle);
+            this.lineStart.draw();
+            this.lineEnd.draw();
         }
 
         ctx.beginPath();
-        ctx.strokeStyle = lineStyle;
+        ctx.strokeStyle = this.style.lineStyle;
         ctx.lineWidth = 2;
         ctx.moveTo(this.lineStart.actualX(), this.lineStart.actualY());
         ctx.lineTo(this.lineEnd.actualX(), this.lineEnd.actualY());
@@ -128,16 +145,18 @@ class Line2D {
 }
 
 class Line3D {
-    lineStart = null;
-    lineEnd = null;
+    lineStart;
+    lineEnd;
+    style;
 
-    constructor(lineStart, lineEnd) {
+    constructor(lineStart, lineEnd, style) {
         this.lineStart = lineStart;
         this.lineEnd = lineEnd;
+        this.style = style;
     }
 
     project() {
-        return new Line2D(this.lineStart.project(), this.lineEnd.project());
+        return new Line2D(this.lineStart.project(), this.lineEnd.project(), this.style);
     }
 
     rotate(angleX, angleY, angleZ, center) {
@@ -161,17 +180,19 @@ class Plane2D {
     center = null;
     normalLine = null;
     isVisible = true;
+    style;
 
-    constructor(points, center, normalLine, isVisible) {
+    constructor(points, center, normalLine, isVisible, style) {
         this.points = points;
         this.center = center;
         this.normalLine = normalLine;
         this.isVisible = isVisible;
+        this.style = style;
     }
 
-    draw(pointStyle, lineStyle, fillStyle, drawPoints = false, drawLines = false, fill = true) {
+    draw(drawPoints = false, drawLines = false, fill = true) {
         if(this.isVisible && fill && this.points.length > 0) {
-            ctx.fillStyle = fillStyle;
+            ctx.fillStyle = this.style.fillStyle;
             ctx.beginPath();
             ctx.moveTo(this.points[0].actualX(), this.points[0].actualY());
             for(let i=1; i<this.points.length; i++) {
@@ -184,7 +205,7 @@ class Plane2D {
         if(drawLines) {
             for(let i=0; i<this.points.length; i++) {
                 let endPointIndex = (i+1) % this.points.length;
-                new Line2D(this.points[i], this.points[endPointIndex]).draw(lineStyle, pointStyle, drawPoints);
+                new Line2D(this.points[i], this.points[endPointIndex], this.style).draw(drawPoints);
             }
             /*if(this.normalLine != null) {
                 this.normalLine.draw(lineStyle, pointStyle, drawPoints);
@@ -193,12 +214,12 @@ class Plane2D {
 
         if(!drawLines && drawPoints) {
             for(let point of this.points) {
-                point.draw(pointStyle);
+                point.draw();
             }
         }
 
         if(drawPoints && this.center != null) {
-            this.center.draw(pointStyle);
+            this.center.draw();
         }
     }
 }
@@ -208,9 +229,11 @@ class Plane3D {
     normal = null;
     normalLine = null;
     center = null;
+    style;
 
-    constructor(points) {
+    constructor(points, style) {
         this.points = points;
+        this.style = style;
         this.normal = this.#calculateNormal();
         this.center = this.#calculateCenter();
         this.normalLine = this.normal != null ? this.normal.toLine(this.center) : null;
@@ -241,7 +264,7 @@ class Plane3D {
 
         console.log(x, y, z);
 
-        return new Point3D(x, y, z);
+        return new Point3D(x, y, z, this.style);
     }
 
     project(observer) {
@@ -252,7 +275,7 @@ class Plane3D {
         let points2D = this.points.map((point) => point.project());
         let center2D = this.center != null ? this.center.project() : null;
         let normal2D = this.normal != null ? this.normalLine.project() : null;
-        return new Plane2D(points2D, center2D, normal2D, isVisible);
+        return new Plane2D(points2D, center2D, normal2D, isVisible, this.style);
     }
 
     rotate(angleX, angleY, angleZ, center) {
@@ -287,7 +310,7 @@ class Vector3D {
     toLine(startPoint) {
         if(startPoint == null) return null;
 
-        return new Line3D(startPoint.clone(), new Point3D(startPoint.x + this.x, startPoint.y + this.y, startPoint.z + this.z));
+        return new Line3D(startPoint.clone(), new Point3D(startPoint.x + this.x, startPoint.y + this.y, startPoint.z + this.z), startPoint.style);
     }
 
     length() {
@@ -295,32 +318,40 @@ class Vector3D {
     }
 }
 
+const globalStyle = new Style('red', 'blue', 'purple');
+const redStyle = new Style('black', 'black', 'red');
+const yellowStyle = new Style('black', 'black', 'yellow');
+const blueStyle = new Style('black', 'black', 'blue');
+const whiteStyle = new Style('black', 'black', 'white');
+const greenStyle = new Style('black', 'black', 'green');
+const orangeStyle = new Style('black', 'black', 'orange');
+
 let points = []
 /*for (let i = 0; i < 2; i++) {
     points.push(new Point3D(0.5, 0.5, 0.1 + i / 20));
 }*/
 
-points.push(new Point3D(0.5,0.5, 2.5));
-points.push(new Point3D(-0.7,0.5, 2.5));
-points.push(new Point3D(-0.7,-0.7, 2.5));
-points.push(new Point3D(0.5,-0.7, 2.5));
+points.push(new Point3D(0.5,0.5, 2.5, globalStyle));
+points.push(new Point3D(-0.7,0.5, 2.5, globalStyle));
+points.push(new Point3D(-0.7,-0.7, 2.5, globalStyle));
+points.push(new Point3D(0.5,-0.7, 2.5, globalStyle));
 
-points.push(new Point3D(0.5,0.5, 3.7));
-points.push(new Point3D(-0.7,0.5, 3.7));
-points.push(new Point3D(-0.7,-0.7, 3.7));
-points.push(new Point3D(0.5,-0.7, 3.7));
+points.push(new Point3D(0.5,0.5, 3.7, globalStyle));
+points.push(new Point3D(-0.7,0.5, 3.7, globalStyle));
+points.push(new Point3D(-0.7,-0.7, 3.7, globalStyle));
+points.push(new Point3D(0.5,-0.7, 3.7, globalStyle));
 
 //let line = new Line3D(points[0], points[1]);
 
 let planes = [];
 
 
-planes.push(new Plane3D([points[7].clone(), points[6].clone(), points[5].clone(), points[4].clone()])); // back
-planes.push(new Plane3D([points[4].clone(), points[5].clone(), points[1].clone(), points[0].clone()])); // top
-planes.push(new Plane3D([points[3].clone(), points[2].clone(), points[6].clone(), points[7].clone()])); // bottom
-planes.push(new Plane3D([points[1].clone(), points[5].clone(), points[6].clone(), points[2].clone()])); // left
-planes.push(new Plane3D([points[4].clone(), points[0].clone(), points[3].clone(), points[7].clone()])); // right
-planes.push(new Plane3D([points[0].clone(), points[1].clone(), points[2].clone(), points[3].clone()])); // front
+planes.push(new Plane3D([points[7].clone(), points[6].clone(), points[5].clone(), points[4].clone()], redStyle)); // back
+planes.push(new Plane3D([points[4].clone(), points[5].clone(), points[1].clone(), points[0].clone()], yellowStyle)); // top
+planes.push(new Plane3D([points[3].clone(), points[2].clone(), points[6].clone(), points[7].clone()], blueStyle)); // bottom
+planes.push(new Plane3D([points[1].clone(), points[5].clone(), points[6].clone(), points[2].clone()], whiteStyle)); // left
+planes.push(new Plane3D([points[4].clone(), points[0].clone(), points[3].clone(), points[7].clone()], greenStyle)); // right
+planes.push(new Plane3D([points[0].clone(), points[1].clone(), points[2].clone(), points[3].clone()], orangeStyle)); // front
 
 const deg2rad = Math.PI / 180;
 let counter = 0;
@@ -361,9 +392,6 @@ const rotationCenter = new Point3D(0,0,3);
 const observer = new Point3D(0,0,0);
 
 const bkStyle = 'lightgray';
-const pointStyle = 'red';
-const lineStyle = 'blue';
-const fillStyle = 'purple';
 
 function drawLoop() {
 
@@ -380,7 +408,7 @@ function drawLoop() {
 
 
     for (let plane of planes) {
-        plane.project(observer).draw(pointStyle, lineStyle, fillStyle, true, true, true);
+        plane.project(observer).draw(false, false, true);
 
         /*if (globalKeyDown) {
             console.log("start: ",
