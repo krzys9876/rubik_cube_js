@@ -9,8 +9,12 @@ class RubikCube {
     size;
     styles;
     cubes = [];
+
+    //TODO: introduce cubes coordinates, change coordinates when moving sides, select sides dynamically
     static topSideIndices = [2, 6, 7, 11, 15, 16, 19, 20, 21 ];
     static bottomSideIndices = [3, 8, 9, 12, 17, 18, 22, 23, 24 ];
+    static frontSideIndices = [1, 2, 3, 4, 5, 6, 7, 8, 9 ];
+    static backSideIndices = [10, 11, 12, 13, 14, 15, 16, 17, 18 ];
 
     constructor(center, size, styles) {
         this.center = center;
@@ -185,6 +189,18 @@ class RubikCube {
         this.#moveSide(RubikCube.bottomSideIndices, rotationMatrix, rotationCenter, counterClockwise);
     }
 
+    moveFront(counterClockwise) {
+        let rotationCenter = this.center.clone().moveBy(new Vector3D(0, 0, -this.size / 3));
+        let rotationMatrix = Scene.rotationMatrixZ(90 * Scene.deg2rad);
+        this.#moveSide(RubikCube.frontSideIndices, rotationMatrix, rotationCenter, counterClockwise);
+    }
+
+    moveBack(counterClockwise) {
+        let rotationCenter = this.center.clone().moveBy(new Vector3D(0, 0, -this.size / 3));
+        let rotationMatrix = Scene.rotationMatrixZ(90 * Scene.deg2rad);
+        this.#moveSide(RubikCube.backSideIndices, rotationMatrix, rotationCenter, counterClockwise);
+    }
+
     #moveSide(cubeIndices, matrix, center, counterClockwise) {
         for (let i of cubeIndices) {
             this.cubes[i].rotate(matrix, center, counterClockwise);
@@ -216,6 +232,8 @@ let rotateX = 0;
 let rotateY = 0;
 let moveTop = 0;
 let moveBottom = 0;
+let moveFront = 0;
+let moveBack = 0;
 
 let globalKeyDown = false;
 
@@ -230,6 +248,10 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'w') moveTop = 1;
     if (event.key === 'a') moveBottom = -1;
     if (event.key === 's') moveBottom = 1;
+    if (event.key === 'e') moveFront = -1;
+    if (event.key === 'r') moveFront = 1;
+    if (event.key === 'd') moveBack = -1;
+    if (event.key === 'f') moveBack = 1;
 
     globalKeyDown = true;
 });
@@ -268,6 +290,16 @@ function drawLoop() {
     if(moveBottom !== 0) {
         cube.moveBottom(moveBottom > 0);
         moveBottom = 0;
+    }
+
+    if(moveFront !== 0) {
+        cube.moveFront(moveFront > 0);
+        moveFront = 0;
+    }
+
+    if(moveBack !== 0) {
+        cube.moveBack(moveBack > 0);
+        moveBack = 0;
     }
 
     counter ++;
