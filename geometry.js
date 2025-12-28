@@ -48,43 +48,28 @@ export class Point3D {
         return new Point2D(this.x * zRatio, this.y * zRatio, this.style);
     }
 
-    #rotateZ(angle) {
-        let rotated = Point3D.rotateOne({a: this.x, b: this.y}, angle)
-        this.x = rotated.a;
-        this.y = rotated.b;
-        return this;
-    }
-
-    #rotateX(angle) {
-        let rotated = Point3D.rotateOne({a: this.y, b: this.z}, angle)
-        this.y = rotated.a;
-        this.z = rotated.b;
-        return this;
-    }
-
-    #rotateY(angle) {
-        let rotated = Point3D.rotateOne({a: this.z, b: this.x}, angle)
-        this.z = rotated.a;
-        this.x = rotated.b;
-        return this;
-    }
-
-    rotate(angleX, angleY, angleZ, center, reverse) {
+    // Apply a 3x3 rotation matrix to this point
+    rotate(matrix, center, reverse = false) {
         this.moveBy(center, true);
 
-        if(reverse) this.#rotateZ(-angleZ).#rotateY(-angleY).#rotateX(-angleX);
-        else this.#rotateX(angleX).#rotateY(angleY).#rotateZ(angleZ);
+        // Store original values before calculating new ones
+        let oldX = this.x;
+        let oldY = this.y;
+        let oldZ = this.z;
+
+        if(reverse) {
+            // For reverse rotation, we need to transpose the matrix (inverse for rotation matrices)
+            this.x = matrix[0][0] * oldX + matrix[1][0] * oldY + matrix[2][0] * oldZ;
+            this.y = matrix[0][1] * oldX + matrix[1][1] * oldY + matrix[2][1] * oldZ;
+            this.z = matrix[0][2] * oldX + matrix[1][2] * oldY + matrix[2][2] * oldZ;
+        } else {
+            this.x = matrix[0][0] * oldX + matrix[0][1] * oldY + matrix[0][2] * oldZ;
+            this.y = matrix[1][0] * oldX + matrix[1][1] * oldY + matrix[1][2] * oldZ;
+            this.z = matrix[2][0] * oldX + matrix[2][1] * oldY + matrix[2][2] * oldZ;
+        }
 
         this.moveBy(center, false);
         return this;
-    }
-
-    static rotateOne({a, b}, angle) {
-        let cos = Math.cos(angle);
-        let sin = Math.sin(angle);
-        let rotatedA = a * cos - b * sin;
-        let rotatedB = a * sin + b * cos;
-        return {a: rotatedA, b: rotatedB};
     }
 
     moveBy(vector, reverse = false) {
@@ -146,9 +131,9 @@ export class Line3D {
         return new Line2D(this.lineStart.project(), this.lineEnd.project(), this.style);
     }
 
-    rotate(angleX, angleY, angleZ, center, reverse) {
-        this.lineStart.rotate(angleX, angleY, angleZ, center, reverse);
-        this.lineEnd.rotate(angleX, angleY, angleZ, center, reverse);
+    rotate(matrix, center, reverse = false) {
+        this.lineStart.rotate(matrix, center, reverse);
+        this.lineEnd.rotate(matrix, center, reverse);
         return this;
     }
 
@@ -305,15 +290,15 @@ export class Plane3D {
         return new Plane2D(points2D, center2D, normal2D, isVisible, this.style);
     }
 
-    rotate(angleX, angleY, angleZ, center, reverse) {
+    rotate(matrix, center, reverse = false) {
         for(let point of this.points) {
-            point.rotate(angleX, angleY, angleZ, center, reverse);
+            point.rotate(matrix, center, reverse);
         }
         if(this.center) {
-            this.center.rotate(angleX, angleY, angleZ, center, reverse);
+            this.center.rotate(matrix, center, reverse);
         }
         if(this.normalLine) {
-            this.normalLine.rotate(angleX, angleY, angleZ, center, reverse);
+            this.normalLine.rotate(matrix, center, reverse);
         }
         return this;
     }
@@ -348,8 +333,8 @@ export class Cube {
         this.planes.push(new Plane3D([this.points[4].clone(), this.points[0].clone(), this.points[3].clone(), this.points[7].clone()], styles[5])); // right
     }
 
-    rotate(angleX, angleY, angleZ, center, reverse) {
-        for (let plane of this.planes) plane.rotate(angleX, angleY, angleZ, center, reverse)
+    rotate(matrix, center, reverse = false) {
+        for (let plane of this.planes) plane.rotate(matrix, center, reverse)
     }
 
     draw(observer) {
