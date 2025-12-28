@@ -69,9 +69,12 @@ export class Point3D {
         return this;
     }
 
-    rotate(angleX, angleY, angleZ, center) {
+    rotate(angleX, angleY, angleZ, center, reverse) {
         this.moveBy(center, true);
-        this.#rotateX(angleX).#rotateY(angleY).#rotateZ(angleZ);
+
+        if(reverse) this.#rotateZ(-angleZ).#rotateY(-angleY).#rotateX(-angleX);
+        else this.#rotateX(angleX).#rotateY(angleY).#rotateZ(angleZ);
+
         this.moveBy(center, false);
         return this;
     }
@@ -143,9 +146,9 @@ export class Line3D {
         return new Line2D(this.lineStart.project(), this.lineEnd.project(), this.style);
     }
 
-    rotate(angleX, angleY, angleZ, center) {
-        this.lineStart.rotate(angleX, angleY, angleZ, center);
-        this.lineEnd.rotate(angleX, angleY, angleZ, center);
+    rotate(angleX, angleY, angleZ, center, reverse) {
+        this.lineStart.rotate(angleX, angleY, angleZ, center, reverse);
+        this.lineEnd.rotate(angleX, angleY, angleZ, center, reverse);
         return this;
     }
 
@@ -302,15 +305,15 @@ export class Plane3D {
         return new Plane2D(points2D, center2D, normal2D, isVisible, this.style);
     }
 
-    rotate(angleX, angleY, angleZ, center) {
+    rotate(angleX, angleY, angleZ, center, reverse) {
         for(let point of this.points) {
-            point.rotate(angleX, angleY, angleZ, center);
+            point.rotate(angleX, angleY, angleZ, center, reverse);
         }
         if(this.center) {
-            this.center.rotate(angleX, angleY, angleZ, center);
+            this.center.rotate(angleX, angleY, angleZ, center, reverse);
         }
         if(this.normalLine) {
-            this.normalLine.rotate(angleX, angleY, angleZ, center);
+            this.normalLine.rotate(angleX, angleY, angleZ, center, reverse);
         }
         return this;
     }
@@ -345,8 +348,8 @@ export class Cube {
         this.planes.push(new Plane3D([this.points[4].clone(), this.points[0].clone(), this.points[3].clone(), this.points[7].clone()], styles[5])); // right
     }
 
-    rotate(angleX, angleY, angleZ, center) {
-        for (let plane of this.planes) plane.rotate(angleX, angleY, angleZ, center)
+    rotate(angleX, angleY, angleZ, center, reverse) {
+        for (let plane of this.planes) plane.rotate(angleX, angleY, angleZ, center, reverse)
     }
 
     draw(observer) {

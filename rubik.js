@@ -1,5 +1,6 @@
 import { Style, canvas, ctx, globalStyle } from './common.js';
 import { Point3D, Vector3D, Cube } from './geometry.js';
+import { Scene, scene } from './scene.js';
 
 console.log("START");
 
@@ -116,8 +117,8 @@ class RubikCube {
         return generated;
     }
 
-    rotate(angleX, angleY, angleZ, center) {
-        for (let cube of this.cubes) cube.rotate(angleX, angleY, angleZ, center)
+    rotate(angleX, angleY, angleZ, center, reverse) {
+        for (let cube of this.cubes) cube.rotate(angleX, angleY, angleZ, center, reverse)
     }
 
     draw(observer) {
@@ -154,7 +155,6 @@ let cubeCenter = rotationCenter.clone().moveBy(new Vector3D(-0.2, 0.3, 0));
 
 let cube = new RubikCube(cubeCenter, 1, [redStyle, yellowStyle, blueStyle, whiteStyle, greenStyle, orangeStyle]);
 
-const deg2rad = Math.PI / 180;
 let counter = 0;
 const stepZ = 3 / 5;
 const stepX = 3 / 5;
@@ -197,9 +197,12 @@ function drawLoop() {
     ctx.fillStyle = bkStyle;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    cube.rotate(rotateX * deg2rad, rotateY * deg2rad, rotateZ * deg2rad, rotationCenter);
-    cube.draw(observer);
+    scene.rotate(rotateX, rotateY, rotateZ);
 
+    cube.rotate(scene.angleRadX, scene.angleRadY, scene.angleRadZ, rotationCenter, false);
+    //cube.rotate(rotateX * deg2rad, rotateY * deg2rad, rotateZ * deg2rad, rotationCenter);
+    cube.draw(observer);
+    cube.rotate(scene.angleRadX, scene.angleRadY, scene.angleRadZ, rotationCenter, true);
 
     counter ++;
 
