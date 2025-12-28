@@ -31,7 +31,7 @@ class Point2D {
 }
 
 class Point3D {
-    static #scaleZ = 2;
+    static #scaleZ = 1;
 
     x = 0;
     y = 0;
@@ -144,27 +144,15 @@ class Line3D {
 class Plane2D {
     points = [];
     center = null;
+    normalLine = null;
 
-    constructor(points, center) {
+    constructor(points, center, normalLine) {
         this.points = points;
         this.center = center;
+        this.normalLine = normalLine;
     }
 
     draw(pointStyle, lineStyle, fillStyle, drawPoints = false, drawLines = false, fill = true) {
-        if(drawLines) {
-            for(let i=0; i<this.points.length; i++) {
-                let endPointIndex = (i+1) % this.points.length;
-                new Line2D(this.points[i], this.points[endPointIndex]).draw(lineStyle, pointStyle, drawPoints);
-            }
-        }
-        if(!drawLines && drawPoints) {
-            for(let point of this.points) {
-                point.draw(pointStyle);
-            }
-        }
-        if(drawPoints && this.center != null) {
-            this.center.draw(pointStyle);
-        }
         if(fill && points.length > 0) {
             ctx.fillStyle = fillStyle;
             ctx.beginPath();
@@ -175,36 +163,55 @@ class Plane2D {
             ctx.closePath();
             ctx.fill();
         }
+
+        if(drawLines) {
+            for(let i=0; i<this.points.length; i++) {
+                let endPointIndex = (i+1) % this.points.length;
+                new Line2D(this.points[i], this.points[endPointIndex]).draw(lineStyle, pointStyle, drawPoints);
+            }
+            if(this.normalLine != null) {
+                this.normalLine.draw(lineStyle, pointStyle, drawPoints);
+            }
+        }
+
+        if(!drawLines && drawPoints) {
+            for(let point of this.points) {
+                point.draw(pointStyle);
+            }
+        }
+
+        if(drawPoints && this.center != null) {
+            this.center.draw(pointStyle);
+        }
     }
 }
 
 class Plane3D {
     points = [];
     normal = null;
+    normalLine = null;
     center = null;
 
     constructor(points) {
         this.points = points;
         this.normal = this.#calculateNormal();
         this.center = this.#calculateCenter();
+        this.normalLine = this.normal != null ? this.normal.toLine(this.center) : null;
     }
 
     #calculateNormal() {
         if(points.length < 3) return null;
 
-        // Assume that first 3 points form a flat plane
-        let p1 = points[0];
-        let p2 = points[1];
-        let p3 = points[2];
-        let w1 = new Point3D(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z);
-        let w2 = new Point3D(p3.x - p2.x, p3.y - p2.y, p3.z - p2.z);
+        // Assume that first 3 points form a flat plane, co we carrange them into two vectors
+        let w1 = Vector3D.fromPoints(points[0], points[1]);
+        let w2 = Vector3D.fromPoints(points[1], points[2]);
 
         // According to obliczeniowo.com.pl/61
         let x = w1.y * w2.z - w1.z * w2.y;
         let y = w1.z * w2.x - w1.x * w2.z;
         let z = w1.z * w2.y - w1.y * w2.z;
 
-        return new Point3D(x, y, z);
+        return new Vector3D(x, y, z);
     }
 
     #calculateCenter() {
@@ -217,7 +224,10 @@ class Plane3D {
     }
 
     project() {
-        return new Plane2D(this.points.map((point) => point.project()), this.center != null ? this.center.project() : null);
+        let points2D = this.points.map((point) => point.project());
+        let center2D = this.center != null ? this.center.project() : null;
+        let normal2D = this.normal != null ? this.normalLine.project() : null;
+        return new Plane2D(points2D, center2D, normal2D);
     }
 
     rotate(angleX, angleY, angleZ, center) {
@@ -228,6 +238,28 @@ class Plane3D {
             this.center.rotate(angleX, angleY, angleZ, center);
         }
         return this;
+    }
+}
+
+class Vector3D {
+    x = 0;
+    y = 0;
+    z = 0;
+
+    constructor(x, y, z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    static fromPoints(p1, p2) {
+        return new Vector3D(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z);
+    }
+
+    toLine(startPoint) {
+        if(startPoint == null) return null;
+
+        return new Line3D(startPoint, new Point3D(startPoint.x + this.x, startPoint.y + this.y, startPoint.z + this.z));
     }
 }
 
@@ -247,9 +279,9 @@ let plane = new Plane3D(points);
 
 const deg2rad = Math.PI / 180;
 let counter = 0;
-const stepZ = 4;
+const stepZ = 3;
 const stepX = 1;
-const stepY = 5;
+const stepY = 2;
 
 const rotationCenter = new Point3D(0,0,3);
 
@@ -264,7 +296,7 @@ function drawLoop() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     plane.rotate(stepX * deg2rad, stepY * deg2rad, stepZ * deg2rad, rotationCenter)
-        .project().draw(pointStyle, lineStyle, fillStyle, true, true, false);
+        .project().draw(pointStyle, lineStyle, fillStyle, true, true, true);
 
     /*for (let point of points) {
         point
