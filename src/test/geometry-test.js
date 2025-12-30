@@ -1,8 +1,8 @@
-import {Point3D} from "../main/geometry.js";
+import {PlaneMetadata, Point3D} from "../main/geometry.js";
 import {Scene} from "../main/scene.js";
-import {assertEqualCoords, assertEqualMatrices, runTest} from "./common-test.js";
+import {assertEqualCoords, assertEqualMatrices, assertEquals, runTest} from "./common-test.js";
 import {CubeCoords} from "../main/cube.js";
-import {Axis, MoveDirection, SideType} from "../main/common.js";
+import {Axis, globalStyle, MoveDirection, SideType} from "../main/common.js";
 
 function testPoint3DRotation() {
     const point = new Point3D(1, 2, 3);
@@ -79,10 +79,35 @@ function testCubeCoordsRotation() {
     _doTestCubeCoordsRotation(dataRightMiddle);
 }
 
-function testPlaneRotation() {
+function _doTestPlaneRotation(data) {
+    const planeData = new PlaneMetadata(globalStyle, data.sides[0], "");
+    for(let i=1; i<=4; i++) {
+        planeData.rotateSide(data.moveSide, MoveDirection.CLOCKWISE);
+        assertEquals(planeData.orientation, data.sides[i % 4], `Moved side ${data.moveSide}, direction: ${MoveDirection.CLOCKWISE}`);
+    }
+    for(let i=3; i>=0; i--) {
+        planeData.rotateSide(data.moveSide, MoveDirection.COUNTERCLOCKWISE);
+        assertEquals(planeData.orientation, data.sides[i], `Moved side ${data.moveSide}, direction: ${MoveDirection.COUNTERCLOCKWISE}`);
+    }
+}
 
+function testPlaneRotation() {
+    // Ignore rotation when orientation is not set (for invisible planes)
+    _doTestPlaneRotation({ moveSide: SideType.TOP, sides: [null, null, null, null] });
+
+    // NOTE: This is not an exhaustive list of combinations
+    _doTestPlaneRotation({ moveSide: SideType.TOP, sides: [SideType.FRONT, SideType.LEFT, SideType.BACK, SideType.RIGHT] });
+    _doTestPlaneRotation({ moveSide: SideType.BOTTOM, sides: [SideType.FRONT, SideType.LEFT, SideType.BACK, SideType.RIGHT] });
+    _doTestPlaneRotation({ moveSide: SideType.LEFT, sides: [SideType.FRONT, SideType.BOTTOM, SideType.BACK, SideType.TOP] });
+    _doTestPlaneRotation( { moveSide: SideType.RIGHT, sides: [SideType.FRONT, SideType.BOTTOM, SideType.BACK, SideType.TOP] });
+    _doTestPlaneRotation({ moveSide: SideType.FRONT, sides: [SideType.TOP, SideType.RIGHT, SideType.BOTTOM, SideType.LEFT] });
+    _doTestPlaneRotation( { moveSide: SideType.BACK, sides: [SideType.TOP, SideType.RIGHT, SideType.BOTTOM, SideType.LEFT] });
+
+    _doTestPlaneRotation({ moveSide: SideType.FRONT, sides: [SideType.FRONT, SideType.FRONT, SideType.FRONT, SideType.FRONT] });
+    _doTestPlaneRotation({ moveSide: SideType.BACK, sides: [SideType.FRONT, SideType.FRONT, SideType.FRONT, SideType.FRONT] });
 }
 
 runTest(testPoint3DRotation);
 runTest(testSceneRotation);
 runTest(testCubeCoordsRotation);
+runTest(testPlaneRotation);

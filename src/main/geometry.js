@@ -1,4 +1,4 @@
-import { globalStyle } from './common.js';
+import {globalStyle, planeOrientation, sideAxis} from './common.js';
 import { canvas, ctx } from './common-dom.js';
 
 export class Point2D {
@@ -241,19 +241,31 @@ export class PlaneMetadata {
     style;
     orientation;
     text;
+    origText;
 
     constructor(style, orientation, text) {
         this.style = style;
         this.orientation = orientation;
-        this.updateText(text);
+        this.origText = text;
+        this.updateText(this.origText);
     }
 
     updateText(text) {
-        this.text = `${text} ${this.orientation}`;
+        this.origText = text;
+        this.text = `${this.origText} ${this.orientation}`;
     }
 
     rotateSide(side, direction) {
+        if(!this.orientation) return;
 
+        const nextSideInfo = planeOrientation.get(this.orientation).get(sideAxis.get(side));
+        if(nextSideInfo !== undefined) {
+            const nextOrientation = nextSideInfo.get(direction);
+            if(nextOrientation !== undefined) {
+                this.orientation = nextOrientation;
+                this.updateText(this.origText);
+            }
+        }
     }
 }
 
