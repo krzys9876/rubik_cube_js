@@ -186,7 +186,7 @@ class RubikCube {
             case SideType.TOP: return this.center.clone().moveBy(new Vector3D(0, this.size / 3, 0));
             case SideType.BOTTOM: return this.center.clone().moveBy(new Vector3D(0, -this.size / 3, 0));
             case SideType.FRONT: return this.center.clone().moveBy(new Vector3D(0, 0, -this.size / 3));
-            case SideType.BACK: return this.center.clone().moveBy(new Vector3D(0, 0, -this.size / 3));
+            case SideType.BACK: return this.center.clone().moveBy(new Vector3D(0, 0, this.size / 3));
             case SideType.LEFT: return this.center.clone().moveBy(new Vector3D(-this.size / 3, 0, 0));
             case SideType.RIGHT: return this.center.clone().moveBy(new Vector3D(this.size / 3, 0, 0));
         }

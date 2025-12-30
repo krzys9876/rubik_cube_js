@@ -1,4 +1,4 @@
-import {Coords3D, Plane3D, Point3D, Vector3D} from "./geometry.js";
+import {Coords3D, Plane3D, PlaneMetadata, Point3D, Vector3D} from "./geometry.js";
 import {MoveDirection, sideAxis, SideType} from "./common.js";
 import {Scene} from "./scene.js";
 
@@ -39,6 +39,10 @@ export class CubeMetadata {
     static create(x, y, z) {
         return new CubeMetadata(new CubeCoords(x, y, z));
     }
+
+    toText() {
+        return `(${this.coords.x},${this.coords.y},${this.coords.z})`;
+    }
 }
 
 export class Cube {
@@ -64,12 +68,18 @@ export class Cube {
             2---------3
          */
 
-        this.planes.push(new Plane3D([this.points[0].clone(), this.points[1].clone(), this.points[2].clone(), this.points[3].clone()], styles[0])); // front
-        this.planes.push(new Plane3D([this.points[7].clone(), this.points[6].clone(), this.points[5].clone(), this.points[4].clone()], styles[1])); // back
-        this.planes.push(new Plane3D([this.points[4].clone(), this.points[5].clone(), this.points[1].clone(), this.points[0].clone()], styles[2])); // top
-        this.planes.push(new Plane3D([this.points[3].clone(), this.points[2].clone(), this.points[6].clone(), this.points[7].clone()], styles[3])); // bottom
-        this.planes.push(new Plane3D([this.points[1].clone(), this.points[5].clone(), this.points[6].clone(), this.points[2].clone()], styles[4])); // left
-        this.planes.push(new Plane3D([this.points[4].clone(), this.points[0].clone(), this.points[3].clone(), this.points[7].clone()], styles[5])); // right
+        this.planes.push(new Plane3D([this.points[0].clone(), this.points[1].clone(), this.points[2].clone(), this.points[3].clone()],
+            new PlaneMetadata(styles[0], this.metadata.toText()))); // front
+        this.planes.push(new Plane3D([this.points[7].clone(), this.points[6].clone(), this.points[5].clone(), this.points[4].clone()],
+            new PlaneMetadata(styles[1], this.metadata.toText()))); // back
+        this.planes.push(new Plane3D([this.points[4].clone(), this.points[5].clone(), this.points[1].clone(), this.points[0].clone()],
+            new PlaneMetadata(styles[2], this.metadata.toText()))); // top
+        this.planes.push(new Plane3D([this.points[3].clone(), this.points[2].clone(), this.points[6].clone(), this.points[7].clone()],
+            new PlaneMetadata(styles[3], this.metadata.toText()))); // bottom
+        this.planes.push(new Plane3D([this.points[1].clone(), this.points[5].clone(), this.points[6].clone(), this.points[2].clone()],
+            new PlaneMetadata(styles[4], this.metadata.toText()))); // left
+        this.planes.push(new Plane3D([this.points[4].clone(), this.points[0].clone(), this.points[3].clone(), this.points[7].clone()],
+            new PlaneMetadata(styles[5], this.metadata.toText()))); // right
     }
 
     rotate(matrix, center, reverse = false) {

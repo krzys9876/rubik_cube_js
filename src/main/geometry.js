@@ -186,19 +186,19 @@ export class Plane2D {
     center = null;
     normalLine = null;
     isVisible = true;
-    style;
+    metadata;
 
-    constructor(points, center, normalLine, isVisible, style) {
+    constructor(points, center, normalLine, isVisible, metadata) {
         this.points = points;
         this.center = center;
         this.normalLine = normalLine;
         this.isVisible = isVisible;
-        this.style = style;
+        this.metadata = metadata;
     }
 
     draw(drawPoints = false, drawLines = false, fill = true) {
-        if(this.isVisible && fill && this.style.fillStyle && this.points.length > 0) {
-            ctx.fillStyle = this.style.fillStyle;
+        if(this.isVisible && fill && this.metadata.style.fillStyle && this.points.length > 0) {
+            ctx.fillStyle = this.metadata.style.fillStyle;
             ctx.beginPath();
             ctx.moveTo(this.points[0].actualX(), this.points[0].actualY());
             for(let i=1; i<this.points.length; i++) {
@@ -211,7 +211,7 @@ export class Plane2D {
         if(drawLines) {
             for(let i=0; i<this.points.length; i++) {
                 let endPointIndex = (i+1) % this.points.length;
-                new Line2D(this.points[i], this.points[endPointIndex], this.style).draw(drawPoints);
+                new Line2D(this.points[i], this.points[endPointIndex], this.metadata.style).draw(drawPoints);
             }
             /*if(this.normalLine != null) {
                 this.normalLine.draw(lineStyle, pointStyle, drawPoints);
@@ -227,6 +227,23 @@ export class Plane2D {
         if(drawPoints && this.center) {
             this.center.draw();
         }
+        // print metadata
+        if(this.isVisible) {
+            ctx.lineStyle='black';
+            ctx.fillStyle='black';
+            ctx.font = "12px arial";
+            ctx.fillText(this.metadata.text, this.center.actualX(), this.center.actualY());
+        }
+    }
+}
+
+export class PlaneMetadata {
+    style;
+    text;
+
+    constructor(style, text) {
+        this.style = style;
+        this.text = text;
     }
 }
 
@@ -235,11 +252,11 @@ export class Plane3D {
     normal = null;
     normalLine = null;
     center = null;
-    style;
+    metadata;
 
-    constructor(points, style) {
+    constructor(points, metadata) {
         this.points = points;
-        this.style = style;
+        this.metadata = metadata;
         this.normal = this.#calculateNormal();
         this.center = this.#calculateCenter();
         this.normalLine = this.normal ? this.normal.toLine(this.center) : null;
@@ -248,7 +265,7 @@ export class Plane3D {
     #calculateNormal() {
         if(this.points.length < 3) return null;
 
-        // Assume that first 3 points form a flat plane, co we carrange them into two vectors
+        // Assume that first 3 points form a flat plane, co we arrange them into two vectors
         let w1 = Vector3D.fromPoints(this.points[0], this.points[1]);
         let w2 = Vector3D.fromPoints(this.points[1], this.points[2]);
 
@@ -270,7 +287,7 @@ export class Plane3D {
 
         //console.log(x, y, z);
 
-        return new Point3D(x, y, z, this.style);
+        return new Point3D(x, y, z, this.metadata.style);
     }
 
     project(observer) {
@@ -281,7 +298,7 @@ export class Plane3D {
         let points2D = this.points.map((point) => point.project());
         let center2D = this.center ? this.center.project() : null;
         let normal2D = this.normal ? this.normalLine.project() : null;
-        return new Plane2D(points2D, center2D, normal2D, isVisible, this.style);
+        return new Plane2D(points2D, center2D, normal2D, isVisible, this.metadata);
     }
 
     rotate(matrix, center, reverse = false) {
