@@ -2,13 +2,13 @@ import {Point3D} from "../main/geometry.js";
 import {Scene} from "../main/scene.js";
 import {assertEqualCoords, assertEqualMatrices, assertEqualsRounded, runTest} from "./common-test.js";
 import {CubeCoords} from "../main/cube.js";
-import {MoveDirection, SideType} from "../main/common.js";
+import {Axis, MoveDirection, SideType} from "../main/common.js";
 
 function testPoint3DRotation() {
     const point = new Point3D(1, 2, 3);
-    const rotationMatrixX90 = Scene.rotationMatrixX(Math.PI / 2);
-    const rotationMatrixY90 = Scene.rotationMatrixY(Math.PI / 2);
-    const rotationMatrixZ90 = Scene.rotationMatrixZ(Math.PI / 2);
+    const rotationMatrixX90 = Scene.rotationMatrix(Axis.X, Math.PI / 2);
+    const rotationMatrixY90 = Scene.rotationMatrix(Axis.Y, Math.PI / 2);
+    const rotationMatrixZ90 = Scene.rotationMatrix(Axis.Z, Math.PI / 2);
 
     const rotationCenter = new Point3D(0, 0, 0);
 
@@ -33,30 +33,34 @@ function testSceneRotation() {
     assertEqualMatrices(scene.rotationMatrix, [ [ 0, 0, 1 ], [ 0, 1, 0 ], [ -1, 0, 0 ] ], 'Axis are switched after rotation');
 }
 
-function testCubeCoordsRotation() {
-    // Top side - corner cube
-    const coords1 = new CubeCoords(1,1,1);
-    assertEqualCoords(coords1, { x: 1, y: 1, z: 1}, 0, "initial coords are 1, 1, 1")
-    coords1.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
-    assertEqualCoords(coords1, { x: 1, y: 1, z: -1}, 0, "top side moved clockwise")
-    coords1.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
-    assertEqualCoords(coords1, { x: -1, y: 1, z: -1}, 0, "top side moved clockwise")
-    coords1.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
-    assertEqualCoords(coords1, { x: -1, y: 1, z: 1}, 0, "top side moved clockwise")
-    coords1.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
-    assertEqualCoords(coords1, { x: 1, y: 1, z: 1}, 0, "same position after 4 moves")
+function _makeCoords(arr) {
+    return {x: arr[0], y: arr[1], z: arr[2]};
+}
 
-    // Top side - middle cube
-    const coords2 = new CubeCoords(0,1,1);
-    assertEqualCoords(coords2, { x: 0, y: 1, z: 1}, 0, "initial coords are 0, 1, 1")
-    coords2.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
-    assertEqualCoords(coords2, { x: 1, y: 1, z: 0}, 0, "top side moved clockwise")
-    coords2.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
-    assertEqualCoords(coords2, { x: 0, y: 1, z: -1}, 0, "top side moved clockwise")
-    coords2.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
-    assertEqualCoords(coords2, { x: -1, y: 1, z: 0}, 0, "top side moved clockwise")
-    coords2.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
-    assertEqualCoords(coords2, { x: 0, y: 1, z: 1}, 0, "same position after 4 moves")
+function _doTestCubeCoordsRotation(data) {
+    const initCoords = _makeCoords(data.coords[0]);
+    const coords = new CubeCoords(initCoords.x, initCoords.y, initCoords.z);
+    for(let i=1; i<=4; i++) {
+        coords.rotateSide(data.side, MoveDirection.CLOCKWISE);
+        assertEqualCoords(coords, _makeCoords(data.coords[i % 4]), 0, `Moved ${data.side}, direction ${MoveDirection.CLOCKWISE}`);
+    }
+    for(let i=3; i>=0; i--) {
+        coords.rotateSide(data.side, MoveDirection.COUNTERCLOCKWISE);
+        assertEqualCoords(coords, _makeCoords(data.coords[i]), 0, `Moved ${data.side}, direction ${MoveDirection.COUNTERCLOCKWISE}`);
+    }
+    assertEqualCoords(coords, _makeCoords(data.coords[0]), 0, `After 4 moves in both directions coords should be the same as initial`);
+}
+
+function testCubeCoordsRotation() {
+    // coords array contains coords for 4 consecutive clockwise moves
+    const dataTopCorner = { side: SideType.TOP, coords: [[1,1,1],[1,1,-1],[-1,1,-1],[-1,1,1]] };
+    _doTestCubeCoordsRotation(dataTopCorner);
+    const dataTopMiddle = { side: SideType.TOP, coords: [[0,1,1],[1,1,0],[0,1,-1],[-1,1,0]] };
+    _doTestCubeCoordsRotation(dataTopMiddle);
+    const dataBottomCorner = { side: SideType.BOTTOM, coords: [[1,-1,1],[1,-1,-1],[-1,-1,-1],[-1,-1,1]] };
+    _doTestCubeCoordsRotation(dataBottomCorner);
+    const dataBottomMiddle = { side: SideType.BOTTOM, coords: [[0,-1,1],[1,-1,0],[0,-1,-1],[-1,-1,0]] };
+    _doTestCubeCoordsRotation(dataBottomMiddle);
 }
 
 runTest(testPoint3DRotation);

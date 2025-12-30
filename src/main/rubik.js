@@ -1,4 +1,4 @@
-import {Style, globalStyle, MoveDirection, SideType} from './common.js';
+import {Style, globalStyle, MoveDirection, SideType, sideAxis} from './common.js';
 import { canvas, ctx } from './common-dom.js';
 import { Point3D, Vector3D } from './geometry.js';
 import { Cube } from './cube.js';
@@ -170,64 +170,35 @@ class RubikCube {
     }
 
     //TODO: change coordinates when moving sides
-    topSideCubes() { return this.cubes.filter(cube => cube.metadata.coords.y === 1); }
-    bottomSideCubes() { return this.cubes.filter(cube => cube.metadata.coords.y === -1); }
-    frontSideCubes() { return this.cubes.filter(cube => cube.metadata.coords.z === -1); }
-    backSideCubes() { return this.cubes.filter(cube => cube.metadata.coords.z === 1); }
-    leftSideCubes() { return this.cubes.filter(cube => cube.metadata.coords.x === -1); }
-    rightSideCubes() { return this.cubes.filter(cube => cube.metadata.coords.x === 1); }
-
-    moveSide(sideType, direction) {
-        let counterClockwiseFlag = direction === MoveDirection.COUNTERCLOCKWISE;
-        switch(sideType) {
-            case SideType.TOP: this.moveTop(counterClockwiseFlag); break;
-            case SideType.BOTTOM: this.moveBottom(counterClockwiseFlag); break;
-            case SideType.FRONT: this.moveFront(counterClockwiseFlag); break;
-            case SideType.BACK: this.moveBack(counterClockwiseFlag); break;
-            case SideType.LEFT: this.moveLeft(counterClockwiseFlag); break;
-            case SideType.RIGHT: this.moveRight(counterClockwiseFlag); break;
+    #sideCubes(side) {
+        switch(side) {
+            case SideType.TOP: return this.cubes.filter(cube => cube.metadata.coords.y === 1);
+            case SideType.BOTTOM: return this.cubes.filter(cube => cube.metadata.coords.y === -1);
+            case SideType.FRONT: return this.cubes.filter(cube => cube.metadata.coords.z === -1);
+            case SideType.BACK: return this.cubes.filter(cube => cube.metadata.coords.z === 1);
+            case SideType.LEFT: return this.cubes.filter(cube => cube.metadata.coords.x === -1);
+            case SideType.RIGHT: return this.cubes.filter(cube => cube.metadata.coords.x === 1);
         }
     }
 
-    moveTop(counterClockwise) {
-        let rotationCenter = this.center.clone().moveBy(new Vector3D(0, this.size / 3, 0));
-        let rotationMatrix = Scene.rotationMatrixY(90 * Scene.deg2rad);
-        this.#moveSide(this.topSideCubes(), rotationMatrix, rotationCenter, counterClockwise);
+    #rotationCenter(side) {
+        switch(side) {
+            case SideType.TOP: return this.center.clone().moveBy(new Vector3D(0, this.size / 3, 0));
+            case SideType.BOTTOM: return this.center.clone().moveBy(new Vector3D(0, -this.size / 3, 0));
+            case SideType.FRONT: return this.center.clone().moveBy(new Vector3D(0, 0, -this.size / 3));
+            case SideType.BACK: return this.center.clone().moveBy(new Vector3D(0, 0, -this.size / 3));
+            case SideType.LEFT: return this.center.clone().moveBy(new Vector3D(-this.size / 3, 0, 0));
+            case SideType.RIGHT: return this.center.clone().moveBy(new Vector3D(this.size / 3, 0, 0));
+        }
     }
 
-    moveBottom(counterClockwise) {
-        let rotationCenter = this.center.clone().moveBy(new Vector3D(0, -this.size / 3, 0));
-        let rotationMatrix = Scene.rotationMatrixY(90 * Scene.deg2rad);
-        this.#moveSide(this.bottomSideCubes(), rotationMatrix, rotationCenter, counterClockwise);
-    }
-
-    moveFront(counterClockwise) {
-        let rotationCenter = this.center.clone().moveBy(new Vector3D(0, 0, -this.size / 3));
-        let rotationMatrix = Scene.rotationMatrixZ(90 * Scene.deg2rad);
-        this.#moveSide(this.frontSideCubes(), rotationMatrix, rotationCenter, counterClockwise);
-    }
-
-    moveBack(counterClockwise) {
-        let rotationCenter = this.center.clone().moveBy(new Vector3D(0, 0, -this.size / 3));
-        let rotationMatrix = Scene.rotationMatrixZ(90 * Scene.deg2rad);
-        this.#moveSide(this.backSideCubes(), rotationMatrix, rotationCenter, counterClockwise);
-    }
-
-    moveLeft(counterClockwise) {
-        let rotationCenter = this.center.clone().moveBy(new Vector3D(-this.size / 3, 0, 0));
-        let rotationMatrix = Scene.rotationMatrixX(90 * Scene.deg2rad);
-        this.#moveSide(this.leftSideCubes(), rotationMatrix, rotationCenter, counterClockwise);
-    }
-
-    moveRight(counterClockwise) {
-        let rotationCenter = this.center.clone().moveBy(new Vector3D(this.size / 3, 0, 0));
-        let rotationMatrix = Scene.rotationMatrixX(90 * Scene.deg2rad);
-        this.#moveSide(this.rightSideCubes(), rotationMatrix, rotationCenter, counterClockwise);
-    }
-
-    #moveSide(sideCubes, matrix, center, counterClockwise) {
+    moveSide(side, direction) {
+        const counterClockwiseFlag = direction === MoveDirection.COUNTERCLOCKWISE;
+        const matrix = Scene.rotationMatrix(sideAxis.get(side), 90 * Scene.deg2rad);
+        const sideCubes = this.#sideCubes(side);
+        const center = this.#rotationCenter(side);
         for (let c of sideCubes) {
-            c.rotate(matrix, center, counterClockwise);
+            c.rotate(matrix, center, counterClockwiseFlag);
         }
     }
 }

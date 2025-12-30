@@ -1,3 +1,5 @@
+import {Axis} from "./common.js";
+
 export class Scene {
     static deg2rad = Math.PI / 180;
 
@@ -10,37 +12,24 @@ export class Scene {
         [0, 0, 1]
     ];
 
-    // Create a rotation matrix around X axis
-    static rotationMatrixX(angleRad) {
+    static rotationMatrix(axis, angleRad) {
         let c = Math.cos(angleRad);
         let s = Math.sin(angleRad);
-        return [
-            [1, 0, 0],
-            [0, c, -s],
-            [0, s, c]
-        ];
-    }
 
-    // Create a rotation matrix around Y axis
-    static rotationMatrixY(angleRad) {
-        let c = Math.cos(angleRad);
-        let s = Math.sin(angleRad);
-        return [
-            [c, 0, s],
-            [0, 1, 0],
-            [-s, 0, c]
-        ];
-    }
-
-    // Create a rotation matrix around Z axis
-    static rotationMatrixZ(angleRad) {
-        let c = Math.cos(angleRad);
-        let s = Math.sin(angleRad);
-        return [
-            [c, -s, 0],
-            [s, c, 0],
-            [0, 0, 1]
-        ];
+        switch (axis) {
+            case Axis.X: return [
+                [1, 0, 0],
+                [0, c, -s],
+                [0, s, c]];
+            case Axis.Y: return [
+                [c, 0, s],
+                [0, 1, 0],
+                [-s, 0, c]];
+            case Axis.Z: return [
+                [c, -s, 0],
+                [s, c, 0],
+                [0, 0, 1]];
+        }
     }
 
     // Multiply two 3x3 matrices
@@ -69,9 +58,9 @@ export class Scene {
 
         // Create rotation matrices for the incremental rotations
         // These represent rotations around the CURRENT (observer's) axes
-        let rotX = Scene.rotationMatrixX(radX);
-        let rotY = Scene.rotationMatrixY(radY);
-        let rotZ = Scene.rotationMatrixZ(radZ);
+        let rotX = Scene.rotationMatrix(Axis.X, radX);
+        let rotY = Scene.rotationMatrix(Axis.Y, radY);
+        let rotZ = Scene.rotationMatrix(Axis.Z, radZ);
 
         // Compose the incremental rotations (order matters!)
         // Z * Y * X means: rotate X first, then Y, then Z
