@@ -1,11 +1,37 @@
-import {Plane3D, Point3D, Vector3D} from "./geometry";
+import {Plane3D, Point3D, Vector3D} from "./geometry.js";
+
+export class CubeCoords {
+    x;
+    y;
+    z;
+
+    constructor(x, y, z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+}
+
+export class CubeMetadata {
+    coords;
+    // TODO: add colors facing each side and maintain colors when cube is rotated
+
+    constructor(coords) {
+        this.coords = coords;
+    }
+
+    static create(x, y, z) {
+        return new CubeMetadata(new CubeCoords(x, y, z));
+    }
+}
 
 export class Cube {
     points = [];
     styles = [];
     planes = [];
+    metadata;
 
-    constructor(points, styles) {
+    constructor(points, styles, metadata) {
         if(points.length !== 8 || styles.length !== 6) throw new Error("Cube requires exactly 8 points and 6 styles");
 
         this.points = points;
@@ -45,7 +71,7 @@ export class Cube {
         }
     }
 
-    static generate(center, sizeX, sizeY, sizeZ, styles) {
+    static generate(center, sizeX, sizeY, sizeZ, styles, x, y, z) {
         let points = []
 
         points.push(new Point3D(center.x + sizeX / 2,center.y + sizeY / 2, center.z - sizeZ / 2));
@@ -58,6 +84,8 @@ export class Cube {
         points.push(new Point3D(center.x - sizeX / 2,center.y - sizeY / 2, center.z + sizeZ / 2));
         points.push(new Point3D(center.x + sizeX / 2,center.y - sizeY / 2, center.z + sizeZ / 2));
 
-        return new Cube(points, styles);
+        console.log("created ", x, y, z);
+
+        return new Cube(points, styles, CubeMetadata.create(x, y, z));
     }
 }
