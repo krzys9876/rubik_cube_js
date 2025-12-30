@@ -2,6 +2,7 @@ import {Point3D} from "../main/geometry.js";
 import {Scene} from "../main/scene.js";
 import {assertEqualCoords, assertEqualMatrices, assertEqualsRounded, runTest} from "./common-test.js";
 import {CubeCoords} from "../main/cube.js";
+import {MoveDirection, SideType} from "../main/common.js";
 
 function testPoint3DRotation() {
     const point = new Point3D(1, 2, 3);
@@ -33,8 +34,31 @@ function testSceneRotation() {
 }
 
 function testCubeCoordsRotation() {
-    const cubeCoords = new CubeCoords(1,1,1);
+    // Top side - corner cube
+    const coords1 = new CubeCoords(1,1,1);
+    assertEqualCoords(coords1, { x: 1, y: 1, z: 1}, 0, "initial coords are 1, 1, 1")
+    coords1.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
+    assertEqualCoords(coords1, { x: 1, y: 1, z: -1}, 0, "top side moved clockwise")
+    coords1.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
+    assertEqualCoords(coords1, { x: -1, y: 1, z: -1}, 0, "top side moved clockwise")
+    coords1.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
+    assertEqualCoords(coords1, { x: -1, y: 1, z: 1}, 0, "top side moved clockwise")
+    coords1.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
+    assertEqualCoords(coords1, { x: 1, y: 1, z: 1}, 0, "same position after 4 moves")
+
+    // Top side - middle cube
+    const coords2 = new CubeCoords(0,1,1);
+    assertEqualCoords(coords2, { x: 0, y: 1, z: 1}, 0, "initial coords are 0, 1, 1")
+    coords2.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
+    assertEqualCoords(coords2, { x: 1, y: 1, z: 0}, 0, "top side moved clockwise")
+    coords2.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
+    assertEqualCoords(coords2, { x: 0, y: 1, z: -1}, 0, "top side moved clockwise")
+    coords2.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
+    assertEqualCoords(coords2, { x: -1, y: 1, z: 0}, 0, "top side moved clockwise")
+    coords2.rotateSide(SideType.TOP, MoveDirection.CLOCKWISE);
+    assertEqualCoords(coords2, { x: 0, y: 1, z: 1}, 0, "same position after 4 moves")
 }
 
 runTest(testPoint3DRotation);
 runTest(testSceneRotation);
+runTest(testCubeCoordsRotation);

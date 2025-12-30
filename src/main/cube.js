@@ -1,6 +1,31 @@
 import {Coords3D, Plane3D, Point3D, Vector3D} from "./geometry.js";
+import {MoveDirection, SideType} from "./common.js";
+import {Scene} from "./scene.js";
 
+// Using Coords3D may be an overkill (floating point operations for simple 1/-1 coords) but performance-wise it is irrelevant.
+// All we need are roundings
 export class CubeCoords extends Coords3D {
+    static rotationCenter = new Coords3D(0, 0, 0);
+
+    rotateSide(sideType, direction) {
+        const deg90 = Math.PI / 2;
+
+        let matrix;
+
+        switch(sideType) {
+            case SideType.TOP: matrix = Scene.rotationMatrixY(deg90); break;
+            case SideType.BOTTOM: matrix = Scene.rotationMatrixY(deg90); break;
+        }
+
+        this.rotate(matrix, CubeCoords.rotationCenter, direction === MoveDirection.COUNTERCLOCKWISE);
+        this.#roundCoords();
+    }
+
+    #roundCoords() {
+        this.x = Math.round(this.x);
+        this.y = Math.round(this.y);
+        this.z = Math.round(this.z);
+    }
 }
 
 export class CubeMetadata {
