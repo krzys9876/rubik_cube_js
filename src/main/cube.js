@@ -117,3 +117,39 @@ export class Cube {
         return new Cube(points, styles, CubeMetadata.create(x, y, z));
     }
 }
+
+export class SideAnimation {
+    static step = 5;
+    ongoing;
+    currentAngle;
+    side;
+    direction;
+
+    constructor() {
+        this.stop();
+    }
+
+    start(side, direction) {
+        if(this.ongoing) return;
+
+        this.side = side;
+        this.direction = direction;
+        this.currentAngle = 0;
+        this.ongoing = true;
+    }
+
+    continue() {
+        if(!this.ongoing) return;
+        this.currentAngle = this.currentAngle + SideAnimation.step;
+        if(Math.round(this.currentAngle)>=90) this.stop();
+    }
+
+    stop() {
+        if(!this.ongoing) return;
+
+        this.ongoing = false;
+        this.currentAngle = 0;
+        this.side = null;
+        this.direction = null;
+    }
+}

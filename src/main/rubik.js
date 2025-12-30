@@ -1,7 +1,7 @@
 import {Style, globalStyle, MoveDirection, SideType, sideAxis, reverseDirection} from './common.js';
 import { canvas, ctx } from './common-dom.js';
 import { Point3D, Vector3D } from './geometry.js';
-import { Cube } from './cube.js';
+import { Cube, SideAnimation } from './cube.js';
 import { Scene, scene } from './scene.js';
 
 console.log("START");
@@ -11,12 +11,14 @@ class RubikCube {
     size;
     styles;
     cubes = [];
+    animation;
 
     constructor(center, size, styles) {
         this.center = center;
         this.size = size;
         this.styles = styles;
         this.cubes = this.#generateCubes();
+        this.animation = new SideAnimation();
     }
 
     #generateCubes() {
@@ -151,6 +153,7 @@ class RubikCube {
     }
 
     draw(observer) {
+        this.animate();
         // Draw all cubes' planes instead of drawing cubes. We must sort planes anyway in order to properly render image.
         let allPlanes = [];
         for (let cube of this.cubes) {
@@ -192,16 +195,30 @@ class RubikCube {
         }
     }
 
-    moveSide(side, direction) {
+    startMoveSide(side, direction) {
+        this.animation.start(side, direction);
+    }
+
+    animate() {
+        if(!this.animation.ongoing) return;
+
+        const side = this.animation.side;
+        const direction = this.animation.direction;
+
         const counterClockwiseFlag = direction === MoveDirection.COUNTERCLOCKWISE;
-        const matrix = Scene.rotationMatrix(sideAxis.get(side), 90 * Scene.deg2rad);
+        const matrix = Scene.rotationMatrix(sideAxis.get(side), SideAnimation.step * Scene.deg2rad);
         const sideCubes = this.#sideCubes(side);
         const center = this.#rotationCenter(side);
         for (let c of sideCubes) {
             let coordsDirection = reverseDirection(direction);
-            if(side === SideType.TOP || side === SideType.BOTTOM) coordsDirection = direction;
-            c.metadata.coords.rotateSide(side, coordsDirection);
             c.rotate(matrix, center, true, counterClockwiseFlag);
+        }
+        this.animation.continue();
+        if(!this.animation.ongoing) {
+            // Conclude animation - update coords
+            let coordsDirection = reverseDirection(direction);
+            if(side === SideType.TOP || side === SideType.BOTTOM) coordsDirection = direction;
+            for (let c of sideCubes) c.metadata.coords.rotateSide(side, coordsDirection);
         }
     }
 }
@@ -283,7 +300,8 @@ function drawLoop() {
     cube.rotate(scene.rotationMatrix, rotationCenter, true);
 
     if(moveSide !== null && moveDirection !== null) {
-        cube.moveSide(moveSide, moveDirection);
+        //cube.moveSide(moveSide, moveDirection);
+        cube.startMoveSide(moveSide, moveDirection);
         moveSide = null;
         moveDirection = null;
     }
