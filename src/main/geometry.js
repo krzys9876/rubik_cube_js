@@ -29,24 +29,15 @@ export class Point2D {
     }
 }
 
-export class Point3D {
-    static focalLength = 7;
+export class Coords3D {
     x;
     y;
     z;
-    style;
 
-    constructor(x, y, z, style = globalStyle) {
+    constructor(x, y, z) {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.style = style;
-    }
-
-    project() {
-        // Close Z makes point with infinite X and Y, very far Z makes point of X=0 and Y=0
-        let zRatio = Point3D.focalLength / (this.z + Point3D.focalLength);
-        return new Point2D(this.x * zRatio, this.y * zRatio, this.style);
     }
 
     // Apply a 3x3 rotation matrix to this point
@@ -84,6 +75,22 @@ export class Point3D {
             this.z += vector.z;
         }
         return this;
+    }
+}
+
+export class Point3D extends Coords3D {
+    static focalLength = 7;
+    style;
+
+    constructor(x, y, z, style = globalStyle) {
+        super(x, y, z);
+        this.style = style;
+    }
+
+    project() {
+        // Close Z makes point with infinite X and Y, very far Z makes point of X=0 and Y=0
+        let zRatio = Point3D.focalLength / (this.z + Point3D.focalLength);
+        return new Point2D(this.x * zRatio, this.y * zRatio, this.style);
     }
 
     clone() {

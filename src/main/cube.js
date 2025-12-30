@@ -1,15 +1,6 @@
-import {Plane3D, Point3D, Vector3D} from "./geometry.js";
+import {Coords3D, Plane3D, Point3D, Vector3D} from "./geometry.js";
 
-export class CubeCoords {
-    x;
-    y;
-    z;
-
-    constructor(x, y, z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
+export class CubeCoords extends Coords3D {
 }
 
 export class CubeMetadata {
