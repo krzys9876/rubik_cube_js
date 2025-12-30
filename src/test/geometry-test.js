@@ -40,16 +40,9 @@ function _makeCoords(arr) {
 function _doTestCubeCoordsRotation(data) {
     const initCoords = _makeCoords(data.coords[0]);
     const coords = new CubeCoords(initCoords.x, initCoords.y, initCoords.z);
-
-    console.log(initCoords.x, initCoords.y, initCoords.z);
-    console.log(coords.x, coords.y, coords.z);
-
     for(let i=1; i<=4; i++) {
         coords.rotateSide(data.side, MoveDirection.CLOCKWISE);
         const c = _makeCoords(data.coords[i % 4]);
-        console.log(c.x, c.y, c.z);
-        console.log(coords.x, coords.y, coords.z);
-
         assertEqualCoords(coords, _makeCoords(data.coords[i % 4]), 0, `Moved ${data.side}, direction ${MoveDirection.CLOCKWISE}`);
     }
     for(let i=3; i>=0; i--) {
@@ -73,6 +66,18 @@ function testCubeCoordsRotation() {
     _doTestCubeCoordsRotation(dataFrontCorner);
     const dataFrontMiddle = { side: SideType.FRONT, coords: [[0,1,-1],[1,0,-1],[0,-1,-1],[-1,0,-1]] };
     _doTestCubeCoordsRotation(dataFrontMiddle);
+    const dataBackCorner = { side: SideType.BACK, coords: [[-1,1,1],[1,1,1],[1,-1,1],[-1,-1,1]] };
+    _doTestCubeCoordsRotation(dataBackCorner);
+    const dataBackMiddle = { side: SideType.BACK, coords: [[0,1,1],[1,0,1],[0,-1,1],[-1,0,1]] };
+    _doTestCubeCoordsRotation(dataBackMiddle);
+    const dataLeftCorner = { side: SideType.LEFT, coords: [[-1,1,1],[-1,1,-1],[-1,-1,-1],[-1,-1,1]] };
+    _doTestCubeCoordsRotation(dataLeftCorner);
+    const dataLeftMiddle = { side: SideType.LEFT, coords: [[-1,1,0],[-1,0,-1],[-1,-1,0],[-1,0,1]] };
+    _doTestCubeCoordsRotation(dataLeftMiddle);
+    const dataRightCorner = { side: SideType.RIGHT, coords: [[1,1,1],[1,1,-1],[1,-1,-1],[1,-1,1]] };
+    _doTestCubeCoordsRotation(dataRightCorner);
+    const dataRightMiddle = { side: SideType.RIGHT, coords: [[1,1,0],[1,0,-1],[1,-1,0],[1,0,1]] };
+    _doTestCubeCoordsRotation(dataRightMiddle);
 }
 
 runTest(testPoint3DRotation);
