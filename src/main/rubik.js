@@ -267,10 +267,7 @@ let cube = new RubikCube(cubeCenter, 1, [redStyle, yellowStyle, blueStyle, white
 
 let counter = 0;
 
-const step = new Map();
-step.set(Axis.X, 3 / 5);
-step.set(Axis.Y, 3 / 5);
-step.set(Axis.Z, 3 / 5);
+const step = new Map([[Axis.X, 3 / 5], [Axis.Y, 3 / 5], [Axis.Z, 3 / 5]]);
 
 const rotate = new Map();
 

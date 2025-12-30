@@ -27,10 +27,6 @@ export function reverseDirection(direction) {
 
 export const Axis = { X: "x", Y: "y", Z: "z" }
 
-export const sideAxis = new Map();
-sideAxis.set(SideType.TOP, Axis.Y);
-sideAxis.set(SideType.BOTTOM, Axis.Y);
-sideAxis.set(SideType.FRONT, Axis.Z);
-sideAxis.set(SideType.BACK, Axis.Z);
-sideAxis.set(SideType.LEFT, Axis.X);
-sideAxis.set(SideType.RIGHT, Axis.X);
+export const sideAxis = new Map([
+    [SideType.TOP, Axis.Y], [SideType.BOTTOM, Axis.Y], [SideType.FRONT, Axis.Z], [SideType.BACK, Axis.Z],
+    [SideType.LEFT, Axis.X], [SideType.RIGHT, Axis.X]]);
