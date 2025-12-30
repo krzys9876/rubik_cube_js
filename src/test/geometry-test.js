@@ -79,6 +79,10 @@ function testCubeCoordsRotation() {
     _doTestCubeCoordsRotation(dataRightMiddle);
 }
 
+function testPlaneRotation() {
+
+}
+
 runTest(testPoint3DRotation);
 runTest(testSceneRotation);
 runTest(testCubeCoordsRotation);

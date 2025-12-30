@@ -246,7 +246,7 @@ class RubikCube {
             // Conclude animation - update cubes' coords
             let coordsDirection = reverseDirection(direction);
             if(side === SideType.TOP || side === SideType.BOTTOM) coordsDirection = direction;
-            for (let c of sideCubes) c.metadata.coords.rotateSide(side, coordsDirection);
+            for (let c of sideCubes) c.rotateSide(side, coordsDirection);
         }
     }
 }

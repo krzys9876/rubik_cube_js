@@ -251,6 +251,10 @@ export class PlaneMetadata {
     updateText(text) {
         this.text = `${text} ${this.orientation}`;
     }
+
+    rotateSide(side, direction) {
+
+    }
 }
 
 export class Plane3D {
@@ -318,5 +322,9 @@ export class Plane3D {
             this.normalLine.rotate(matrix, center, reverse);
         }
         return this;
+    }
+
+    rotateSide(side, direction) {
+        this.metadata.rotateSide(side, direction);
     }
 }

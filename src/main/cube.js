@@ -103,6 +103,11 @@ export class Cube {
         }
     }
 
+    rotateSide(side, direction) {
+        this.metadata.coords.rotateSide(side, direction);
+        for (let plane of this.planes) plane.rotateSide(side, direction);
+    }
+
     static generate(center, sizeX, sizeY, sizeZ, styles, orientation, x, y, z) {
         let points = []
 
