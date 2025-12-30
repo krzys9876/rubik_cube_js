@@ -18,7 +18,7 @@ export const SideType = {
     TOP: "top", BOTTOM: "bottom", FRONT: "front", BACK: "back", LEFT: "left", RIGHT: "right"
 };
 
-export const MoveDirection = { CLOCKWISE: 0, COUNTERCLOCKWISE: 1 };
+export const MoveDirection = { CLOCKWISE: 1, COUNTERCLOCKWISE: 2 };
 
 export function reverseDirection(direction) {
     if (direction === MoveDirection.CLOCKWISE) return MoveDirection.COUNTERCLOCKWISE
