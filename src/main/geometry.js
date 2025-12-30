@@ -1,4 +1,5 @@
-import { canvas, ctx, globalStyle } from './common.js';
+import { globalStyle } from './common.js';
+import { canvas, ctx } from './common-dom.js';
 
 export class Point2D {
     static #size = 5;

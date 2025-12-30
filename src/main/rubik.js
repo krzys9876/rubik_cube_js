@@ -1,4 +1,5 @@
-import { Style, canvas, ctx, globalStyle } from './common.js';
+import { Style, globalStyle } from './common.js';
+import { canvas, ctx } from './common-dom.js';
 import { Point3D, Vector3D } from './geometry.js';
 import { Cube } from './cube.js';
 import { Scene, scene } from './scene.js';

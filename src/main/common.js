@@ -1,6 +1,3 @@
-export const canvas = document.getElementById('drawing');
-export const ctx = canvas.getContext('2d');
-
 export class Style {
     pointStyle = 'red';
     lineStyle = 'blue';
