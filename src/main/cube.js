@@ -51,7 +51,7 @@ export class Cube {
     planes = [];
     metadata;
 
-    constructor(points, styles, metadata) {
+    constructor(points, styles, orientation, metadata) {
         if(points.length !== 8 || styles.length !== 6) throw new Error("Cube requires exactly 8 points and 6 styles");
 
         this.points = points;
@@ -69,23 +69,25 @@ export class Cube {
          */
 
         this.planes.push(new Plane3D([this.points[0].clone(), this.points[1].clone(), this.points[2].clone(), this.points[3].clone()],
-            new PlaneMetadata(styles[0], this.metadata.toText()))); // front
+            new PlaneMetadata(styles[0], orientation[0], this.metadata.toText()))); // front
         this.planes.push(new Plane3D([this.points[7].clone(), this.points[6].clone(), this.points[5].clone(), this.points[4].clone()],
-            new PlaneMetadata(styles[1], this.metadata.toText()))); // back
+            new PlaneMetadata(styles[1], orientation[1], this.metadata.toText()))); // back
         this.planes.push(new Plane3D([this.points[4].clone(), this.points[5].clone(), this.points[1].clone(), this.points[0].clone()],
-            new PlaneMetadata(styles[2], this.metadata.toText()))); // top
+            new PlaneMetadata(styles[2], orientation[2], this.metadata.toText()))); // top
         this.planes.push(new Plane3D([this.points[3].clone(), this.points[2].clone(), this.points[6].clone(), this.points[7].clone()],
-            new PlaneMetadata(styles[3], this.metadata.toText()))); // bottom
+            new PlaneMetadata(styles[3], orientation[3], this.metadata.toText()))); // bottom
         this.planes.push(new Plane3D([this.points[1].clone(), this.points[5].clone(), this.points[6].clone(), this.points[2].clone()],
-            new PlaneMetadata(styles[4], this.metadata.toText()))); // left
+            new PlaneMetadata(styles[4], orientation[4], this.metadata.toText()))); // left
         this.planes.push(new Plane3D([this.points[4].clone(), this.points[0].clone(), this.points[3].clone(), this.points[7].clone()],
-            new PlaneMetadata(styles[5], this.metadata.toText()))); // right
+            new PlaneMetadata(styles[5], orientation[5], this.metadata.toText()))); // right
     }
 
     rotate(matrix, center, updateCoords, reverse = false) {
         for (let plane of this.planes) {
             plane.rotate(matrix, center, reverse)
-            if(updateCoords) plane.metadata.text = this.metadata.toText();
+            if(updateCoords) {
+                plane.metadata.updateText(this.metadata.toText());
+            }
         }
     }
 
@@ -101,7 +103,7 @@ export class Cube {
         }
     }
 
-    static generate(center, sizeX, sizeY, sizeZ, styles, x, y, z) {
+    static generate(center, sizeX, sizeY, sizeZ, styles, orientation, x, y, z) {
         let points = []
 
         points.push(new Point3D(center.x + sizeX / 2,center.y + sizeY / 2, center.z - sizeZ / 2));
@@ -114,7 +116,7 @@ export class Cube {
         points.push(new Point3D(center.x - sizeX / 2,center.y - sizeY / 2, center.z + sizeZ / 2));
         points.push(new Point3D(center.x + sizeX / 2,center.y - sizeY / 2, center.z + sizeZ / 2));
 
-        return new Cube(points, styles, CubeMetadata.create(x, y, z));
+        return new Cube(points, styles, orientation, CubeMetadata.create(x, y, z));
     }
 }
 

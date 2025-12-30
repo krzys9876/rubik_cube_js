@@ -239,11 +239,17 @@ export class Plane2D {
 
 export class PlaneMetadata {
     style;
+    orientation;
     text;
 
-    constructor(style, text) {
+    constructor(style, orientation, text) {
         this.style = style;
-        this.text = text;
+        this.orientation = orientation;
+        this.updateText(text);
+    }
+
+    updateText(text) {
+        this.text = `${text} ${this.orientation}`;
     }
 }
 
