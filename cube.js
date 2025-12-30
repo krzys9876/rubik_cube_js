@@ -36,6 +36,7 @@ export class Cube {
 
         this.points = points;
         this.styles = styles;
+        this.metadata = metadata;
 
         /* The points should be arranged in the following order:
             1---------0

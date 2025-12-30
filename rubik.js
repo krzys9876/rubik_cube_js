@@ -11,12 +11,6 @@ class RubikCube {
     styles;
     cubes = [];
 
-    //TODO: introduce cubes coordinates, change coordinates when moving sides, select sides dynamically
-    static topSideIndices = [2, 6, 7, 11, 15, 16, 19, 20, 21 ];
-    static bottomSideIndices = [3, 8, 9, 12, 17, 18, 22, 23, 24 ];
-    static frontSideIndices = [1, 2, 3, 4, 5, 6, 7, 8, 9 ];
-    static backSideIndices = [10, 11, 12, 13, 14, 15, 16, 17, 18 ];
-
     constructor(center, size, styles) {
         this.center = center;
         this.size = size;
@@ -130,7 +124,7 @@ class RubikCube {
         // 23
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, -singleCubeSize, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
-            [globalStyle,globalStyle,globalStyle,this.styles[3],this.styles[4],globalStyle], 1, -1, 0));
+            [globalStyle,globalStyle,globalStyle,this.styles[3],this.styles[4],globalStyle], -1, -1, 0));
         // 24
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, -singleCubeSize, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
@@ -178,41 +172,51 @@ class RubikCube {
         }
     }
 
-    topSideCubes() {
-        return this.cubes.filter(cube => cube.metadata.coords.y === 1);
-    }
+    //TODO: change coordinates when moving sides
+    topSideCubes() { return this.cubes.filter(cube => cube.metadata.coords.y === 1); }
+    bottomSideCubes() { return this.cubes.filter(cube => cube.metadata.coords.y === -1); }
+    frontSideCubes() { return this.cubes.filter(cube => cube.metadata.coords.z === -1); }
+    backSideCubes() { return this.cubes.filter(cube => cube.metadata.coords.z === 1); }
+    leftSideCubes() { return this.cubes.filter(cube => cube.metadata.coords.x === -1); }
+    rightSideCubes() { return this.cubes.filter(cube => cube.metadata.coords.x === 1); }
 
     moveTop(counterClockwise) {
         let rotationCenter = this.center.clone().moveBy(new Vector3D(0, this.size / 3, 0));
         let rotationMatrix = Scene.rotationMatrixY(90 * Scene.deg2rad);
-        this.#moveSide(RubikCube.topSideIndices, rotationMatrix, rotationCenter, counterClockwise);
+        this.#moveSide(this.topSideCubes(), rotationMatrix, rotationCenter, counterClockwise);
     }
 
     moveBottom(counterClockwise) {
         let rotationCenter = this.center.clone().moveBy(new Vector3D(0, -this.size / 3, 0));
         let rotationMatrix = Scene.rotationMatrixY(90 * Scene.deg2rad);
-        this.#moveSide(RubikCube.bottomSideIndices, rotationMatrix, rotationCenter, counterClockwise);
+        this.#moveSide(this.bottomSideCubes(), rotationMatrix, rotationCenter, counterClockwise);
     }
 
     moveFront(counterClockwise) {
         let rotationCenter = this.center.clone().moveBy(new Vector3D(0, 0, -this.size / 3));
         let rotationMatrix = Scene.rotationMatrixZ(90 * Scene.deg2rad);
-        this.#moveSide(RubikCube.frontSideIndices, rotationMatrix, rotationCenter, counterClockwise);
+        this.#moveSide(this.frontSideCubes(), rotationMatrix, rotationCenter, counterClockwise);
     }
 
     moveBack(counterClockwise) {
         let rotationCenter = this.center.clone().moveBy(new Vector3D(0, 0, -this.size / 3));
         let rotationMatrix = Scene.rotationMatrixZ(90 * Scene.deg2rad);
-        this.#moveSide(RubikCube.backSideIndices, rotationMatrix, rotationCenter, counterClockwise);
+        this.#moveSide(this.backSideCubes(), rotationMatrix, rotationCenter, counterClockwise);
     }
 
-    #moveSide(cubeIndices, matrix, center, counterClockwise) {
-        for (let i of cubeIndices) {
-            this.cubes[i].rotate(matrix, center, counterClockwise);
-        }
+    moveLeft(counterClockwise) {
+        let rotationCenter = this.center.clone().moveBy(new Vector3D(-this.size / 3, 0, 0));
+        let rotationMatrix = Scene.rotationMatrixX(90 * Scene.deg2rad);
+        this.#moveSide(this.leftSideCubes(), rotationMatrix, rotationCenter, counterClockwise);
     }
 
-    #moveSide2(sideCubes, matrix, center, counterClockwise) {
+    moveRight(counterClockwise) {
+        let rotationCenter = this.center.clone().moveBy(new Vector3D(this.size / 3, 0, 0));
+        let rotationMatrix = Scene.rotationMatrixX(90 * Scene.deg2rad);
+        this.#moveSide(this.rightSideCubes(), rotationMatrix, rotationCenter, counterClockwise);
+    }
+
+    #moveSide(sideCubes, matrix, center, counterClockwise) {
         for (let c of sideCubes) {
             c.rotate(matrix, center, counterClockwise);
         }
@@ -245,6 +249,8 @@ let moveTop = 0;
 let moveBottom = 0;
 let moveFront = 0;
 let moveBack = 0;
+let moveLeft = 0;
+let moveRight = 0;
 
 let globalKeyDown = false;
 
@@ -263,6 +269,10 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'r') moveFront = 1;
     if (event.key === 'd') moveBack = -1;
     if (event.key === 'f') moveBack = 1;
+    if (event.key === 't') moveLeft = -1;
+    if (event.key === 'g') moveLeft = 1;
+    if (event.key === 'y') moveRight = -1;
+    if (event.key === 'h') moveRight = 1;
 
     globalKeyDown = true;
 });
@@ -311,6 +321,16 @@ function drawLoop() {
     if(moveBack !== 0) {
         cube.moveBack(moveBack > 0);
         moveBack = 0;
+    }
+
+    if(moveLeft !== 0) {
+        cube.moveLeft(moveLeft > 0);
+        moveLeft = 0;
+    }
+
+    if(moveRight !== 0) {
+        cube.moveRight(moveRight > 0);
+        moveRight = 0;
     }
 
     counter ++;
