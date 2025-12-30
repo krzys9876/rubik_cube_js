@@ -1,6 +1,6 @@
 import {Point3D} from "../main/geometry.js";
 import {Scene} from "../main/scene.js";
-import {assertEqualCoords, assertEqualMatrices, assertEqualsRounded, runTest} from "./common-test.js";
+import {assertEqualCoords, assertEqualMatrices, runTest} from "./common-test.js";
 import {CubeCoords} from "../main/cube.js";
 import {Axis, MoveDirection, SideType} from "../main/common.js";
 
@@ -42,7 +42,6 @@ function _doTestCubeCoordsRotation(data) {
     const coords = new CubeCoords(initCoords.x, initCoords.y, initCoords.z);
     for(let i=1; i<=4; i++) {
         coords.rotateSide(data.side, MoveDirection.CLOCKWISE);
-        const c = _makeCoords(data.coords[i % 4]);
         assertEqualCoords(coords, _makeCoords(data.coords[i % 4]), 0, `Moved ${data.side}, direction ${MoveDirection.CLOCKWISE}`);
     }
     for(let i=3; i>=0; i--) {
