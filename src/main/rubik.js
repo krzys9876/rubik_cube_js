@@ -1,4 +1,4 @@
-import { Style, globalStyle } from './common.js';
+import {Style, globalStyle, MoveDirection, SideType} from './common.js';
 import { canvas, ctx } from './common-dom.js';
 import { Point3D, Vector3D } from './geometry.js';
 import { Cube } from './cube.js';
@@ -177,6 +177,18 @@ class RubikCube {
     leftSideCubes() { return this.cubes.filter(cube => cube.metadata.coords.x === -1); }
     rightSideCubes() { return this.cubes.filter(cube => cube.metadata.coords.x === 1); }
 
+    moveSide(sideType, direction) {
+        let counterClockwiseFlag = direction === MoveDirection.COUNTERCLOCKWISE;
+        switch(sideType) {
+            case SideType.TOP: this.moveTop(counterClockwiseFlag); break;
+            case SideType.BOTTOM: this.moveBottom(counterClockwiseFlag); break;
+            case SideType.FRONT: this.moveFront(counterClockwiseFlag); break;
+            case SideType.BACK: this.moveBack(counterClockwiseFlag); break;
+            case SideType.LEFT: this.moveLeft(counterClockwiseFlag); break;
+            case SideType.RIGHT: this.moveRight(counterClockwiseFlag); break;
+        }
+    }
+
     moveTop(counterClockwise) {
         let rotationCenter = this.center.clone().moveBy(new Vector3D(0, this.size / 3, 0));
         let rotationMatrix = Scene.rotationMatrixY(90 * Scene.deg2rad);
@@ -242,12 +254,8 @@ const stepY = 3 / 5;
 let rotateZ = 0;
 let rotateX = 0;
 let rotateY = 0;
-let moveTop = 0;
-let moveBottom = 0;
-let moveFront = 0;
-let moveBack = 0;
-let moveLeft = 0;
-let moveRight = 0;
+let moveSide = null;
+let moveDirection = null;
 
 let globalKeyDown = false;
 
@@ -258,18 +266,18 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowDown') rotateX = -stepX;
     if (event.key === ',') rotateZ = stepZ;
     if (event.key === '.') rotateZ = -stepZ;
-    if (event.key === 'q') moveTop = -1;
-    if (event.key === 'w') moveTop = 1;
-    if (event.key === 'a') moveBottom = -1;
-    if (event.key === 's') moveBottom = 1;
-    if (event.key === 'e') moveFront = -1;
-    if (event.key === 'r') moveFront = 1;
-    if (event.key === 'd') moveBack = -1;
-    if (event.key === 'f') moveBack = 1;
-    if (event.key === 't') moveLeft = -1;
-    if (event.key === 'g') moveLeft = 1;
-    if (event.key === 'y') moveRight = -1;
-    if (event.key === 'h') moveRight = 1;
+    if (event.key === 'q') { moveSide = SideType.TOP; moveDirection = MoveDirection.CLOCKWISE; }
+    if (event.key === 'w') { moveSide = SideType.TOP; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
+    if (event.key === 'a') { moveSide = SideType.BOTTOM; moveDirection = MoveDirection.CLOCKWISE; }
+    if (event.key === 's') { moveSide = SideType.BOTTOM; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
+    if (event.key === 'e') { moveSide = SideType.FRONT; moveDirection = MoveDirection.CLOCKWISE; }
+    if (event.key === 'r') { moveSide = SideType.FRONT; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
+    if (event.key === 'd') { moveSide = SideType.BACK; moveDirection = MoveDirection.CLOCKWISE; }
+    if (event.key === 'f') { moveSide = SideType.BACK; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
+    if (event.key === 't') { moveSide = SideType.LEFT; moveDirection = MoveDirection.CLOCKWISE; }
+    if (event.key === 'g') { moveSide = SideType.LEFT; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
+    if (event.key === 'y') { moveSide = SideType.RIGHT; moveDirection = MoveDirection.CLOCKWISE; }
+    if (event.key === 'h') { moveSide = SideType.RIGHT; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
 
     globalKeyDown = true;
 });
@@ -300,34 +308,10 @@ function drawLoop() {
     cube.draw(observer);
     cube.rotate(scene.rotationMatrix, rotationCenter, true);
 
-    if(moveTop !== 0) {
-        cube.moveTop(moveTop > 0);
-        moveTop = 0;
-    }
-
-    if(moveBottom !== 0) {
-        cube.moveBottom(moveBottom > 0);
-        moveBottom = 0;
-    }
-
-    if(moveFront !== 0) {
-        cube.moveFront(moveFront > 0);
-        moveFront = 0;
-    }
-
-    if(moveBack !== 0) {
-        cube.moveBack(moveBack > 0);
-        moveBack = 0;
-    }
-
-    if(moveLeft !== 0) {
-        cube.moveLeft(moveLeft > 0);
-        moveLeft = 0;
-    }
-
-    if(moveRight !== 0) {
-        cube.moveRight(moveRight > 0);
-        moveRight = 0;
+    if(moveSide !== null && moveDirection !== null) {
+        cube.moveSide(moveSide, moveDirection);
+        moveSide = null;
+        moveDirection = null;
     }
 
     counter ++;

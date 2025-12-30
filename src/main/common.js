@@ -14,3 +14,10 @@ export const globalStyle = new Style('black', 'black', 'darkgray');
 
 export const deg2rad = Math.PI / 180;
 
+export const SideType = {
+    TOP: "top", BOTTOM: "bottom", FRONT: "front", BACK: "back", LEFT: "left", RIGHT: "right"
+};
+
+export const MoveDirection = {
+    CLOCKWISE: 0, COUNTERCLOCKWISE: 1,
+}
