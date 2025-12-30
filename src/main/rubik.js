@@ -152,8 +152,10 @@ class RubikCube {
         for (let cube of this.cubes) cube.rotate(matrix, center, false, reverse)
     }
 
-    draw(observer) {
+    draw(observer, rotationCenter) {
         this.animate();
+
+        this.rotate(scene.rotationMatrix, rotationCenter, false);
         // Draw all cubes' planes instead of drawing cubes. We must sort planes anyway in order to properly render image.
         let allPlanes = [];
         for (let cube of this.cubes) {
@@ -170,6 +172,8 @@ class RubikCube {
         for (let plane of allPlanes) {
             plane.project(observer).draw(false, true, true);
         }
+
+        this.rotate(scene.rotationMatrix, rotationCenter, true);
     }
 
     //TODO: change coordinates when moving sides
@@ -295,9 +299,9 @@ function drawLoop() {
 
     scene.rotate(rotateX, rotateY, rotateZ);
 
-    cube.rotate(scene.rotationMatrix, rotationCenter, false);
-    cube.draw(observer);
-    cube.rotate(scene.rotationMatrix, rotationCenter, true);
+    //cube.rotate(scene.rotationMatrix, rotationCenter, false);
+    cube.draw(observer, rotationCenter);
+    //cube.rotate(scene.rotationMatrix, rotationCenter, true);
 
     if(moveSide !== null && moveDirection !== null) {
         //cube.moveSide(moveSide, moveDirection);
