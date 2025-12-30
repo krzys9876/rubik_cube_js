@@ -1,4 +1,4 @@
-import {Style, globalStyle, MoveDirection, SideType, sideAxis, reverseDirection} from './common.js';
+import {Style, globalStyle, MoveDirection, SideType, sideAxis, reverseDirection, Axis} from './common.js';
 import { canvas, ctx } from './common-dom.js';
 import { Point3D, Vector3D } from './geometry.js';
 import { Cube, SideAnimation } from './cube.js';
@@ -242,25 +242,26 @@ let cubeCenter = rotationCenter.clone().moveBy(new Vector3D(-0.2, 0.3, 0));
 let cube = new RubikCube(cubeCenter, 1, [redStyle, yellowStyle, blueStyle, whiteStyle, greenStyle, orangeStyle]);
 
 let counter = 0;
-const stepZ = 3 / 5;
-const stepX = 3 / 5;
-const stepY = 3 / 5;
 
-let rotateZ = 0;
-let rotateX = 0;
-let rotateY = 0;
+const step = new Map();
+step.set(Axis.X, 3 / 5);
+step.set(Axis.Y, 3 / 5);
+step.set(Axis.Z, 3 / 5);
+
+const rotate = new Map();
+
 let moveSide = null;
 let moveDirection = null;
 
 let globalKeyDown = false;
 
 document.addEventListener('keydown', (event) => {
-    if (event.key === 'ArrowLeft') rotateY = stepY;
-    if (event.key === 'ArrowRight') rotateY = -stepY;
-    if (event.key === 'ArrowUp') rotateX = stepX;
-    if (event.key === 'ArrowDown') rotateX = -stepX;
-    if (event.key === ',') rotateZ = stepZ;
-    if (event.key === '.') rotateZ = -stepZ;
+    if (event.key === 'ArrowLeft') rotate.set(Axis.Y, step.get(Axis.Y));
+    if (event.key === 'ArrowRight') rotate.set(Axis.Y, -step.get(Axis.Y));
+    if (event.key === 'ArrowUp') rotate.set(Axis.X, step.get(Axis.X));
+    if (event.key === 'ArrowDown') rotate.set(Axis.X, -step.get(Axis.X));
+    if (event.key === ',') rotate.set(Axis.Z, step.get(Axis.Z));
+    if (event.key === '.') rotate.set(Axis.Z, -step.get(Axis.Z));
     if (event.key === 'q') { moveSide = SideType.TOP; moveDirection = MoveDirection.CLOCKWISE; }
     if (event.key === 'w') { moveSide = SideType.TOP; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
     if (event.key === 'a') { moveSide = SideType.BOTTOM; moveDirection = MoveDirection.CLOCKWISE; }
@@ -278,12 +279,12 @@ document.addEventListener('keydown', (event) => {
 });
 
 document.addEventListener('keyup', (event) => {
-    if (event.key === 'ArrowLeft') rotateY = 0;
-    if (event.key === 'ArrowRight') rotateY = 0;
-    if (event.key === 'ArrowUp') rotateX = 0;
-    if (event.key === 'ArrowDown') rotateX = 0;
-    if (event.key === ',') rotateZ = 0;
-    if (event.key === '.') rotateZ = 0;
+    if (event.key === 'ArrowLeft') rotate.delete(Axis.Y);
+    if (event.key === 'ArrowRight') rotate.delete(Axis.Y);
+    if (event.key === 'ArrowUp') rotate.delete(Axis.X);
+    if (event.key === 'ArrowDown') rotate.delete(Axis.X);
+    if (event.key === ',') rotate.delete(Axis.Z);
+    if (event.key === '.') rotate.delete(Axis.Z);
 
     globalKeyDown = false;
 });
@@ -293,30 +294,27 @@ document.addEventListener('keyup', (event) => {
 const bkStyle = 'lightgray';
 
 function drawLoop() {
+    if(counter === 0 || moveSide !== null || moveDirection !== null || cube.animation.ongoing || rotate.size > 0) {
+        ctx.fillStyle = bkStyle;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = bkStyle;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+        scene.rotate(
+            rotate.has(Axis.X) ? rotate.get(Axis.X) : 0,
+            rotate.has(Axis.Y) ? rotate.get(Axis.Y) : 0,
+            rotate.has(Axis.Z) ? rotate.get(Axis.Z) : 0);
 
-    scene.rotate(rotateX, rotateY, rotateZ);
+        cube.draw(observer, rotationCenter);
 
-    //cube.rotate(scene.rotationMatrix, rotationCenter, false);
-    cube.draw(observer, rotationCenter);
-    //cube.rotate(scene.rotationMatrix, rotationCenter, true);
-
-    if(moveSide !== null && moveDirection !== null) {
-        //cube.moveSide(moveSide, moveDirection);
-        cube.startMoveSide(moveSide, moveDirection);
-        moveSide = null;
-        moveDirection = null;
+        if(moveSide !== null && moveDirection !== null) {
+            cube.startMoveSide(moveSide, moveDirection);
+            moveSide = null;
+            moveDirection = null;
+        }
     }
 
     counter ++;
-
-    if(counter < 10000) {
-        setTimeout(drawLoop, 1000 / 60);
-    } else {
-        console.log("END (drawLoop)");
-    }
+    if(counter < 10000) setTimeout(drawLoop, 1000 / 60);
+    else console.log("END (drawLoop)");
 }
 
 drawLoop();
