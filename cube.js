@@ -85,8 +85,6 @@ export class Cube {
         points.push(new Point3D(center.x - sizeX / 2,center.y - sizeY / 2, center.z + sizeZ / 2));
         points.push(new Point3D(center.x + sizeX / 2,center.y - sizeY / 2, center.z + sizeZ / 2));
 
-        console.log("created ", x, y, z);
-
         return new Cube(points, styles, CubeMetadata.create(x, y, z));
     }
 }

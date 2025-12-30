@@ -142,22 +142,8 @@ export class Line3D {
         let vectorToEnd = Vector3D.fromPoints(point, this.lineEnd).length();
         let vectorBetween = Vector3D.fromPoints(this.lineStart, this.lineEnd).length();
 
-        //console.log(point, this.lineStart, this.lineEnd, vectorToStart.length(), vectorToEnd.length());
-
+        // Estimate if the angle: observer - normal start (face center) - normal end  is acute (<90) or obtuse (>90) using Pythagorean theorem
         return (vectorToEnd * vectorToEnd) > (vectorToStart * vectorToStart + vectorBetween * vectorBetween);
-
-        /*
-
-                let vectorToStart = Vector3D.fromPoints(point, this.lineStart).length();
-        let vectorToEnd = Vector3D.fromPoints(point, this.lineEnd).length();
-        let vectorBetween = Vector3D.fromPoints(vectorToStart, vectorToEnd).length();
-
-        // We want to assess if the agle: point - start - end is accute (<90) or obtuse (>90),
-        // It is acute if |point-end vector|^2 < [point-start]^2 + |start-end|^2 (Pythagoras' theorem)
-
-        return vectorToEnd*vectorToEnd < vectorBetween * vectorToStart + vectorBetween * vectorToEnd;
-
-         */
     }
 }
 
