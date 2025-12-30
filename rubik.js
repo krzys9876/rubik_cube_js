@@ -1,5 +1,6 @@
 import { Style, canvas, ctx, globalStyle } from './common.js';
-import { Point3D, Vector3D, Cube } from './geometry.js';
+import { Point3D, Vector3D } from './geometry.js';
+import { Cube } from './cube.js';
 import { Scene, scene } from './scene.js';
 
 console.log("START");
