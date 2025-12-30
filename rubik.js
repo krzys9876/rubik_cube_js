@@ -145,10 +145,6 @@ class RubikCube {
         return generated;
     }
 
-    rotate(angleX, angleY, angleZ, center, reverse) {
-        for (let cube of this.cubes) cube.rotate(angleX, angleY, angleZ, center, reverse)
-    }
-
     rotate(matrix, center, reverse = false) {
         for (let cube of this.cubes) cube.rotate(matrix, center, reverse)
     }
