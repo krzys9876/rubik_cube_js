@@ -30,7 +30,6 @@ export class CubeCoords extends Coords3D {
 
 export class CubeMetadata {
     coords;
-    // TODO: add colors facing each side and maintain colors when cube is rotated
 
     constructor(coords) {
         this.coords = coords;
