@@ -8,7 +8,12 @@ export class CubeCoords extends Coords3D {
     static rotationCenter = new Coords3D(0, 0, 0);
 
     rotateSide(sideType, direction) {
-        const deg90 = Math.PI / 2;
+        let deg90 = Math.PI / 2;
+
+        switch (sideType) {
+            case SideType.FRONT: deg90 = -deg90; break;
+            case SideType.BACK: deg90 = -deg90; break;
+        }
 
         let matrix = Scene.rotationMatrix(sideAxis.get(sideType), deg90);
 
