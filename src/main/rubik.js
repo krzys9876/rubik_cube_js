@@ -1,4 +1,4 @@
-import {Style, globalStyle, MoveDirection, SideType, sideAxis} from './common.js';
+import {Style, globalStyle, MoveDirection, SideType, sideAxis, reverseDirection} from './common.js';
 import { canvas, ctx } from './common-dom.js';
 import { Point3D, Vector3D } from './geometry.js';
 import { Cube } from './cube.js';
@@ -147,7 +147,7 @@ class RubikCube {
     }
 
     rotate(matrix, center, reverse = false) {
-        for (let cube of this.cubes) cube.rotate(matrix, center, reverse)
+        for (let cube of this.cubes) cube.rotate(matrix, center, false, reverse)
     }
 
     draw(observer) {
@@ -198,7 +198,10 @@ class RubikCube {
         const sideCubes = this.#sideCubes(side);
         const center = this.#rotationCenter(side);
         for (let c of sideCubes) {
-            c.rotate(matrix, center, counterClockwiseFlag);
+            let coordsDirection = reverseDirection(direction);
+            if(side === SideType.TOP || side === SideType.BOTTOM) coordsDirection = direction;
+            c.metadata.coords.rotateSide(side, coordsDirection);
+            c.rotate(matrix, center, true, counterClockwiseFlag);
         }
     }
 }

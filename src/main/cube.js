@@ -82,8 +82,11 @@ export class Cube {
             new PlaneMetadata(styles[5], this.metadata.toText()))); // right
     }
 
-    rotate(matrix, center, reverse = false) {
-        for (let plane of this.planes) plane.rotate(matrix, center, reverse)
+    rotate(matrix, center, updateCoords, reverse = false) {
+        for (let plane of this.planes) {
+            plane.rotate(matrix, center, reverse)
+            if(updateCoords) plane.metadata.text = this.metadata.toText();
+        }
     }
 
     draw(observer) {

@@ -20,6 +20,11 @@ export const SideType = {
 
 export const MoveDirection = { CLOCKWISE: 0, COUNTERCLOCKWISE: 1 };
 
+export function reverseDirection(direction) {
+    if (direction === MoveDirection.CLOCKWISE) return MoveDirection.COUNTERCLOCKWISE
+    else return MoveDirection.CLOCKWISE;
+}
+
 export const Axis = { X: "x", Y: "y", Z: "z" }
 
 export const sideAxis = new Map();
