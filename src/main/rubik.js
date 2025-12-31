@@ -282,7 +282,7 @@ const observer = new Point3D(0,0,-Point3D.focalLength);
 
 let cubeCenter = rotationCenter.clone().moveBy(new Vector3D(-0.2, 0.3, 0));
 
-let cube = new RubikCube(cubeCenter, 1, [greenStyle, blueStyle, yellowStyle, whiteStyle, orangeStyle, redStyle]);
+let cube = new RubikCube(cubeCenter, 1, [blueStyle, greenStyle, yellowStyle, whiteStyle, orangeStyle, redStyle]);
 
 let counter = 0;
 
