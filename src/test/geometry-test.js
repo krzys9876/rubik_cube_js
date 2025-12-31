@@ -53,30 +53,18 @@ function _doTestCubeCoordsRotation(data) {
 
 function testCubeCoordsRotation() {
     // coords array contains coords for 4 consecutive clockwise moves
-    const dataTopCorner = { side: SideType.TOP, coords: [[1,1,1],[1,1,-1],[-1,1,-1],[-1,1,1]] };
-    _doTestCubeCoordsRotation(dataTopCorner);
-    const dataTopMiddle = { side: SideType.TOP, coords: [[0,1,1],[1,1,0],[0,1,-1],[-1,1,0]] };
-    _doTestCubeCoordsRotation(dataTopMiddle);
-    const dataBottomCorner = { side: SideType.BOTTOM, coords: [[1,-1,1],[1,-1,-1],[-1,-1,-1],[-1,-1,1]] };
-    _doTestCubeCoordsRotation(dataBottomCorner);
-    const dataBottomMiddle = { side: SideType.BOTTOM, coords: [[0,-1,1],[1,-1,0],[0,-1,-1],[-1,-1,0]] };
-    _doTestCubeCoordsRotation(dataBottomMiddle);
-    const dataFrontCorner = { side: SideType.FRONT, coords: [[-1,1,-1],[1,1,-1],[1,-1,-1],[-1,-1,-1]] };
-    _doTestCubeCoordsRotation(dataFrontCorner);
-    const dataFrontMiddle = { side: SideType.FRONT, coords: [[0,1,-1],[1,0,-1],[0,-1,-1],[-1,0,-1]] };
-    _doTestCubeCoordsRotation(dataFrontMiddle);
-    const dataBackCorner = { side: SideType.BACK, coords: [[-1,1,1],[1,1,1],[1,-1,1],[-1,-1,1]] };
-    _doTestCubeCoordsRotation(dataBackCorner);
-    const dataBackMiddle = { side: SideType.BACK, coords: [[0,1,1],[1,0,1],[0,-1,1],[-1,0,1]] };
-    _doTestCubeCoordsRotation(dataBackMiddle);
-    const dataLeftCorner = { side: SideType.LEFT, coords: [[-1,1,1],[-1,1,-1],[-1,-1,-1],[-1,-1,1]] };
-    _doTestCubeCoordsRotation(dataLeftCorner);
-    const dataLeftMiddle = { side: SideType.LEFT, coords: [[-1,1,0],[-1,0,-1],[-1,-1,0],[-1,0,1]] };
-    _doTestCubeCoordsRotation(dataLeftMiddle);
-    const dataRightCorner = { side: SideType.RIGHT, coords: [[1,1,1],[1,1,-1],[1,-1,-1],[1,-1,1]] };
-    _doTestCubeCoordsRotation(dataRightCorner);
-    const dataRightMiddle = { side: SideType.RIGHT, coords: [[1,1,0],[1,0,-1],[1,-1,0],[1,0,1]] };
-    _doTestCubeCoordsRotation(dataRightMiddle);
+    _doTestCubeCoordsRotation({ side: SideType.UP, coords: [[1,1,1],[1,1,-1],[-1,1,-1],[-1,1,1]] });
+    _doTestCubeCoordsRotation({ side: SideType.UP, coords: [[0,1,1],[1,1,0],[0,1,-1],[-1,1,0]] });
+    _doTestCubeCoordsRotation({ side: SideType.DOWN, coords: [[1,-1,1],[1,-1,-1],[-1,-1,-1],[-1,-1,1]] });
+    _doTestCubeCoordsRotation({ side: SideType.DOWN, coords: [[0,-1,1],[1,-1,0],[0,-1,-1],[-1,-1,0]] });
+    _doTestCubeCoordsRotation({ side: SideType.FRONT, coords: [[-1,1,-1],[1,1,-1],[1,-1,-1],[-1,-1,-1]] });
+    _doTestCubeCoordsRotation({ side: SideType.FRONT, coords: [[0,1,-1],[1,0,-1],[0,-1,-1],[-1,0,-1]] });
+    _doTestCubeCoordsRotation({ side: SideType.BACK, coords: [[-1,1,1],[1,1,1],[1,-1,1],[-1,-1,1]] });
+    _doTestCubeCoordsRotation({ side: SideType.BACK, coords: [[0,1,1],[1,0,1],[0,-1,1],[-1,0,1]] });
+    _doTestCubeCoordsRotation({ side: SideType.LEFT, coords: [[-1,1,1],[-1,1,-1],[-1,-1,-1],[-1,-1,1]] });
+    _doTestCubeCoordsRotation({ side: SideType.LEFT, coords: [[-1,1,0],[-1,0,-1],[-1,-1,0],[-1,0,1]] });
+    _doTestCubeCoordsRotation({ side: SideType.RIGHT, coords: [[1,1,1],[1,1,-1],[1,-1,-1],[1,-1,1]] });
+    _doTestCubeCoordsRotation({ side: SideType.RIGHT, coords: [[1,1,0],[1,0,-1],[1,-1,0],[1,0,1]] });
 }
 
 function _doTestPlaneRotation(data) {
@@ -93,15 +81,15 @@ function _doTestPlaneRotation(data) {
 
 function testPlaneRotation() {
     // Ignore rotation when orientation is not set (for invisible planes)
-    _doTestPlaneRotation({ moveSide: SideType.TOP, sides: [null, null, null, null] });
+    _doTestPlaneRotation({ moveSide: SideType.UP, sides: [null, null, null, null] });
 
     // NOTE: This is not an exhaustive list of combinations
-    _doTestPlaneRotation({ moveSide: SideType.TOP, sides: [SideType.FRONT, SideType.LEFT, SideType.BACK, SideType.RIGHT] });
-    _doTestPlaneRotation({ moveSide: SideType.BOTTOM, sides: [SideType.FRONT, SideType.LEFT, SideType.BACK, SideType.RIGHT] });
-    _doTestPlaneRotation({ moveSide: SideType.LEFT, sides: [SideType.FRONT, SideType.BOTTOM, SideType.BACK, SideType.TOP] });
-    _doTestPlaneRotation( { moveSide: SideType.RIGHT, sides: [SideType.FRONT, SideType.BOTTOM, SideType.BACK, SideType.TOP] });
-    _doTestPlaneRotation({ moveSide: SideType.FRONT, sides: [SideType.TOP, SideType.RIGHT, SideType.BOTTOM, SideType.LEFT] });
-    _doTestPlaneRotation( { moveSide: SideType.BACK, sides: [SideType.TOP, SideType.RIGHT, SideType.BOTTOM, SideType.LEFT] });
+    _doTestPlaneRotation({ moveSide: SideType.UP, sides: [SideType.FRONT, SideType.LEFT, SideType.BACK, SideType.RIGHT] });
+    _doTestPlaneRotation({ moveSide: SideType.DOWN, sides: [SideType.FRONT, SideType.LEFT, SideType.BACK, SideType.RIGHT] });
+    _doTestPlaneRotation({ moveSide: SideType.LEFT, sides: [SideType.FRONT, SideType.DOWN, SideType.BACK, SideType.UP] });
+    _doTestPlaneRotation( { moveSide: SideType.RIGHT, sides: [SideType.FRONT, SideType.DOWN, SideType.BACK, SideType.UP] });
+    _doTestPlaneRotation({ moveSide: SideType.FRONT, sides: [SideType.UP, SideType.RIGHT, SideType.DOWN, SideType.LEFT] });
+    _doTestPlaneRotation( { moveSide: SideType.BACK, sides: [SideType.UP, SideType.RIGHT, SideType.DOWN, SideType.LEFT] });
 
     _doTestPlaneRotation({ moveSide: SideType.FRONT, sides: [SideType.FRONT, SideType.FRONT, SideType.FRONT, SideType.FRONT] });
     _doTestPlaneRotation({ moveSide: SideType.BACK, sides: [SideType.FRONT, SideType.FRONT, SideType.FRONT, SideType.FRONT] });

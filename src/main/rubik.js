@@ -40,12 +40,12 @@ class RubikCube {
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, singleCubeSize, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [this.styles[0],globalStyle,this.styles[2],globalStyle,globalStyle,globalStyle],
-            [SideType.FRONT, null, SideType.TOP, null, null, null], 0, 1, -1));
+            [SideType.FRONT, null, SideType.UP, null, null, null], 0, 1, -1));
         // 3
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, -singleCubeSize, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [this.styles[0],globalStyle,globalStyle,this.styles[3],globalStyle,globalStyle],
-            [SideType.FRONT, null, null, SideType.BOTTOM, null, null], 0, -1, -1));
+            [SideType.FRONT, null, null, SideType.DOWN, null, null], 0, -1, -1));
         // 4
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, 0, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
@@ -60,22 +60,22 @@ class RubikCube {
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, singleCubeSize, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [this.styles[0],globalStyle,this.styles[2],globalStyle,this.styles[4],globalStyle],
-            [SideType.FRONT, null, SideType.TOP, null, SideType.LEFT, null],  -1, 1, -1));
+            [SideType.FRONT, null, SideType.UP, null, SideType.LEFT, null],  -1, 1, -1));
         // 7
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, singleCubeSize, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [this.styles[0],globalStyle,this.styles[2],globalStyle,globalStyle,this.styles[5]],
-            [SideType.FRONT, null, SideType.TOP, null, null, SideType.RIGHT], 1, 1, -1));
+            [SideType.FRONT, null, SideType.UP, null, null, SideType.RIGHT], 1, 1, -1));
         // 8
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, -singleCubeSize, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [this.styles[0],globalStyle,globalStyle,this.styles[3],this.styles[4],globalStyle],
-            [SideType.FRONT, null, null, SideType.BOTTOM, SideType.LEFT, null], -1, -1, -1));
+            [SideType.FRONT, null, null, SideType.DOWN, SideType.LEFT, null], -1, -1, -1));
         // 9
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, -singleCubeSize, -singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [this.styles[0],globalStyle,globalStyle,this.styles[3],globalStyle,this.styles[5]],
-            [SideType.FRONT, null, null, SideType.BOTTOM, null, SideType.RIGHT], 1, -1, -1));
+            [SideType.FRONT, null, null, SideType.DOWN, null, SideType.RIGHT], 1, -1, -1));
 
         // Back
         // 10
@@ -87,12 +87,12 @@ class RubikCube {
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, singleCubeSize, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,this.styles[1],this.styles[2],globalStyle,globalStyle,globalStyle],
-            [null, SideType.BACK, SideType.TOP, null, null, null], 0, 1, 1));
+            [null, SideType.BACK, SideType.UP, null, null, null], 0, 1, 1));
         // 12
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, -singleCubeSize, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,this.styles[1],globalStyle,this.styles[3],globalStyle,globalStyle],
-            [null, SideType.BACK, null, SideType.BOTTOM, null, null], 0, -1, 1));
+            [null, SideType.BACK, null, SideType.DOWN, null, null], 0, -1, 1));
         // 13
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, 0, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
@@ -107,56 +107,56 @@ class RubikCube {
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, singleCubeSize, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,this.styles[1],this.styles[2],globalStyle,this.styles[4],globalStyle],
-            [null, SideType.BACK, SideType.TOP, null, SideType.LEFT, null], -1, 1, 1));
+            [null, SideType.BACK, SideType.UP, null, SideType.LEFT, null], -1, 1, 1));
         // 16
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, singleCubeSize, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,this.styles[1],this.styles[2],globalStyle,globalStyle,this.styles[5]],
-            [null, SideType.BACK, SideType.TOP, null, null, SideType.RIGHT], 1, 1, 1));
+            [null, SideType.BACK, SideType.UP, null, null, SideType.RIGHT], 1, 1, 1));
         // 17
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, -singleCubeSize, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,this.styles[1],globalStyle,this.styles[3],this.styles[4],globalStyle],
-            [null, SideType.BACK, null, SideType.BOTTOM, SideType.LEFT, null], -1, -1, 1));
+            [null, SideType.BACK, null, SideType.DOWN, SideType.LEFT, null], -1, -1, 1));
         // 18
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, -singleCubeSize, singleCubeSize)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,this.styles[1],globalStyle,this.styles[3],globalStyle,this.styles[5]],
-            [null, SideType.BACK, null, SideType.BOTTOM, null, SideType.RIGHT], 1, -1, 1));
+            [null, SideType.BACK, null, SideType.DOWN, null, SideType.RIGHT], 1, -1, 1));
 
-        // Top
+        // Up
         // 19
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, singleCubeSize, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,globalStyle,this.styles[2],globalStyle,globalStyle,globalStyle],
-            [null, null, SideType.TOP, null, null, null], 0, 1, 0));
+            [null, null, SideType.UP, null, null, null], 0, 1, 0));
         // 20
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, singleCubeSize, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,globalStyle,this.styles[2],globalStyle,this.styles[4],globalStyle],
-            [null, null, SideType.TOP, null, SideType.LEFT, null], -1, 1, 0));
+            [null, null, SideType.UP, null, SideType.LEFT, null], -1, 1, 0));
         // 21
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, singleCubeSize, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,globalStyle,this.styles[2],globalStyle,globalStyle,this.styles[5]],
-            [null, null, SideType.TOP, null, null, SideType.RIGHT], 1, 1, 0));
+            [null, null, SideType.UP, null, null, SideType.RIGHT], 1, 1, 0));
 
-        // Bottom
+        // Down
         // 22
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(0, -singleCubeSize, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,globalStyle,globalStyle,this.styles[3],globalStyle,globalStyle],
-            [null, null, null, SideType.BOTTOM, null, null], 0, -1, 0));
+            [null, null, null, SideType.DOWN, null, null], 0, -1, 0));
         // 23
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(-singleCubeSize, -singleCubeSize, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,globalStyle,globalStyle,this.styles[3],this.styles[4],globalStyle],
-            [null, null, null, SideType.BOTTOM, SideType.LEFT, null], -1, -1, 0));
+            [null, null, null, SideType.DOWN, SideType.LEFT, null], -1, -1, 0));
         // 24
         generated.push(Cube.generate(this.center.clone().moveBy(new Vector3D(singleCubeSize, -singleCubeSize, 0)),
             singleCubeSize,singleCubeSize,singleCubeSize,
             [globalStyle,globalStyle,globalStyle,this.styles[3],globalStyle,this.styles[5]],
-            [null, null, null, SideType.BOTTOM, null, SideType.RIGHT], 1, -1, 0));
+            [null, null, null, SideType.DOWN, null, SideType.RIGHT], 1, -1, 0));
 
         // Left
         // 25
@@ -205,8 +205,8 @@ class RubikCube {
 
     #sideCubes(side) {
         switch(side) {
-            case SideType.TOP: return this.cubes.filter(cube => cube.metadata.coords.y === 1);
-            case SideType.BOTTOM: return this.cubes.filter(cube => cube.metadata.coords.y === -1);
+            case SideType.UP: return this.cubes.filter(cube => cube.metadata.coords.y === 1);
+            case SideType.DOWN: return this.cubes.filter(cube => cube.metadata.coords.y === -1);
             case SideType.FRONT: return this.cubes.filter(cube => cube.metadata.coords.z === -1);
             case SideType.BACK: return this.cubes.filter(cube => cube.metadata.coords.z === 1);
             case SideType.LEFT: return this.cubes.filter(cube => cube.metadata.coords.x === -1);
@@ -216,8 +216,8 @@ class RubikCube {
 
     #rotationCenter(side) {
         switch(side) {
-            case SideType.TOP: return this.center.clone().moveBy(new Vector3D(0, this.size / 3, 0));
-            case SideType.BOTTOM: return this.center.clone().moveBy(new Vector3D(0, -this.size / 3, 0));
+            case SideType.UP: return this.center.clone().moveBy(new Vector3D(0, this.size / 3, 0));
+            case SideType.DOWN: return this.center.clone().moveBy(new Vector3D(0, -this.size / 3, 0));
             case SideType.FRONT: return this.center.clone().moveBy(new Vector3D(0, 0, -this.size / 3));
             case SideType.BACK: return this.center.clone().moveBy(new Vector3D(0, 0, this.size / 3));
             case SideType.LEFT: return this.center.clone().moveBy(new Vector3D(-this.size / 3, 0, 0));
@@ -253,13 +253,13 @@ class RubikCube {
 
     #finishMoveSide(side, direction) {
         let coordsDirection = reverseDirection(direction);
-        if(side === SideType.TOP || side === SideType.BOTTOM) coordsDirection = direction;
+        if(side === SideType.UP || side === SideType.DOWN) coordsDirection = direction;
         for (let c of this.#sideCubes(side)) c.rotateSide(side, coordsDirection);
 
     }
 
     shuffle(moves) {
-        const sides = [SideType.FRONT, SideType.BACK, SideType.TOP, SideType.BOTTOM, SideType.LEFT, SideType.RIGHT];
+        const sides = [SideType.FRONT, SideType.BACK, SideType.UP, SideType.DOWN, SideType.LEFT, SideType.RIGHT];
         for(let i = 0; i < moves; i++) {
             const sideIndex = Math.round(Math.random() * sides.length) % sides.length;
             const side = sides[sideIndex];
@@ -304,10 +304,10 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowDown') rotate.set(Axis.X, -step.get(Axis.X));
     if (event.key === ',') rotate.set(Axis.Z, step.get(Axis.Z));
     if (event.key === '.') rotate.set(Axis.Z, -step.get(Axis.Z));
-    if (event.key === 'q') { moveSide = SideType.TOP; moveDirection = MoveDirection.CLOCKWISE; }
-    if (event.key === 'w') { moveSide = SideType.TOP; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
-    if (event.key === 'a') { moveSide = SideType.BOTTOM; moveDirection = MoveDirection.CLOCKWISE; }
-    if (event.key === 's') { moveSide = SideType.BOTTOM; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
+    if (event.key === 'q') { moveSide = SideType.UP; moveDirection = MoveDirection.CLOCKWISE; }
+    if (event.key === 'w') { moveSide = SideType.UP; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
+    if (event.key === 'a') { moveSide = SideType.DOWN; moveDirection = MoveDirection.CLOCKWISE; }
+    if (event.key === 's') { moveSide = SideType.DOWN; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
     if (event.key === 'e') { moveSide = SideType.FRONT; moveDirection = MoveDirection.CLOCKWISE; }
     if (event.key === 'r') { moveSide = SideType.FRONT; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
     if (event.key === 'd') { moveSide = SideType.BACK; moveDirection = MoveDirection.CLOCKWISE; }

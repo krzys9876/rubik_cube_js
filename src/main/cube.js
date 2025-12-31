@@ -11,8 +11,8 @@ export class CubeCoords extends Coords3D {
         let deg90 = - Math.PI / 2;
 
         switch (sideType) {
-            case SideType.TOP: deg90 = -deg90; break;
-            case SideType.BOTTOM: deg90 = -deg90; break;
+            case SideType.UP: deg90 = -deg90; break;
+            case SideType.DOWN: deg90 = -deg90; break;
         }
 
         let matrix = Scene.rotationMatrix(sideAxis.get(sideType), deg90);
@@ -40,7 +40,7 @@ export class CubeMetadata {
     }
 
     toText() {
-        return `(${this.coords.x},${this.coords.y},${this.coords.z})`;
+        return `${this.coords.x},${this.coords.y},${this.coords.z}`;
     }
 }
 
@@ -72,9 +72,9 @@ export class Cube {
         this.planes.push(new Plane3D([this.points[7].clone(), this.points[6].clone(), this.points[5].clone(), this.points[4].clone()],
             new PlaneMetadata(styles[1], orientation[1], this.metadata.toText()))); // back
         this.planes.push(new Plane3D([this.points[4].clone(), this.points[5].clone(), this.points[1].clone(), this.points[0].clone()],
-            new PlaneMetadata(styles[2], orientation[2], this.metadata.toText()))); // top
+            new PlaneMetadata(styles[2], orientation[2], this.metadata.toText()))); // up
         this.planes.push(new Plane3D([this.points[3].clone(), this.points[2].clone(), this.points[6].clone(), this.points[7].clone()],
-            new PlaneMetadata(styles[3], orientation[3], this.metadata.toText()))); // bottom
+            new PlaneMetadata(styles[3], orientation[3], this.metadata.toText()))); // down
         this.planes.push(new Plane3D([this.points[1].clone(), this.points[5].clone(), this.points[6].clone(), this.points[2].clone()],
             new PlaneMetadata(styles[4], orientation[4], this.metadata.toText()))); // left
         this.planes.push(new Plane3D([this.points[4].clone(), this.points[0].clone(), this.points[3].clone(), this.points[7].clone()],
