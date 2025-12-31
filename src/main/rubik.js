@@ -235,18 +235,37 @@ class RubikCube {
         const side = this.animation.side;
         const direction = this.animation.direction;
 
-        const counterClockwiseFlag = direction === MoveDirection.COUNTERCLOCKWISE;
-        const matrix = Scene.rotationMatrix(sideAxis.get(side), SideAnimation.step * Scene.deg2rad);
-        const sideCubes = this.#sideCubes(side);
-        const center = this.#rotationCenter(side);
-        for (let c of sideCubes) c.rotate(matrix, center, true, counterClockwiseFlag);
+        this.#moveSide(side, direction, SideAnimation.step);
 
         this.animation.continue();
         if(!this.animation.ongoing) {
             // Conclude animation - update cubes' coords
-            let coordsDirection = reverseDirection(direction);
-            if(side === SideType.TOP || side === SideType.BOTTOM) coordsDirection = direction;
-            for (let c of sideCubes) c.rotateSide(side, coordsDirection);
+            this.#finishMoveSide(side, direction);
+        }
+    }
+
+    #moveSide(side, direction, angleDeg) {
+        const counterClockwiseFlag = direction === MoveDirection.COUNTERCLOCKWISE;
+        const matrix = Scene.rotationMatrix(sideAxis.get(side), angleDeg * Scene.deg2rad);
+        for (let c of this.#sideCubes(side)) c.rotate(matrix, this.#rotationCenter(side), true, counterClockwiseFlag);
+
+    }
+
+    #finishMoveSide(side, direction) {
+        let coordsDirection = reverseDirection(direction);
+        if(side === SideType.TOP || side === SideType.BOTTOM) coordsDirection = direction;
+        for (let c of this.#sideCubes(side)) c.rotateSide(side, coordsDirection);
+
+    }
+
+    shuffle(moves) {
+        const sides = [SideType.FRONT, SideType.BACK, SideType.TOP, SideType.BOTTOM, SideType.LEFT, SideType.RIGHT];
+        for(let i = 0; i < moves; i++) {
+            const sideIndex = Math.round(Math.random() * sides.length) % sides.length;
+            const side = sides[sideIndex];
+            const direction = (Math.random() > 0.5) ? MoveDirection.CLOCKWISE : MoveDirection.COUNTERCLOCKWISE;
+            this.#moveSide(side, direction, 90);
+            this.#finishMoveSide(side, direction);
         }
     }
 }
@@ -276,6 +295,8 @@ let moveDirection = null;
 
 let globalKeyDown = false;
 
+let shuffle = false;
+
 document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowLeft') rotate.set(Axis.Y, step.get(Axis.Y));
     if (event.key === 'ArrowRight') rotate.set(Axis.Y, -step.get(Axis.Y));
@@ -295,6 +316,7 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'g') { moveSide = SideType.LEFT; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
     if (event.key === 'y') { moveSide = SideType.RIGHT; moveDirection = MoveDirection.CLOCKWISE; }
     if (event.key === 'h') { moveSide = SideType.RIGHT; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
+    if (event.key === 'z') shuffle = true;
 
     globalKeyDown = true;
 });
@@ -306,6 +328,7 @@ document.addEventListener('keyup', (event) => {
     if (event.key === 'ArrowDown') rotate.delete(Axis.X);
     if (event.key === ',') rotate.delete(Axis.Z);
     if (event.key === '.') rotate.delete(Axis.Z);
+    if (event.key === 'z') shuffle = false;
 
     globalKeyDown = false;
 });
@@ -315,7 +338,13 @@ document.addEventListener('keyup', (event) => {
 const bkStyle = 'lightgray';
 
 function drawLoop() {
-    if(counter === 0 || moveSide !== null || moveDirection !== null || cube.animation.ongoing || rotate.size > 0) {
+    if(counter === 0 || moveSide !== null || moveDirection !== null ||
+        cube.animation.ongoing || rotate.size > 0 || shuffle) {
+        if(shuffle) {
+            cube.shuffle(1);
+            shuffle = false;
+        }
+
         ctx.fillStyle = bkStyle;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
