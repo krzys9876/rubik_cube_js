@@ -298,6 +298,8 @@ let globalKeyDown = false;
 let shuffle = false;
 
 document.addEventListener('keydown', (event) => {
+    if (document.activeElement.id === 'textMovements') return;
+
     if (event.key === 'ArrowLeft') rotate.set(Axis.Y, step.get(Axis.Y));
     if (event.key === 'ArrowRight') rotate.set(Axis.Y, -step.get(Axis.Y));
     if (event.key === 'ArrowUp') rotate.set(Axis.X, step.get(Axis.X));
@@ -322,6 +324,8 @@ document.addEventListener('keydown', (event) => {
 });
 
 document.addEventListener('keyup', (event) => {
+    if (document.activeElement.id === 'textMovements') return;
+
     if (event.key === 'ArrowLeft') rotate.delete(Axis.Y);
     if (event.key === 'ArrowRight') rotate.delete(Axis.Y);
     if (event.key === 'ArrowUp') rotate.delete(Axis.X);
@@ -366,6 +370,16 @@ function drawLoop() {
     if(counter < 10000000000000) setTimeout(drawLoop, 1000 / 60);
     else console.log("END (drawLoop)");
 }
+
+document.getElementById('processButton').addEventListener('click', () => {
+    const input = document.getElementById('textMovements');
+    const text = input.value;
+    if(!text) return;
+
+    console.log("Processing: ", text);
+
+    input.value='';
+});
 
 drawLoop();
 
