@@ -259,13 +259,10 @@ class RubikCube {
     }
 
     shuffle(moves) {
-        const sides = [SideType.FRONT, SideType.BACK, SideType.UP, SideType.DOWN, SideType.LEFT, SideType.RIGHT];
         for(let i = 0; i < moves; i++) {
-            const sideIndex = Math.round(Math.random() * sides.length) % sides.length;
-            const side = sides[sideIndex];
-            const direction = (Math.random() > 0.5) ? MoveDirection.CLOCKWISE : MoveDirection.COUNTERCLOCKWISE;
-            this.#moveSide(side, direction, 90);
-            this.#finishMoveSide(side, direction);
+            const movement = Movement.random();
+            this.#moveSide(movement.side, movement.direction, 90);
+            this.#finishMoveSide(movement.side, movement.direction);
         }
     }
 }
@@ -337,9 +334,47 @@ document.addEventListener('keyup', (event) => {
     globalKeyDown = false;
 });
 
-
-
 const bkStyle = 'lightgray';
+
+class Movement {
+    side;
+    direction;
+
+    static #sides = [SideType.FRONT, SideType.BACK, SideType.UP, SideType.DOWN, SideType.LEFT, SideType.RIGHT];
+
+    constructor(side, direction) {
+        this.side = side;
+        this.direction = direction;
+    }
+
+    static from(code) {
+        switch (code) {
+            case "U": return new Movement(SideType.UP, MoveDirection.CLOCKWISE);
+            case "U1": return new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE);
+            case "D": return new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE);
+            case "D1": return new Movement(SideType.DOWN, MoveDirection.CLOCKWISE);
+            case "F": return new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE);
+            case "F1": return new Movement(SideType.FRONT, MoveDirection.CLOCKWISE);
+            case "B": return new Movement(SideType.BACK, MoveDirection.CLOCKWISE);
+            case "B1": return new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE);
+            case "L": return new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE);
+            case "L1": return new Movement(SideType.LEFT, MoveDirection.CLOCKWISE);
+            case "R": return new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE);
+            case "R1": return new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE);
+            case "S": return Movement.random();
+            default: return null;
+        }
+    }
+
+    static random() {
+        const sideIndex = Math.round(Math.random() * Movement.#sides.length) % Movement.#sides.length;
+        const side = Movement.#sides[sideIndex];
+        const direction = (Math.random() > 0.5) ? MoveDirection.CLOCKWISE : MoveDirection.COUNTERCLOCKWISE;
+        return new Movement(side, direction);
+    }
+}
+
+const movements = []
 
 function drawLoop() {
     if(counter === 0 || moveSide !== null || moveDirection !== null ||
@@ -364,6 +399,12 @@ function drawLoop() {
             moveSide = null;
             moveDirection = null;
         }
+    } else {
+        if(movements.length > 0) {
+            moveSide = movements[0].side;
+            moveDirection = movements[0].direction;
+            movements.splice(0, 1);
+        }
     }
 
     counter ++;
@@ -376,7 +417,14 @@ document.getElementById('processButton').addEventListener('click', () => {
     const text = input.value;
     if(!text) return;
 
-    console.log("Processing: ", text);
+    const codes = text.split(" ");
+
+    console.log("Processing: ", codes);
+
+    codes.forEach(code => {
+        const movement = Movement.from(code);
+        if (movement) movements.push(Movement.from(code));
+    });
 
     input.value='';
 });
