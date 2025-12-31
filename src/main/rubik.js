@@ -282,7 +282,7 @@ const observer = new Point3D(0,0,-Point3D.focalLength);
 
 let cubeCenter = rotationCenter.clone().moveBy(new Vector3D(-0.2, 0.3, 0));
 
-let cube = new RubikCube(cubeCenter, 1, [greenStyle, blueStyle, whiteStyle, yellowStyle, orangeStyle, redStyle]);
+let cube = new RubikCube(cubeCenter, 1, [greenStyle, blueStyle, yellowStyle, whiteStyle, orangeStyle, redStyle]);
 
 let counter = 0;
 
@@ -363,7 +363,7 @@ function drawLoop() {
     }
 
     counter ++;
-    if(counter < 10000) setTimeout(drawLoop, 1000 / 60);
+    if(counter < 10000000000000) setTimeout(drawLoop, 1000 / 60);
     else console.log("END (drawLoop)");
 }
 
