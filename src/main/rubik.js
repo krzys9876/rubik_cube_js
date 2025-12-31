@@ -378,7 +378,7 @@ const movements = []
 
 function drawLoop() {
     if(counter === 0 || moveSide !== null || moveDirection !== null ||
-        cube.animation.ongoing || rotate.size > 0 || shuffle) {
+        cube.animation.ongoing || rotate.size > 0 || shuffle || movements.length > 0) {
         if(shuffle) {
             cube.shuffle(1);
             shuffle = false;
@@ -399,8 +399,8 @@ function drawLoop() {
             moveSide = null;
             moveDirection = null;
         }
-    } else {
-        if(movements.length > 0) {
+
+        if(movements.length > 0 && !cube.animation.ongoing) {
             moveSide = movements[0].side;
             moveDirection = movements[0].direction;
             movements.splice(0, 1);
