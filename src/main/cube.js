@@ -104,7 +104,10 @@ export class Cube {
 
     rotateSide(side, direction) {
         this.metadata.coords.rotateSide(side, direction);
-        for (let plane of this.planes) plane.rotateSide(side, direction);
+        for (let plane of this.planes) {
+            plane.rotateSide(side, direction);
+            plane.metadata.updateText(this.metadata.toText());
+        }
     }
 
     static generate(center, sizeX, sizeY, sizeZ, styles, orientation, x, y, z) {
