@@ -13,6 +13,8 @@ export class RubikSolver {
         let movements = [];
         const whiteCrossMovements = this.solveWhiteCross();
         movements = movements.concat(whiteCrossMovements);
+        console.log("Generated: ");
+        movements.forEach(m => console.log(m.toCode()));
         return movements;
     }
 

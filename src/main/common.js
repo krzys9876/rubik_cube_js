@@ -96,7 +96,7 @@ export const sideDistances = new Map([
     [SideType.RIGHT, new Map([
         [SideType.FRONT, [MoveDirection.CLOCKWISE]], [SideType.BACK, [MoveDirection.COUNTERCLOCKWISE]],
         [SideType.LEFT, [MoveDirection.CLOCKWISE, MoveDirection.CLOCKWISE]],
-        [SideType.UP, [MoveDirection.COUNTERCLOCKWISE]], [SideType.DOWN, [MoveDirection.CLOCKWISE]]])
+        [SideType.DOWN, [MoveDirection.CLOCKWISE]], [SideType.UP, [MoveDirection.COUNTERCLOCKWISE]]])
     ],
 ]);
 

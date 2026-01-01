@@ -197,10 +197,25 @@ export class SideAnimation {
 }
 
 export class Movement {
+    static #sides = [SideType.FRONT, SideType.BACK, SideType.UP, SideType.DOWN, SideType.LEFT, SideType.RIGHT];
+    static #codeToMovement = new Map([
+        ["U", new Movement(SideType.UP, MoveDirection.CLOCKWISE)],
+        ["U1", new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE)],
+        ["D", new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE)],
+        ["D1", new Movement(SideType.DOWN, MoveDirection.CLOCKWISE)],
+        ["F", new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE)],
+        ["F1", new Movement(SideType.FRONT, MoveDirection.CLOCKWISE)],
+        ["B", new Movement(SideType.BACK, MoveDirection.CLOCKWISE)],
+        ["B1", new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE)],
+        ["L", new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE)],
+        ["L1", new Movement(SideType.LEFT, MoveDirection.CLOCKWISE)],
+        ["R", new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE)],
+        ["R1", new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE)],
+        ["S", Movement.random()]
+    ]);
+
     side;
     direction;
-
-    static #sides = [SideType.FRONT, SideType.BACK, SideType.UP, SideType.DOWN, SideType.LEFT, SideType.RIGHT];
 
     constructor(side, direction) {
         this.side = side;
@@ -208,22 +223,7 @@ export class Movement {
     }
 
     static from(code) {
-        switch (code) {
-            case "U": return new Movement(SideType.UP, MoveDirection.CLOCKWISE);
-            case "U1": return new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE);
-            case "D": return new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE);
-            case "D1": return new Movement(SideType.DOWN, MoveDirection.CLOCKWISE);
-            case "F": return new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE);
-            case "F1": return new Movement(SideType.FRONT, MoveDirection.CLOCKWISE);
-            case "B": return new Movement(SideType.BACK, MoveDirection.CLOCKWISE);
-            case "B1": return new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE);
-            case "L": return new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE);
-            case "L1": return new Movement(SideType.LEFT, MoveDirection.CLOCKWISE);
-            case "R": return new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE);
-            case "R1": return new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE);
-            case "S": return Movement.random();
-            default: return null;
-        }
+        return Movement.#codeToMovement.has(code) ? Movement.#codeToMovement.get(code) : null;
     }
 
     static random() {
@@ -232,6 +232,11 @@ export class Movement {
         const direction = (Math.random() > 0.5) ? MoveDirection.CLOCKWISE : MoveDirection.COUNTERCLOCKWISE;
         return new Movement(side, direction);
     }
+
+    toCode() {
+        return Movement.#codeToMovement.entries().filter(e => e[1].side === this.side && e[1].direction === this.direction).toArray()[0][0];
+    }
+
 }
 
 export class RubikCube {
