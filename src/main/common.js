@@ -77,34 +77,6 @@ export const planeOrientation = new Map([
     ])]
 ]);
 
-export const sideDistances = new Map([
-    [SideType.FRONT, new Map([
-        [SideType.LEFT, [MoveDirection.CLOCKWISE]], [SideType.RIGHT, [MoveDirection.COUNTERCLOCKWISE]],
-        [SideType.BACK, [MoveDirection.CLOCKWISE, MoveDirection.CLOCKWISE]],
-        [SideType.UP, [MoveDirection.CLOCKWISE]], [SideType.DOWN, [MoveDirection.COUNTERCLOCKWISE]]])
-    ],
-    [SideType.LEFT, new Map([
-        [SideType.BACK, [MoveDirection.CLOCKWISE]], [SideType.FRONT, [MoveDirection.COUNTERCLOCKWISE]],
-        [SideType.RIGHT, [MoveDirection.CLOCKWISE, MoveDirection.CLOCKWISE]],
-        [SideType.DOWN, [MoveDirection.CLOCKWISE]], [SideType.UP, [MoveDirection.COUNTERCLOCKWISE]]])
-    ],
-    [SideType.BACK, new Map([
-        [SideType.RIGHT, [MoveDirection.CLOCKWISE]], [SideType.LEFT, [MoveDirection.COUNTERCLOCKWISE]],
-        [SideType.FRONT, [MoveDirection.CLOCKWISE, MoveDirection.CLOCKWISE]],
-        [SideType.DOWN, [MoveDirection.CLOCKWISE]], [SideType.UP, [MoveDirection.COUNTERCLOCKWISE]]])
-    ],
-    [SideType.RIGHT, new Map([
-        [SideType.FRONT, [MoveDirection.CLOCKWISE]], [SideType.BACK, [MoveDirection.COUNTERCLOCKWISE]],
-        [SideType.LEFT, [MoveDirection.CLOCKWISE, MoveDirection.CLOCKWISE]],
-        [SideType.DOWN, [MoveDirection.CLOCKWISE]], [SideType.UP, [MoveDirection.COUNTERCLOCKWISE]]])
-    ],
-]);
-
-export function sideDistance(source, target) {
-    if(source === target) return [];
-    else return sideDistances.get(source).get(target);
-}
-
 // (0) Which side to turn, (1) which side to become (2) which
 // For each side all other sides are order clockwise
 export const sideDistances2 = new Map([
@@ -123,8 +95,8 @@ export function sideDistance2(turn, source, target) {
     const sourceIndex = sideOrder.indexOf(source);
     const targetIndex = sideOrder.indexOf(target);
 
-    const distance = (targetIndex - sourceIndex) % sideOrder.length;
-    console.log(turn, source, sourceIndex, target, targetIndex, distance);
+    let distance = (targetIndex - sourceIndex) % sideOrder.length;
+    if(distance<0) distance += sideOrder.length;
 
     switch (distance) {
         case 1: return [MoveDirection.CLOCKWISE];
