@@ -228,12 +228,12 @@ export class Plane2D {
             this.center.draw();
         }
         // print metadata
-        /*if(this.isVisible) {
+        if(this.isVisible) {
             ctx.lineStyle='black';
             ctx.fillStyle='black';
             ctx.font = "12px arial";
-            ctx.fillText(this.metadata.text, this.center.actualX(), this.center.actualY());
-        }*/
+            ctx.fillText(this.metadata.text, this.center.actualX()-20, this.center.actualY());
+        }
     }
 }
 
@@ -252,7 +252,7 @@ export class PlaneMetadata {
 
     updateText(text) {
         this.origText = text;
-        this.text = `${this.origText} ${this.orientation}`;
+        this.text = `${this.origText} ${this.orientation}${this.style.tag}`;
     }
 
     rotateSide(side, direction) {

@@ -1,7 +1,15 @@
-import {Style, globalStyle, MoveDirection, SideType, sideAxis, reverseDirection, Axis} from './common.js';
+import {
+    globalStyle,
+    MoveDirection,
+    SideType,
+    sideAxis,
+    reverseDirection,
+    Axis,
+    blueStyle, greenStyle, yellowStyle, whiteStyle, orangeStyle, redStyle
+} from './common.js';
 import { canvas, ctx } from './common-dom.js';
 import { Point3D, Vector3D } from './geometry.js';
-import { Cube, SideAnimation } from './cube.js';
+import { Cube, SideAnimation, Movement } from './cube.js';
 import { Scene, scene } from './scene.js';
 
 console.log("START");
@@ -267,13 +275,6 @@ class RubikCube {
     }
 }
 
-const redStyle = new Style('black', 'black', 'red');
-const yellowStyle = new Style('black', 'black', 'yellow');
-const blueStyle = new Style('black', 'black', 'blue');
-const whiteStyle = new Style('black', 'black', 'white');
-const greenStyle = new Style('black', 'black', 'green');
-const orangeStyle = new Style('black', 'black', 'orange');
-
 const rotationCenter = new Point3D(0,0,3);
 const observer = new Point3D(0,0,-Point3D.focalLength);
 
@@ -335,44 +336,6 @@ document.addEventListener('keyup', (event) => {
 });
 
 const bkStyle = 'lightgray';
-
-class Movement {
-    side;
-    direction;
-
-    static #sides = [SideType.FRONT, SideType.BACK, SideType.UP, SideType.DOWN, SideType.LEFT, SideType.RIGHT];
-
-    constructor(side, direction) {
-        this.side = side;
-        this.direction = direction;
-    }
-
-    static from(code) {
-        switch (code) {
-            case "U": return new Movement(SideType.UP, MoveDirection.CLOCKWISE);
-            case "U1": return new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE);
-            case "D": return new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE);
-            case "D1": return new Movement(SideType.DOWN, MoveDirection.CLOCKWISE);
-            case "F": return new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE);
-            case "F1": return new Movement(SideType.FRONT, MoveDirection.CLOCKWISE);
-            case "B": return new Movement(SideType.BACK, MoveDirection.CLOCKWISE);
-            case "B1": return new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE);
-            case "L": return new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE);
-            case "L1": return new Movement(SideType.LEFT, MoveDirection.CLOCKWISE);
-            case "R": return new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE);
-            case "R1": return new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE);
-            case "S": return Movement.random();
-            default: return null;
-        }
-    }
-
-    static random() {
-        const sideIndex = Math.round(Math.random() * Movement.#sides.length) % Movement.#sides.length;
-        const side = Movement.#sides[sideIndex];
-        const direction = (Math.random() > 0.5) ? MoveDirection.CLOCKWISE : MoveDirection.COUNTERCLOCKWISE;
-        return new Movement(side, direction);
-    }
-}
 
 const movements = []
 

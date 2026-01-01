@@ -1,6 +1,6 @@
 import {Coords3D, Plane3D, PlaneMetadata, Point3D, Vector3D} from "./geometry.js";
-import {MoveDirection, sideAxis, SideType} from "./common.js";
-import {Scene} from "./scene.js";
+import { MoveDirection, sideAxis, SideType} from "./common.js";
+import { Scene} from "./scene.js";
 
 // Using Coords3D may be an overkill (floating point operations for simple 1/-1 coords) but performance-wise it is irrelevant.
 // All we need are roundings
@@ -160,5 +160,43 @@ export class SideAnimation {
         this.currentAngle = 0;
         this.side = null;
         this.direction = null;
+    }
+}
+
+export class Movement {
+    side;
+    direction;
+
+    static #sides = [SideType.FRONT, SideType.BACK, SideType.UP, SideType.DOWN, SideType.LEFT, SideType.RIGHT];
+
+    constructor(side, direction) {
+        this.side = side;
+        this.direction = direction;
+    }
+
+    static from(code) {
+        switch (code) {
+            case "U": return new Movement(SideType.UP, MoveDirection.CLOCKWISE);
+            case "U1": return new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE);
+            case "D": return new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE);
+            case "D1": return new Movement(SideType.DOWN, MoveDirection.CLOCKWISE);
+            case "F": return new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE);
+            case "F1": return new Movement(SideType.FRONT, MoveDirection.CLOCKWISE);
+            case "B": return new Movement(SideType.BACK, MoveDirection.CLOCKWISE);
+            case "B1": return new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE);
+            case "L": return new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE);
+            case "L1": return new Movement(SideType.LEFT, MoveDirection.CLOCKWISE);
+            case "R": return new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE);
+            case "R1": return new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE);
+            case "S": return Movement.random();
+            default: return null;
+        }
+    }
+
+    static random() {
+        const sideIndex = Math.round(Math.random() * Movement.#sides.length) % Movement.#sides.length;
+        const side = Movement.#sides[sideIndex];
+        const direction = (Math.random() > 0.5) ? MoveDirection.CLOCKWISE : MoveDirection.COUNTERCLOCKWISE;
+        return new Movement(side, direction);
     }
 }

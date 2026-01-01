@@ -1,16 +1,28 @@
 export class Style {
+    name= 'NONE';
+    tag = 'X';
     pointStyle = 'red';
     lineStyle = 'blue';
     fillStyle = 'purple';
 
-    constructor(pointStyle, lineStyle, fillStyle) {
+    constructor(pointStyle, lineStyle, fillStyle, name, tag) {
         this.pointStyle = pointStyle;
         this.lineStyle = lineStyle;
         this.fillStyle = fillStyle;
+        this.name = name;
+        this.tag = tag;
     }
 }
 
-export const globalStyle = new Style('black', 'black', 'darkgray');
+export const globalStyle = new Style('black', 'black', 'darkgray', 'NONE', 'X');
+
+export const redStyle = new Style('black', 'black', 'red', 'RED', 'R');
+export const yellowStyle = new Style('black', 'black', 'yellow', 'YELLOW', 'Y');
+export const blueStyle = new Style('black', 'black', 'lightblue', 'BLUE', 'B');
+export const whiteStyle = new Style('black', 'black', 'white', 'WHITE', 'W');
+export const greenStyle = new Style('black', 'black', 'green', 'GREEN', 'G');
+export const orangeStyle = new Style('black', 'black', 'orange', 'ORANGE', 'O');
+
 
 export const SideType = {
     UP: "U", DOWN: "D", FRONT: "F", BACK: "B", LEFT: "L", RIGHT: "R"
@@ -56,3 +68,4 @@ export const planeOrientation = new Map([
         [Axis.Z, new Map([[MoveDirection.CLOCKWISE, SideType.DOWN], [MoveDirection.COUNTERCLOCKWISE, SideType.UP]])]
     ])]
 ]);
+
