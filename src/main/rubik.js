@@ -76,13 +76,15 @@ const movements = []
 
 function drawLoop() {
     // Let's not redraw the screen if nothing changed
-    let shouldRefresh = counter === 0 || moveSide !== null || moveDirection !== null ||
-        cube.animation.ongoing || rotate.size > 0 || movements.length > 0;
+    let isAutoMoving = movements.length > 0 || cube.animation.ongoing || moveSide !== null || moveDirection !== null ;
+    let shouldRefresh = counter === 0 || rotate.size > 0 || isAutoMoving;
 
-    if(solve) {
+    if(solve && !isAutoMoving) {
         const solver = new RubikSolver(cube);
-        solver.solveLBL().forEach(m => movements.push(m));
-        solve = false;
+        const solvingMoves = solver.solveLBL();
+        solvingMoves.forEach(m => movements.push(m));
+        solve = solvingMoves.length > 0; // uninterrupted solving
+        //solve = false; // step-by-step solving
         shouldRefresh = true;
     }
 
