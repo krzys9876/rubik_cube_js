@@ -1,4 +1,4 @@
-import { SideType} from "./common.js";
+import { SideType, styleSide} from "./common.js";
 
 export class RubikSolver {
     cube;
@@ -25,8 +25,12 @@ export class RubikSolver {
 
         if(whiteBottomEdges.length > 0) {
             const edge = whiteBottomEdges[0];
+            // NOTE: the ther side must exist, hence [0]
+            const otherSide = edge.getSides().filter(e => e.metadata.orientation !== SideType.DOWN)[0];
+            console.log(otherSide.metadata.orientation);
+            const targetSide = styleSide(otherSide.metadata.style);
+            console.log(targetSide);
             edge.select();
-            //const otherSide = edge.
         }
 
         return [];

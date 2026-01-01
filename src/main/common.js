@@ -32,6 +32,10 @@ export const sideStyles = new Map([
     [SideType.LEFT, orangeStyle],[SideType.RIGHT, redStyle],
     [SideType.UP, yellowStyle],[SideType.DOWN, whiteStyle]]);
 
+export function styleSide(style) {
+    return sideStyles.entries().filter(e => e[1].name === style.name).toArray()[0][0];
+}
+
 export const MoveDirection = { CLOCKWISE: 1, COUNTERCLOCKWISE: 2 };
 
 export function reverseDirection(direction) {
