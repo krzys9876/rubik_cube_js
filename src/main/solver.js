@@ -23,8 +23,9 @@ export class RubikSolver {
         /**
          * We have the following cases to address:
          * 1. Correct white edges (white on bottom and correct side) - we skip these cubes
-         * 2. White edges with white on bottom and other color on the side
-         * 3. White edges with white on upper side
+         * 2. White on bottom and other color on the side
+         * 3. With white on upper side
+         * 4. White on the vertical and the other side is correct
          * TBC
           */
 
@@ -60,6 +61,29 @@ export class RubikSolver {
             movements.push(new Movement(targetSide, MoveDirection.CLOCKWISE));
             movements.push(new Movement(targetSide, MoveDirection.CLOCKWISE));
             return movements;
+        }
+
+        // Case 4, 5
+        const whiteSideEdges = edges.filter(e => e.metadata.coords.y === 0 &&
+            (e.hasSide(SideType.LEFT, sideStyles.get(SideType.DOWN)) ||
+                e.hasSide(SideType.RIGHT, sideStyles.get(SideType.DOWN)) ||
+                e.hasSide(SideType.FRONT, sideStyles.get(SideType.DOWN)) ||
+                e.hasSide(SideType.BACK, sideStyles.get(SideType.DOWN))));
+
+        console.log(whiteSideEdges);
+
+        if(whiteSideEdges.length > 0) {
+            const edge = whiteSideEdges[0];
+            const whiteSide = edge.getSides().filter(e => e.metadata.style.name === sideStyles.get(SideType.DOWN).name)[0];
+            const otherSide = edge.getSides().filter(e => e.metadata.style.name !== sideStyles.get(SideType.DOWN).name)[0];
+
+            // Case 4
+            if(otherSide.metadata.style.name === sideStyles.get(otherSide.metadata.orientation).name) {
+                const distance = sideDistance(whiteSide.metadata.orientation,SideType.DOWN);
+                distance.forEach(d => movements.push(new Movement(otherSide.metadata.orientation, d)));
+                return movements;
+            }
+            //console.log(whiteSide.metadata.orientation, otherSide.metadata.orientation, otherSide.metadata.style.name === sideStyles.get(otherSide.metadata.orientation).name);
         }
 
 

@@ -80,19 +80,23 @@ export const planeOrientation = new Map([
 export const sideDistances = new Map([
     [SideType.FRONT, new Map([
         [SideType.LEFT, [MoveDirection.CLOCKWISE]], [SideType.RIGHT, [MoveDirection.COUNTERCLOCKWISE]],
-        [SideType.BACK, [MoveDirection.CLOCKWISE, MoveDirection.CLOCKWISE]]])
+        [SideType.BACK, [MoveDirection.CLOCKWISE, MoveDirection.CLOCKWISE]],
+        [SideType.UP, [MoveDirection.CLOCKWISE]], [SideType.DOWN, [MoveDirection.COUNTERCLOCKWISE]]])
     ],
     [SideType.LEFT, new Map([
         [SideType.BACK, [MoveDirection.CLOCKWISE]], [SideType.FRONT, [MoveDirection.COUNTERCLOCKWISE]],
-        [SideType.RIGHT, [MoveDirection.CLOCKWISE, MoveDirection.CLOCKWISE]]])
+        [SideType.RIGHT, [MoveDirection.CLOCKWISE, MoveDirection.CLOCKWISE]],
+        [SideType.DOWN, [MoveDirection.CLOCKWISE]], [SideType.UP, [MoveDirection.COUNTERCLOCKWISE]]])
     ],
     [SideType.BACK, new Map([
         [SideType.RIGHT, [MoveDirection.CLOCKWISE]], [SideType.LEFT, [MoveDirection.COUNTERCLOCKWISE]],
-        [SideType.FRONT, [MoveDirection.CLOCKWISE, MoveDirection.CLOCKWISE]]])
+        [SideType.FRONT, [MoveDirection.CLOCKWISE, MoveDirection.CLOCKWISE]],
+        [SideType.DOWN, [MoveDirection.CLOCKWISE]], [SideType.UP, [MoveDirection.COUNTERCLOCKWISE]]])
     ],
     [SideType.RIGHT, new Map([
         [SideType.FRONT, [MoveDirection.CLOCKWISE]], [SideType.BACK, [MoveDirection.COUNTERCLOCKWISE]],
-        [SideType.LEFT, [MoveDirection.CLOCKWISE, MoveDirection.CLOCKWISE]]])
+        [SideType.LEFT, [MoveDirection.CLOCKWISE, MoveDirection.CLOCKWISE]],
+        [SideType.UP, [MoveDirection.CLOCKWISE]], [SideType.DOWN, [MoveDirection.COUNTERCLOCKWISE]]])
     ],
 ]);
 
