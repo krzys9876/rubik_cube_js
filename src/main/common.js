@@ -18,15 +18,19 @@ export const globalStyle = new Style('black', 'black', 'darkgray', 'NONE', 'X');
 
 export const redStyle = new Style('black', 'black', 'red', 'RED', 'R');
 export const yellowStyle = new Style('black', 'black', 'yellow', 'YELLOW', 'Y');
-export const blueStyle = new Style('black', 'black', 'lightblue', 'BLUE', 'B');
+export const blueStyle = new Style('black', 'black', 'blue', 'BLUE', 'B');
 export const whiteStyle = new Style('black', 'black', 'white', 'WHITE', 'W');
 export const greenStyle = new Style('black', 'black', 'green', 'GREEN', 'G');
 export const orangeStyle = new Style('black', 'black', 'orange', 'ORANGE', 'O');
 
-
 export const SideType = {
     UP: "U", DOWN: "D", FRONT: "F", BACK: "B", LEFT: "L", RIGHT: "R"
 };
+
+export const sideStyles = new Map([
+    [SideType.FRONT, blueStyle],[SideType.BACK, greenStyle],
+    [SideType.LEFT, orangeStyle],[SideType.RIGHT, redStyle],
+    [SideType.UP, yellowStyle],[SideType.DOWN, whiteStyle]]);
 
 export const MoveDirection = { CLOCKWISE: 1, COUNTERCLOCKWISE: 2 };
 
