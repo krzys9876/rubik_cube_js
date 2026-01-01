@@ -164,18 +164,16 @@ export class SideAnimation {
     static step = 5;
     ongoing;
     currentAngle;
-    side;
-    direction;
+    movement;
 
     constructor() {
         this.stop();
     }
 
-    start(side, direction) {
+    start(movement) {
         if(this.ongoing) return;
 
-        this.side = side;
-        this.direction = direction;
+        this.movement = movement;
         this.currentAngle = 0;
         this.ongoing = true;
     }
@@ -210,8 +208,7 @@ export class Movement {
         ["L", new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE)],
         ["L1", new Movement(SideType.LEFT, MoveDirection.CLOCKWISE)],
         ["R", new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE)],
-        ["R1", new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE)],
-        ["S", Movement.random()]
+        ["R1", new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE)]
     ]);
 
     side;
@@ -223,7 +220,8 @@ export class Movement {
     }
 
     static from(code) {
-        return Movement.#codeToMovement.has(code) ? Movement.#codeToMovement.get(code) : null;
+        if(code === "S") return Movement.random();
+        else return Movement.#codeToMovement.has(code) ? Movement.#codeToMovement.get(code) : null;
     }
 
     static random() {
@@ -456,44 +454,41 @@ export class RubikCube {
         }
     }
 
-    startMoveSide(side, direction) {
-        this.animation.start(side, direction);
+    startMoveSide(movement) {
+        this.animation.start(movement);
     }
 
     animate() {
         if(!this.animation.ongoing) return;
 
-        const side = this.animation.side;
-        const direction = this.animation.direction;
-
-        this.#moveSide(side, direction, SideAnimation.step);
+        this.#moveSide(this.animation.movement, SideAnimation.step);
 
         this.animation.continue();
         if(!this.animation.ongoing) {
             // Conclude animation - update cubes' coords
-            this.#finishMoveSide(side, direction);
+            this.#finishMoveSide(this.animation.movement);
         }
     }
 
-    #moveSide(side, direction, angleDeg) {
-        const counterClockwiseFlag = direction === MoveDirection.COUNTERCLOCKWISE;
-        const matrix = Scene.rotationMatrix(sideAxis.get(side), angleDeg * Scene.deg2rad);
-        for (let c of this.#sideCubes(side)) c.rotate(matrix, this.#rotationCenter(side), true, counterClockwiseFlag);
+    #moveSide(movement, angleDeg) {
+        const counterClockwiseFlag = movement.direction === MoveDirection.COUNTERCLOCKWISE;
+        const matrix = Scene.rotationMatrix(sideAxis.get(movement.side), angleDeg * Scene.deg2rad);
+        for (let c of this.#sideCubes(movement.side)) c.rotate(matrix, this.#rotationCenter(movement.side), true, counterClockwiseFlag);
 
     }
 
-    #finishMoveSide(side, direction) {
-        let coordsDirection = reverseDirection(direction);
-        if(side === SideType.UP || side === SideType.DOWN) coordsDirection = direction;
-        for (let c of this.#sideCubes(side)) c.rotateSide(side, coordsDirection);
+    #finishMoveSide(movement) {
+        let coordsDirection = reverseDirection(movement.direction);
+        if(movement.side === SideType.UP || movement.side === SideType.DOWN) coordsDirection = movement.direction;
+        for (let c of this.#sideCubes(movement.side)) c.rotateSide(movement.side, coordsDirection);
 
     }
 
     shuffle(moves) {
         for(let i = 0; i < moves; i++) {
             const movement = Movement.random();
-            this.#moveSide(movement.side, movement.direction, 90);
-            this.#finishMoveSide(movement.side, movement.direction);
+            this.#moveSide(movement, 90);
+            this.#finishMoveSide(movement);
         }
     }
 
