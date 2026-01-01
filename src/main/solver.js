@@ -180,8 +180,43 @@ export class RubikSolver {
             console.log("case 2");
             const corner = whiteTopCorners[0];
             corner.select();
-        }
 
+            const whiteSide = corner.getSides().filter(e => e.metadata.style.name === sideStyles.get(SideType.DOWN).name)[0];
+            const otherSides = corner.getSides().filter(e => e.metadata.style.name !== sideStyles.get(SideType.DOWN).name);
+            const otherSide1 = otherSides[0];
+            const otherSide2 = otherSides[1];
+            console.log(whiteSide);
+            console.log(otherSide1);
+            console.log(otherSide2);
+
+            console.log(otherSide1.metadata.orientation,styleSide(otherSide1.metadata.style));
+            const distance1 = sideDistance(SideType.UP, otherSide1.metadata.orientation, styleSide(otherSide1.metadata.style));
+            console.log(otherSide2.metadata.orientation,styleSide(otherSide2.metadata.style));
+            const distance2 = sideDistance(SideType.UP, otherSide2.metadata.orientation, styleSide(otherSide2.metadata.style));
+            const distanceBetween = sideDistance(SideType.UP, otherSide1.metadata.orientation, otherSide2.metadata.orientation);
+            console.log("distances ", distance1, distance2, distanceBetween);
+
+            // We need both other sides to be next to their natural sides
+            // side1 is on the left
+            if(distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE) {
+                console.log("side1 to the left");
+                if(distance1.length === 2) movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+                else if(distance2.length === 2) movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+                else if(distance1[0] === MoveDirection.CLOCKWISE) {
+                    movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+                    movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+                }
+            } else {
+                console.log("side1 to the right");
+                if(distance2.length === 2) movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+                else if(distance1.length === 2) movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+                else if(distance2[0] === MoveDirection.CLOCKWISE) {
+                    movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+                    movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+                }
+            }
+            return movements;
+        }
 
         return [];
     }
