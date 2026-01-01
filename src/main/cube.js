@@ -139,9 +139,7 @@ export class Cube {
     }
 
     hasSideInPlace(side) {
-        console.log(side);
         const actualSide = this.getSide(side);
-        console.log(actualSide);
         return actualSide && actualSide.metadata.style.name === sideStyles.get(side).name;
     }
 
@@ -151,10 +149,14 @@ export class Cube {
 
     getSide(side) {
         const actualSides = this.getSides();
-        console.log(actualSides);
         const sidesOfSide = actualSides.filter(p => p.metadata.orientation === side);
         if(sidesOfSide.length === 1) return sidesOfSide[0];
         else return null;
+    }
+
+    hasSide(side, style) {
+        const actualSides = this.getSides().filter(p => p.metadata.orientation === side && p.metadata.style.name === style.name);
+        return actualSides.length > 0;
     }
 }
 
