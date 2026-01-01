@@ -208,7 +208,7 @@ export class Plane2D {
             ctx.fill();
         }
 
-        if(drawLines) {
+        if(drawLines || this.metadata.selected) {
             for(let i=0; i<this.points.length; i++) {
                 let endPointIndex = (i+1) % this.points.length;
                 new Line2D(this.points[i], this.points[endPointIndex], this.metadata.style).draw(drawPoints);
@@ -242,6 +242,7 @@ export class PlaneMetadata {
     orientation;
     text;
     origText;
+    selected = false;
 
     constructor(style, orientation, text) {
         this.style = style;
@@ -252,7 +253,7 @@ export class PlaneMetadata {
 
     updateText(text) {
         this.origText = text;
-        this.text = `${this.origText} ${this.orientation}${this.style.tag}`;
+        this.text = `${this.selected ? '@' : ''}${this.origText} ${this.orientation}${this.style.tag}`;
     }
 
     rotateSide(side, direction) {
@@ -266,6 +267,14 @@ export class PlaneMetadata {
                 this.updateText(this.origText);
             }
         }
+    }
+
+    select() { this.setSelected(true); }
+    unselect() { this.setSelected(false); }
+
+    setSelected(selected) {
+        this.selected = selected;
+        this.updateText(this.origText)
     }
 }
 
@@ -339,4 +348,7 @@ export class Plane3D {
     rotateSide(side, direction) {
         this.metadata.rotateSide(side, direction);
     }
+
+    select() { this.metadata.select(); }
+    unselect() { this.metadata.unselect(); }
 }

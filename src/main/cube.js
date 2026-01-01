@@ -30,6 +30,7 @@ export class CubeCoords extends Coords3D {
 
 export class CubeMetadata {
     coords;
+    selected = false;
 
     constructor(coords) {
         this.coords = coords;
@@ -124,6 +125,36 @@ export class Cube {
         points.push(new Point3D(center.x + sizeX / 2,center.y - sizeY / 2, center.z + sizeZ / 2));
 
         return new Cube(points, styles, orientation, CubeMetadata.create(x, y, z));
+    }
+
+    select() {
+        this.metadata.selected = true;
+        this.planes.forEach(p => p.select());
+    }
+
+    isInPlace() {
+        const actualSides = this.getSides();
+        const correctSides = actualSides.filter(p => sideStyles.get(p.metadata.orientation).name === p.metadata.style.name);
+        return actualSides.length === correctSides.length && actualSides.length > 0;
+    }
+
+    hasSideInPlace(side) {
+        console.log(side);
+        const actualSide = this.getSide(side);
+        console.log(actualSide);
+        return actualSide && actualSide.metadata.style.name === sideStyles.get(side).name;
+    }
+
+    getSides() {
+        return this.planes.filter(p => p.metadata.style !== globalStyle);
+    }
+
+    getSide(side) {
+        const actualSides = this.getSides();
+        console.log(actualSides);
+        const sidesOfSide = actualSides.filter(p => p.metadata.orientation === side);
+        if(sidesOfSide.length === 1) return sidesOfSide[0];
+        else return null;
     }
 }
 
@@ -457,5 +488,18 @@ export class RubikCube {
             this.#moveSide(movement.side, movement.direction, 90);
             this.#finishMoveSide(movement.side, movement.direction);
         }
+    }
+
+    getEdgeCubes() {
+        const edges = [];
+        for(let c of this.cubes) {
+            if(
+                (c.metadata.coords.x === 0 && c.metadata.coords.y !== 0 && c.metadata.coords.z !== 0) ||
+                (c.metadata.coords.x !== 0 && c.metadata.coords.y === 0 && c.metadata.coords.z !== 0) ||
+                (c.metadata.coords.x !== 0 && c.metadata.coords.y !== 0 && c.metadata.coords.z === 0)) {
+                edges.push(c);
+            }
+        }
+        return edges;
     }
 }

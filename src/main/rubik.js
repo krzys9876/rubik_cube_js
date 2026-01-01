@@ -3,15 +3,16 @@ import { canvas, ctx } from './common-dom.js';
 import { Point3D, Vector3D } from './geometry.js';
 import { Movement, RubikCube} from './cube.js';
 import { scene } from './scene.js';
+import {RubikSolver} from "./solver.js";
 
 console.log("START");
 
 const rotationCenter = new Point3D(0,0,3);
 const observer = new Point3D(0,0,-Point3D.focalLength);
 
-let cubeCenter = rotationCenter.clone().moveBy(new Vector3D(-0.2, 0.3, 0));
+const cubeCenter = rotationCenter.clone().moveBy(new Vector3D(-0.2, 0.3, 0));
 
-let cube = new RubikCube(cubeCenter, 1);
+const cube = new RubikCube(cubeCenter, 1);
 
 let counter = 0;
 
@@ -25,6 +26,8 @@ let moveDirection = null;
 let globalKeyDown = false;
 
 let shuffle = false;
+
+let solve = false;
 
 document.addEventListener('keydown', (event) => {
     if (document.activeElement.id === 'textMovements') return;
@@ -48,6 +51,7 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'y') { moveSide = SideType.RIGHT; moveDirection = MoveDirection.CLOCKWISE; }
     if (event.key === 'h') { moveSide = SideType.RIGHT; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
     if (event.key === 'z') shuffle = true;
+    if (event.key === 'x') solve = true;
 
     globalKeyDown = true;
 });
@@ -71,13 +75,24 @@ const bkStyle = 'lightgray';
 const movements = []
 
 function drawLoop() {
-    if(counter === 0 || moveSide !== null || moveDirection !== null ||
-        cube.animation.ongoing || rotate.size > 0 || shuffle || movements.length > 0) {
-        if(shuffle) {
-            cube.shuffle(1);
-            shuffle = false;
-        }
+    // Let's not redraw the screen if nothing changed
+    let shouldRefresh = counter === 0 || moveSide !== null || moveDirection !== null ||
+        cube.animation.ongoing || rotate.size > 0 || movements.length > 0;
 
+    if(solve) {
+        const solver = new RubikSolver(cube);
+        solver.solveLBL().forEach(m => movements.push(m));
+        solve = false;
+        shouldRefresh = true;
+    }
+
+    if(shuffle) {
+        cube.shuffle(1);
+        shuffle = false;
+        shouldRefresh = true;
+    }
+
+    if(shouldRefresh) {
         ctx.fillStyle = bkStyle;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 

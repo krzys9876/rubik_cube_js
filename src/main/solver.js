@@ -1,5 +1,4 @@
-import {Movement} from "./cube.js";
-import {MoveDirection, SideType} from "./common.js";
+import { SideType} from "./common.js";
 
 export class RubikSolver {
     cube;
@@ -8,14 +7,28 @@ export class RubikSolver {
         this.cube = cube;
     }
 
-    // LBL method (?layer by layer)
+    // LBL method (layer by layer)
     solveLBL() {
-        const movements = [];
-        movements.push(this.solveWhiteCross());
+        let movements = [];
+        const whiteCrossMovements = this.solveWhiteCross();
+        movements = movements.concat(whiteCrossMovements);
         return movements;
     }
 
     solveWhiteCross() {
-        return [new Movement(SideType.LEFT, MoveDirection.CLOCKWISE)];
+        const edges = this.cube.getEdgeCubes();
+        // Leave edges in place unchanged
+        const bottomEdges = edges.filter(e => e.metadata.coords.y === -1 && !e.isInPlace());
+        const whiteBottomEdges = bottomEdges.filter(e => e.hasSideInPlace(SideType.DOWN));
+
+        console.log(whiteBottomEdges);
+
+        if(whiteBottomEdges.length > 0) {
+            const edge = whiteBottomEdges[0];
+            edge.select();
+            //const otherSide = edge.
+        }
+
+        return [];
     }
 }
