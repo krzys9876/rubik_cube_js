@@ -104,3 +104,32 @@ export function sideDistance(source, target) {
     if(source === target) return [];
     else return sideDistances.get(source).get(target);
 }
+
+// (0) Which side to turn, (1) which side to become (2) which
+// For each side all other sides are order clockwise
+export const sideDistances2 = new Map([
+    [SideType.UP, [SideType.FRONT, SideType.LEFT, SideType.BACK, SideType.RIGHT]],
+    [SideType.DOWN, [SideType.FRONT, SideType.LEFT, SideType.BACK, SideType.RIGHT]],
+    [SideType.FRONT, [SideType.UP, SideType.LEFT, SideType.DOWN, SideType.RIGHT]],
+    [SideType.BACK, [SideType.UP, SideType.LEFT, SideType.DOWN, SideType.RIGHT]],
+    [SideType.LEFT, [SideType.UP, SideType.BACK, SideType.DOWN, SideType.FRONT]],
+    [SideType.RIGHT, [SideType.UP, SideType.BACK, SideType.DOWN, SideType.FRONT]]
+]);
+
+export function sideDistance2(turn, source, target) {
+    if(source === target) return [];
+    const sideOrder = sideDistances2.get(turn);
+
+    const sourceIndex = sideOrder.indexOf(source);
+    const targetIndex = sideOrder.indexOf(target);
+
+    const distance = (targetIndex - sourceIndex) % sideOrder.length;
+    console.log(turn, source, sourceIndex, target, targetIndex, distance);
+
+    switch (distance) {
+        case 1: return [MoveDirection.CLOCKWISE];
+        case 2: return [MoveDirection.CLOCKWISE, MoveDirection.CLOCKWISE];
+        case 3: return [MoveDirection.COUNTERCLOCKWISE];
+    }
+    return [];
+}
