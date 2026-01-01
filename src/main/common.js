@@ -79,7 +79,7 @@ export const planeOrientation = new Map([
 
 // (0) Which side to turn, (1) which side to become (2) which
 // For each side all other sides are order clockwise
-export const sideDistances2 = new Map([
+const sideDistances = new Map([
     [SideType.UP, [SideType.FRONT, SideType.LEFT, SideType.BACK, SideType.RIGHT]],
     [SideType.DOWN, [SideType.FRONT, SideType.LEFT, SideType.BACK, SideType.RIGHT]],
     [SideType.FRONT, [SideType.UP, SideType.LEFT, SideType.DOWN, SideType.RIGHT]],
@@ -88,9 +88,9 @@ export const sideDistances2 = new Map([
     [SideType.RIGHT, [SideType.UP, SideType.BACK, SideType.DOWN, SideType.FRONT]]
 ]);
 
-export function sideDistance2(turn, source, target) {
+export function sideDistance(turn, source, target) {
     if(source === target) return [];
-    const sideOrder = sideDistances2.get(turn);
+    const sideOrder = sideDistances.get(turn);
 
     const sourceIndex = sideOrder.indexOf(source);
     const targetIndex = sideOrder.indexOf(target);

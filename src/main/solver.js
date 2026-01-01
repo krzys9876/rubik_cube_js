@@ -1,7 +1,7 @@
 import {
     MoveDirection,
     reverseDirection,
-    sideDistance2,
+    sideDistance,
     sideStyles,
     SideType,
     styleSide
@@ -59,7 +59,7 @@ export class RubikSolver {
             const targetSide = styleSide(otherSide.metadata.style);
             movements.push(new Movement(otherSide.metadata.orientation, MoveDirection.CLOCKWISE));
             movements.push(new Movement(otherSide.metadata.orientation, MoveDirection.CLOCKWISE));
-            const distance = sideDistance2(SideType.UP, otherSide.metadata.orientation,targetSide);
+            const distance = sideDistance(SideType.UP, otherSide.metadata.orientation,targetSide);
             distance.forEach(d => movements.push(new Movement(SideType.UP, d)));
             movements.push(new Movement(targetSide, MoveDirection.CLOCKWISE));
             movements.push(new Movement(targetSide, MoveDirection.CLOCKWISE));
@@ -73,7 +73,7 @@ export class RubikSolver {
             const edge = whiteUpperEdges[0];
             const otherSide = edge.getSides().filter(e => e.metadata.orientation !== SideType.UP)[0];
             const targetSide = styleSide(otherSide.metadata.style);
-            const distance = sideDistance2(SideType.UP, otherSide.metadata.orientation,targetSide);
+            const distance = sideDistance(SideType.UP, otherSide.metadata.orientation,targetSide);
             distance.forEach(d => movements.push(new Movement(SideType.UP, d)));
             movements.push(new Movement(targetSide, MoveDirection.CLOCKWISE));
             movements.push(new Movement(targetSide, MoveDirection.CLOCKWISE));
@@ -95,17 +95,17 @@ export class RubikSolver {
             if(otherSide.metadata.style.name === sideStyles.get(otherSide.metadata.orientation).name) {
                 // Case 4
                 console.log("case 4");
-                const distance = sideDistance2(otherSide.metadata.orientation, whiteSide.metadata.orientation, SideType.DOWN);
+                const distance = sideDistance(otherSide.metadata.orientation, whiteSide.metadata.orientation, SideType.DOWN);
                 distance.forEach(d => movements.push(new Movement(otherSide.metadata.orientation, d)));
                 return movements;
             } else {
                 // Case 5 - do not solve it, rather convert it to case 3 (white on top)
                 console.log("case 5");
-                const distance1 = sideDistance2(otherSide.metadata.orientation, whiteSide.metadata.orientation,SideType.UP);
+                const distance1 = sideDistance(otherSide.metadata.orientation, whiteSide.metadata.orientation,SideType.UP);
                 //const distance1 = sideDistance(whiteSide.metadata.orientation,SideType.UP);
                 distance1.forEach(d => movements.push(new Movement(otherSide.metadata.orientation, d)));
                 const targetSide = styleSide(otherSide.metadata.style);
-                const distance2 = sideDistance2(SideType.UP, otherSide.metadata.orientation,targetSide);
+                const distance2 = sideDistance(SideType.UP, otherSide.metadata.orientation,targetSide);
                 distance2.forEach(d => movements.push(new Movement(SideType.UP, d)));
                 distance1.forEach(d => movements.push(new Movement(otherSide.metadata.orientation, reverseDirection(d))));
                 return movements;
@@ -126,7 +126,7 @@ export class RubikSolver {
             const otherSide = edge.getSides().filter(e => e.metadata.style.name !== sideStyles.get(SideType.DOWN).name)[0];
 
             const targetSide = styleSide(otherSide.metadata.style);
-            const distance = sideDistance2(SideType.UP, whiteSide.metadata.orientation, targetSide);
+            const distance = sideDistance(SideType.UP, whiteSide.metadata.orientation, targetSide);
             distance.forEach(d => movements.push(new Movement(SideType.UP, d)));
             movements.push(new Movement(targetSide, MoveDirection.CLOCKWISE));
             return movements;
