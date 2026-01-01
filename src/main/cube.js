@@ -498,10 +498,18 @@ export class RubikCube {
             if(
                 (c.metadata.coords.x === 0 && c.metadata.coords.y !== 0 && c.metadata.coords.z !== 0) ||
                 (c.metadata.coords.x !== 0 && c.metadata.coords.y === 0 && c.metadata.coords.z !== 0) ||
-                (c.metadata.coords.x !== 0 && c.metadata.coords.y !== 0 && c.metadata.coords.z === 0)) {
+                (c.metadata.coords.x !== 0 && c.metadata.coords.y !== 0 && c.metadata.coords.z === 0))
                 edges.push(c);
-            }
         }
         return edges;
+    }
+
+    getCornerCubes() {
+        const corners = [];
+        for(let c of this.cubes) {
+            if((c.metadata.coords.x !== 0 && c.metadata.coords.y !== 0 && c.metadata.coords.z !== 0))
+                corners.push(c);
+        }
+        return corners;
     }
 }
