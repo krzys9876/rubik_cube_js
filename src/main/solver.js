@@ -19,15 +19,15 @@ export class RubikSolver {
     solveLBL() {
         let movements = [];
 
+        console.log("White cross stage");
         const whiteCrossMovements = this.solveWhiteCross();
         movements = movements.concat(whiteCrossMovements);
-        console.log("White cross stage");
         whiteCrossMovements.forEach(m => console.log(m.toCode()));
 
         if(whiteCrossMovements.length === 0) {
+            console.log("White corners stage");
             const whiteCornersMovements = this.solveWhiteCorners();
             movements = movements.concat(whiteCornersMovements);
-            console.log("White corners stage");
             whiteCornersMovements.forEach(m => console.log(m.toCode()));
         }
 
@@ -181,41 +181,45 @@ export class RubikSolver {
             const corner = whiteTopCorners[0];
             corner.select();
 
-            const whiteSide = corner.getSides().filter(e => e.metadata.style.name === sideStyles.get(SideType.DOWN).name)[0];
             const otherSides = corner.getSides().filter(e => e.metadata.style.name !== sideStyles.get(SideType.DOWN).name);
             const otherSide1 = otherSides[0];
             const otherSide2 = otherSides[1];
-            console.log(whiteSide);
-            console.log(otherSide1);
-            console.log(otherSide2);
-
-            console.log(otherSide1.metadata.orientation,styleSide(otherSide1.metadata.style));
             const distance1 = sideDistance(SideType.UP, otherSide1.metadata.orientation, styleSide(otherSide1.metadata.style));
-            console.log(otherSide2.metadata.orientation,styleSide(otherSide2.metadata.style));
             const distance2 = sideDistance(SideType.UP, otherSide2.metadata.orientation, styleSide(otherSide2.metadata.style));
             const distanceBetween = sideDistance(SideType.UP, otherSide1.metadata.orientation, otherSide2.metadata.orientation);
-            console.log("distances ", distance1, distance2, distanceBetween);
 
-            // We need both other sides to be next to their natural sides
-            // side1 is on the left
-            if(distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE) {
-                console.log("side1 to the left");
-                if(distance1.length === 2) movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-                else if(distance2.length === 2) movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-                else if(distance1[0] === MoveDirection.CLOCKWISE) {
-                    movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-                    movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-                }
-            } else {
-                console.log("side1 to the right");
-                if(distance2.length === 2) movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-                else if(distance1.length === 2) movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-                else if(distance2[0] === MoveDirection.CLOCKWISE) {
-                    movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-                    movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-                }
+            // order other sides (left and right) to simplify further steps
+            const otherSideLeft = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ? otherSide1 : otherSide2;
+            const otherSideRight = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ? otherSide2 : otherSide1;
+            const distanceLeft = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ? distance1 : distance2;
+            const distanceRight = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ? distance2 : distance1;
+
+            if(distanceLeft.length === 2) movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+            else if(distanceRight.length === 2) movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+            else if(distanceLeft[0] === MoveDirection.CLOCKWISE) {
+                movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+                movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
             }
-            return movements;
+
+            // Now we have the corner prepared for a sequence from the guide
+            if(movements.length >0 ) return movements;
+
+            // R U U R1 U1 R U R1 where front is the left side
+            console.log("algorithm3");
+            const directionR = sideDistance(otherSideRight.metadata.orientation, otherSideLeft.metadata.orientation, SideType.UP)[0];
+            console.log(otherSideRight, otherSideLeft);
+            console.log(otherSideRight.metadata.orientation, otherSideLeft.metadata.orientation, directionR);
+            console.log(new Movement(otherSideRight.metadata.orientation, directionR).toCode())
+            movements.push(new Movement(otherSideRight.metadata.orientation, directionR));
+            movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+            movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+            movements.push(new Movement(otherSideRight.metadata.orientation, reverseDirection(directionR)));
+            movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+            movements.push(new Movement(otherSideRight.metadata.orientation, directionR));
+            movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+            movements.push(new Movement(otherSideRight.metadata.orientation, reverseDirection(directionR)));
+
+            return movements
         }
 
         return [];
@@ -224,3 +228,6 @@ export class RubikSolver {
 
 // Test sequence for white cross, case 5
 // R B1 U1 R1 F1 D F1 U B1 B D B B1 U L B B U L1 F1 B L B1 B1 F1 R1 U B B
+
+// Initial sequence for white corners:
+// D R R U F1 F1 L1 L1 U B B L1 U R R L1
