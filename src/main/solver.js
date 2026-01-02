@@ -210,7 +210,6 @@ export class RubikSolver {
             if(movements.length >0 ) return movements;
 
             // R U U R1 U1 R U R1 where front is the left side
-            console.log("algorithm3");
             const directionR = sideDistance(otherSideRight.metadata.orientation, otherSideLeft.metadata.orientation, SideType.UP)[0];
             movements.push(new Movement(otherSideRight.metadata.orientation, directionR));
             movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
@@ -354,10 +353,8 @@ export class RubikSolver {
         if(topEdges.length > 0) {
             console.log("case 2, 3");
             const edge = topEdges[0];
-
             const frontSide = edge.getSides().filter(s => s.metadata.orientation !== SideType.UP)[0];
             const topSide = edge.getSides().filter(s => s.metadata.orientation === SideType.UP)[0];
-            console.log(frontSide, topSide);
 
             // Move upper side so the front side is in place and prepare for the next sequence
             const distanceU = sideDistance(SideType.UP, frontSide.metadata.orientation, styleSide(frontSide.metadata.style));
@@ -368,8 +365,6 @@ export class RubikSolver {
 
             // Determine if the top side should be moved right/down or left/down
             const direction = sideDistance(SideType.UP, frontSide.metadata.orientation, styleSide(topSide.metadata.style))[0];
-            console.log(direction);
-
             if(direction === MoveDirection.CLOCKWISE) {
                 console.log("case 2");
                 this.#solveMidLayerCase2(styleSide(topSide.metadata.style), frontSide.metadata.orientation).forEach( m => movements.push(m));
@@ -385,7 +380,6 @@ export class RubikSolver {
         if(midEdgesWrong.length > 0) {
             console.log("case 4");
             const edge = midEdgesWrong[0];
-
             const sides = edge.getSides().filter(s => s.metadata.orientation !== SideType.UP);
             const side1 = sides[0];
             const side2 = sides[1];
@@ -403,11 +397,7 @@ export class RubikSolver {
             })[0];
             // Use the sequence for case 2 - we will replace the edges and will be able to convert case 4 to case 2 or 3
             const frontSide = topEdgeToReplace.getSides().filter(s => s.metadata.orientation !== SideType.UP)[0];
-            const topSide = topEdgeToReplace.getSides().filter(s => s.metadata.orientation === SideType.UP)[0];
-            console.log(frontSide, topSide);
-            topEdgeToReplace.select();
             this.#solveMidLayerCase2(leftSide.metadata.orientation, frontSide.metadata.orientation).forEach( m => movements.push(m));
-
             return movements;
         }
         return [];
