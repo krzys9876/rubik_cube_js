@@ -37,6 +37,12 @@ export class RubikSolver {
                     console.log("Yellow cross stage");
                     const yellowCrossMovements = this.solveYellowCross();
                     movements = movements.concat(yellowCrossMovements);
+
+                    if(yellowCrossMovements.length === 0) {
+                        console.log("Yellow layer stage");
+                        const yellowLayerMovements = this.solveYellowLayer();
+                        movements = movements.concat(yellowLayerMovements);
+                    }
                 }
             }
         }
@@ -457,8 +463,7 @@ export class RubikSolver {
             }
         }
 
-
-            // case 4
+        // case 4
         // In this case it does not matter which side is front
         const topEdgesNoYellow = edges.filter(c => c.metadata.coords.y === 1 && !c.hasSide(SideType.UP, sideStyles.get(SideType.UP)));
         if(topEdgesNoYellow.length >= 3) {
@@ -487,6 +492,28 @@ export class RubikSolver {
         movements.push(new Movement(frontSide, reverseDirection(directionF)));
 
         return movements;
+    }
+
+    solveYellowLayer() {
+        const movements = [];
+        const corners = this.cube.getCornerCubes();
+
+        /**
+         * We have the following cases to address:
+         * 1. Complete yellow layer
+         * 2. Yellow on the right side of the corner
+         * 3. Yellow on top of the corner
+         * 4. Yellow on the left side of the corner
+         **/
+
+        // case 1
+        const topCorners = corners.filter(c => c.metadata.coords.y === 1 && !c.hasSide(SideType.UP, sideStyles.get(SideType.UP)));
+        if(topCorners.length === 0) {
+            console.log("case 1");
+            return [];
+        }
+
+        return [];
     }
 }
 
