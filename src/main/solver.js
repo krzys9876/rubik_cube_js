@@ -453,7 +453,6 @@ export class RubikSolver {
                 return movements;
             } else {
                 console.log("case 2");
-                console.log(edge1Other, edge2Other, distanceBetween);
                 // choose proper front side (According to the guide)
                 const frontSideForSequence = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ?
                     nextSide(SideType.UP, edge2Other.metadata.orientation, MoveDirection.COUNTERCLOCKWISE) :
@@ -480,7 +479,6 @@ export class RubikSolver {
 
         // F R U R1 U1 F1, front is determined by top yellow pattern
         const rightSide = nextSide(SideType.UP,  frontSide, MoveDirection.COUNTERCLOCKWISE);
-        console.log(frontSide, rightSide);
         const directionR = sideDistance(rightSide, frontSide, SideType.UP)[0];
         const directionF = sideDistance(frontSide, SideType.UP, rightSide)[0];
 
@@ -501,9 +499,9 @@ export class RubikSolver {
         /**
          * We have the following cases to address:
          * 1. Complete yellow layer
-         * 2. Yellow on the right side of the corner
-         * 3. Yellow on top of the corner
-         * 4. Yellow on the left side of the corner
+         * 2. Two or three yellow corners
+         * 3. One yellow corner
+         * 4. No yellow corners
          **/
 
         // case 1
@@ -513,7 +511,61 @@ export class RubikSolver {
             return [];
         }
 
+        // For each case we follow the sequence from the guide:
+        // R U R1 U R U U R1, front is determined by top yellow pattern
+
+        // case 2
+        const topCornersYellow = corners.filter(c => c.metadata.coords.y === 1 && c.hasSide(SideType.UP, sideStyles.get(SideType.UP)));
+        const otherCorners = corners.filter(c => c.metadata.coords.y === 1 && !c.hasSide(SideType.UP, sideStyles.get(SideType.UP)));
+        if(topCornersYellow.length >= 2) {
+            console.log("case 2");
+            // We take any corner without yellow on top and select yellow side as front side for the sequence
+            const otherCorner = otherCorners[0];
+            const yellowSide = otherCorner.getSides().filter(s =>
+                s.metadata.orientation !== SideType.UP && s.metadata.style.name === sideStyles.get(SideType.UP).name)[0];
+            this.#solveYellowLayer(yellowSide.metadata.orientation).forEach( m => movements.push(m));
+            return movements;
+        } else if(topCornersYellow.length === 1) {
+            console.log("case 3");
+            // We take the yellow corner and select its tight side as front side for the sequence
+            const yellowCorner = topCornersYellow[0];
+            const otherSides = yellowCorner.getSides().filter(s => s.metadata.orientation !== SideType.UP);
+            const otherSide1 = otherSides[0];
+            const otherSide2 = otherSides[1];
+            const distanceBetween = sideDistance(SideType.UP, otherSide1.metadata.orientation, otherSide2.metadata.orientation);
+            const frontSideForSequence = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ? otherSide2 : otherSide1;
+            this.#solveYellowLayer(frontSideForSequence.metadata.orientation).forEach( m => movements.push(m));
+            return movements;
+        } else if(topCornersYellow.length === 0) {
+            console.log("case 4");
+            // We take any corner without yellow on top and select yellow side as front side for the sequence
+            const otherCorner = otherCorners[0];
+            const otherSide = otherCorner.getSides().filter(s =>
+                s.metadata.orientation !== SideType.UP && s.metadata.style.name !== sideStyles.get(SideType.UP).name)[0];
+            this.#solveYellowLayer(otherSide.metadata.orientation).forEach( m => movements.push(m));
+            return movements;
+        }
+
         return [];
+    }
+
+    #solveYellowLayer(frontSide) {
+        const movements = [];
+
+        // R U R1 U R U U R1, front is determined by top yellow pattern
+        const rightSide = nextSide(SideType.UP,  frontSide, MoveDirection.COUNTERCLOCKWISE);
+        const directionR = sideDistance(rightSide, frontSide, SideType.UP)[0];
+
+        movements.push(new Movement(rightSide, directionR));
+        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(rightSide, reverseDirection(directionR)));
+        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(rightSide, directionR));
+        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(rightSide, reverseDirection(directionR)));
+
+        return movements;
     }
 }
 
@@ -531,3 +583,7 @@ export class RubikSolver {
 
 // Test sequence for middle layer, case 4
 // R B R D1 R1 D1 U1 B B D D L D1 D1 U1 L1 F D1 B1 L U U B B B U B1 R R U1 F1 L1 U1 L F1 F1 U1 L1 B1 U1 B L1 L1 U1 L U L1 F1 U F U F U U F1 U1 F U F1 U R U R1 R1 U R B U B1 U U U1 L1 U L U F U1 F1 U U1 B1 U B U L U1 L1 U U B U1 B1 U1 R1 U R
+
+// Test sequence for yellow layer, case 4
+// D1 U1 B1 R1 L U1 F F R D R L1 F1 L1 B D R1 U1 F D1 R R1 B1 F1 F F F1 F1 U U1 U1 F1 U1 L1 L1 R1 U1 R B B U U R B U B1 R R F1 R U R1 F1 F1 U F U U F1 U1 F U F1 U1 U1 R U U R1 U1 R U R1 U1 L U L1 R1 U R B U U B1 U1 B U B1 U U1 R1 U R U B U1 B1 U R U1 R1 U1 F1 U F U U U1 L1 U L U F U1 F1 U1 B1 U B U L U1 L1 U U U1 B1 U B U L U1 L1 F R U R1 U1 F1 B L U L1 U1 B1 B L U L1 U1 B1
+
