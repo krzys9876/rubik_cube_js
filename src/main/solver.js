@@ -1,5 +1,5 @@
 import {
-    MoveDirection,
+    MoveDirection, nextSide,
     reverseDirection,
     sideDistance,
     sideStyles,
@@ -32,6 +32,12 @@ export class RubikSolver {
                 console.log("Middle layer stage");
                 const midLayerMovements = this.solveMidLayer();
                 movements = movements.concat(midLayerMovements);
+
+                if(midLayerMovements.length === 0) {
+                    console.log("Yellow cross stage");
+                    const yellowCrossMovements = this.solveYellowCross();
+                    movements = movements.concat(yellowCrossMovements);
+                }
             }
         }
 
@@ -401,6 +407,60 @@ export class RubikSolver {
             return movements;
         }
         return [];
+    }
+
+    solveYellowCross() {
+        const movements = [];
+        const edges = this.cube.getEdgeCubes();
+
+        /**
+         * We have the following cases to address:
+         * 1. Complete yellow cross
+         * 2. Straight line of yellow edges (this includes 3 yellow cubes, but the line is important)
+         * 3. Two yellow edges but not forming a line
+         * 4. No yellow edges
+         **/
+
+        // case 1
+        const topEdges = edges.filter(c => c.metadata.coords.y === 1 && !c.isInPlace());
+        if(topEdges.length === 0) {
+            console.log("case 1");
+            return [];
+        }
+
+        // For each case we follow the sequence from the guide:
+        // F R U R1 U1 F1, front is determined by top yellow pattern
+
+        // case 4
+        // In this case it does not matter which side is front
+        const topEdgesNoYellow = edges.filter(c => c.metadata.coords.y === 1 && !c.hasSide(SideType.UP, sideStyles.get(SideType.UP)));
+        if(topEdgesNoYellow.length === 4) {
+            console.log("case 4");
+            this.#solveYellowCross(SideType.FRONT).forEach( m => movements.push(m));
+            return movements;
+        }
+
+
+        return [];
+    }
+
+    #solveYellowCross(frontSide) {
+        const movements = [];
+
+        // F R U R1 U1 F1, front is determined by top yellow pattern
+        const rightSide = nextSide(SideType.UP,  frontSide, MoveDirection.COUNTERCLOCKWISE);
+        console.log(frontSide, rightSide);
+        const directionR = sideDistance(rightSide, frontSide, SideType.UP)[0];
+        const directionF = sideDistance(frontSide, SideType.UP, rightSide)[0];
+
+        movements.push(new Movement(frontSide, directionF));
+        movements.push(new Movement(rightSide, directionR));
+        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(rightSide, reverseDirection(directionR)));
+        movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+        movements.push(new Movement(frontSide, reverseDirection(directionF)));
+
+        return movements;
     }
 }
 

@@ -105,3 +105,14 @@ export function sideDistance(turn, source, target) {
     }
     return [];
 }
+
+export function nextSide(turn, source, moveDirection) {
+    const sideOrder = sideDistances.get(turn);
+
+    const sourceIndex = sideOrder.indexOf(source);
+    console.log(sourceIndex);
+    let targetIndex = moveDirection === MoveDirection.CLOCKWISE ? sourceIndex + 1 : sourceIndex - 1;
+    if(targetIndex <0) targetIndex += 4;
+
+    return sideOrder[targetIndex % 4];
+}
