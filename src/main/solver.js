@@ -17,37 +17,31 @@ export class RubikSolver {
 
     // LBL method (layer by layer)
     solveLBL() {
-        let movements = [];
-
         console.log("White cross stage");
         const whiteCrossMovements = this.solveWhiteCross();
-        movements = movements.concat(whiteCrossMovements);
+        if(whiteCrossMovements.length > 0) return whiteCrossMovements;
 
-        if(whiteCrossMovements.length === 0) {
-            console.log("White corners stage");
-            const whiteCornersMovements = this.solveWhiteCorners();
-            movements = movements.concat(whiteCornersMovements);
+        console.log("White corners stage");
+        const whiteCornersMovements = this.solveWhiteCorners();
+        if(whiteCornersMovements.length > 0) return whiteCornersMovements;
 
-            if(whiteCornersMovements.length === 0) {
-                console.log("Middle layer stage");
-                const midLayerMovements = this.solveMidLayer();
-                movements = movements.concat(midLayerMovements);
+        console.log("Middle layer stage");
+        const midLayerMovements = this.solveMidLayer();
+        if(midLayerMovements.length > 0) return midLayerMovements;
 
-                if(midLayerMovements.length === 0) {
-                    console.log("Yellow cross stage");
-                    const yellowCrossMovements = this.solveYellowCross();
-                    movements = movements.concat(yellowCrossMovements);
+        console.log("Yellow cross stage");
+        const yellowCrossMovements = this.solveYellowCross();
+        if(yellowCrossMovements.length > 0) return yellowCrossMovements;
 
-                    if(yellowCrossMovements.length === 0) {
-                        console.log("Yellow layer stage");
-                        const yellowLayerMovements = this.solveYellowLayer();
-                        movements = movements.concat(yellowLayerMovements);
-                    }
-                }
-            }
-        }
+        console.log("Yellow layer stage");
+        const yellowLayerMovements = this.solveYellowLayer();
+        if(yellowLayerMovements.length > 0) return yellowLayerMovements;
 
-        return movements;
+        console.log("Yellow corners stage");
+        const yellowCornersMovements = this.solveYellowCorners();
+        if(yellowCornersMovements.length > 0) return yellowCornersMovements;
+
+        return [];
     }
 
     solveWhiteCross() {
@@ -564,6 +558,87 @@ export class RubikSolver {
         movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
         movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
         movements.push(new Movement(rightSide, reverseDirection(directionR)));
+
+        return movements;
+    }
+
+    solveYellowCorners() {
+        const movements = [];
+        const corners = this.cube.getCornerCubes();
+
+        /**
+         * We have the following cases to address:
+         * 1. Complete yellow corners
+         * 2. Two (incorrect) corners have the same color on the same side
+         * 3. No two (incorrect) corners have the same color on the same side
+         **/
+
+        // case 1
+        const topCornersIncorrect = corners.filter(c => c.metadata.coords.y === 1 && !c.isInPlace());
+        if(topCornersIncorrect.length === 0) {
+            console.log("case 1");
+            return [];
+        }
+
+        // For each case we follow the sequence from the guide:
+        // R B1 R F F R1 B R F F R R, front is determined by corners layout
+
+        // case 2
+        // Try to find a pair with the same color
+        const topCorners = corners.filter(c => c.metadata.coords.y === 1);
+        for(let side of [SideType.FRONT, SideType.BACK, SideType.LEFT, SideType.RIGHT]) {
+            const corners = topCorners.filter(c => {
+                const sides = c.getSides().filter(s => s.metadata.orientation === side);
+                return sides.length === 1;
+            });
+            // NOTE: we analyze only incorrect sides so there may be only one cube on the side
+            if (corners.length === 2) {
+                const corner1Side = corners[0].getSides().filter(s => s.metadata.orientation === side)[0];
+                const corner2Side = corners[1].getSides().filter(s => s.metadata.orientation === side)[0];
+                if (corner1Side.metadata.style.name === corner2Side.metadata.style.name) {
+                    console.log("case 2");
+                    // We found the pair, but we must first move the pair to the native side
+                    const distance = sideDistance(SideType.UP, corner1Side.metadata.orientation, styleSide(corner1Side.metadata.style));
+                    if (distance.length > 0) {
+                        distance.forEach(d => movements.push(new Movement(SideType.UP, d)));
+                        return movements;
+                    }
+                    // Now let's run the sequence
+                    this.#solveYellowCorners(side).forEach(m => movements.push(m));
+                    return movements;
+                }
+            }
+        }
+        // Apparently we have not found the pair so we may run the sequence for any side with incorrect cube
+        console.log("case 3");
+        const corner = topCornersIncorrect[0];
+        const side = corner.getSides().filter(s => s.metadata.orientation !== SideType.UP)[0];
+        this.#solveYellowCorners(side.metadata.orientation).forEach(m => movements.push(m));
+        return movements;
+
+    }
+
+    #solveYellowCorners(frontSide) {
+        const movements = [];
+
+        // R B1 R F F R1 B R F F R R, front is determined by corners layout
+        const rightSide = nextSide(SideType.UP,  frontSide, MoveDirection.COUNTERCLOCKWISE);
+        const backSide = nextSide(SideType.UP, rightSide, MoveDirection.COUNTERCLOCKWISE);
+        const directionR = sideDistance(rightSide, frontSide, SideType.UP)[0];
+        const directionB = sideDistance(frontSide, rightSide, SideType.UP)[0];
+
+        movements.push(new Movement(rightSide, directionR));
+        movements.push(new Movement(backSide, reverseDirection(directionB)));
+        movements.push(new Movement(rightSide, directionR));
+        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(rightSide, reverseDirection(directionR)));
+        movements.push(new Movement(backSide, directionB));
+        movements.push(new Movement(rightSide, directionR));
+        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(rightSide, directionR));
+        movements.push(new Movement(rightSide, directionR));
 
         return movements;
     }
