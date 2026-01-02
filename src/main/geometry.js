@@ -228,12 +228,12 @@ export class Plane2D {
             this.center.draw();
         }
         // print metadata
-        /*if(this.isVisible) {
+        if(this.isVisible) {
             ctx.lineStyle='black';
             ctx.fillStyle='black';
             ctx.font = "12px arial";
             ctx.fillText(this.metadata.text, this.center.actualX()-20, this.center.actualY());
-        }*/
+        }
     }
 }
 

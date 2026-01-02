@@ -29,6 +29,13 @@ export class RubikSolver {
             const whiteCornersMovements = this.solveWhiteCorners();
             movements = movements.concat(whiteCornersMovements);
             whiteCornersMovements.forEach(m => console.log(m.toCode()));
+
+            if(whiteCornersMovements.length === 0) {
+                console.log("Middle layer stage");
+                const midLayerMovements = this.solveMidLayer();
+                movements = movements.concat(midLayerMovements);
+                midLayerMovements.forEach(m => console.log(m.toCode()));
+            }
         }
 
         return movements;
@@ -167,7 +174,6 @@ export class RubikSolver {
          * 3. White on upper edge on the left side of the corner
          * 4. White on upper edge on the right side of the corner
          * 5. White on lower edge - convert to other cases
-         * TBC
          **/
 
         // Case 1
@@ -286,6 +292,87 @@ export class RubikSolver {
 
         return [];
     }
+
+    solveMidLayer() {
+        const movements = [];
+        const edges = this.cube.getEdgeCubes();
+
+        /**
+         * We have the following cases to address:
+         * 1. Correct middle edges - we skip these cubes
+         * 2. Middle edge is on top and should be moved to the left
+         * 3. Middle edge is on top and should be moved to the right
+         * 4. Middle edge is in the middle layer but in incorrect position
+         **/
+
+        // Case 1
+        const midEdges = edges.filter(c => c.metadata.coords.y === 0 && !c.isInPlace());
+        if(midEdges.length === 0) {
+            console.log("case 1");
+            return [];
+        }
+
+        // Case 2, 3
+        const topEdges = edges.filter(c => c.metadata.coords.y === 1 && !c.isInPlace() &&
+            !c.hasSide(SideType.UP, sideStyles.get(SideType.UP)) &&
+            !c.hasSide(SideType.LEFT, sideStyles.get(SideType.UP)) &&
+            !c.hasSide(SideType.RIGHT, sideStyles.get(SideType.UP)) &&
+            !c.hasSide(SideType.FRONT, sideStyles.get(SideType.UP)) &&
+            !c.hasSide(SideType.BACK, sideStyles.get(SideType.UP)));
+        if(topEdges.length > 0) {
+            console.log("case 2, 3");
+            const edge = topEdges[0];
+
+            const frontSide = edge.getSides().filter(s => s.metadata.orientation !== SideType.UP)[0];
+            const topSide = edge.getSides().filter(s => s.metadata.orientation === SideType.UP)[0];
+            console.log(frontSide, topSide);
+
+            // Move upper side so the front side is in place and prepare for the next sequence
+            const distanceU = sideDistance(SideType.UP, frontSide.metadata.orientation, styleSide(frontSide.metadata.style));
+            if(distanceU.length > 0) {
+                distanceU.forEach( d => movements.push(new Movement(SideType.UP, d)));
+                return movements;
+            }
+
+            // Determine if the top side should be moved right/down or left/down
+            const direction = sideDistance(SideType.UP, frontSide.metadata.orientation, styleSide(topSide.metadata.style))[0];
+            console.log(direction);
+
+            if(direction === MoveDirection.CLOCKWISE) {
+                console.log("case 2");
+                // move to the left, use the sequence from the guide:
+                // U1 L1 U L U F U1 F1 front is the front side (determined)
+                const directionL = sideDistance(styleSide(topSide.metadata.style), frontSide.metadata.orientation, SideType.UP)[0];
+                const directionF = sideDistance(frontSide.metadata.orientation, styleSide(topSide.metadata.style), SideType.UP)[0];
+                movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+                movements.push(new Movement(styleSide(topSide.metadata.style), directionL));
+                movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+                movements.push(new Movement(styleSide(topSide.metadata.style), reverseDirection(directionL)));
+                movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+                movements.push(new Movement(frontSide.metadata.orientation, directionF));
+                movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+                movements.push(new Movement(frontSide.metadata.orientation, reverseDirection(directionF)));
+            } else {
+                console.log("case 3");
+                // move to the right, use the sequence from the guide:
+                // U R U1 R1 U1 F1 U F front is the front side (determined)
+                const directionR = sideDistance(styleSide(topSide.metadata.style), frontSide.metadata.orientation, SideType.UP)[0];
+                const directionF = sideDistance(frontSide.metadata.orientation, styleSide(topSide.metadata.style), SideType.UP)[0];
+                movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+                movements.push(new Movement(styleSide(topSide.metadata.style), directionR));
+                movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+                movements.push(new Movement(styleSide(topSide.metadata.style), reverseDirection(directionR)));
+                movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+                movements.push(new Movement(frontSide.metadata.orientation, directionF));
+                movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+                movements.push(new Movement(frontSide.metadata.orientation, reverseDirection(directionF)));
+            }
+            return movements;
+
+        }
+
+        return [];
+    }
 }
 
 // Test sequence for white cross, case 5
@@ -299,3 +386,6 @@ export class RubikSolver {
 
 // Test sequence for white corners, case 5
 // L R1 L1 L1 F L B L D1 F D1 L B1 R U U R1 L1 L1 F R U B1 U1 B U1 U1 B U U B1 U1 B U B1
+
+// Test sequence for middle layer, case 4
+// R B R D1 R1 D1 U1 B B D D L D1 D1 U1 L1 F D1 B1 L U U B B B U B1 R R U1 F1 L1 U1 L F1 F1 U1 L1 B1 U1 B L1 L1 U1 L U L1 F1 U F U F U U F1 U1 F U F1 U R U R1 R1 U R B U B1 U U U1 L1 U L U F U1 F1 U U1 B1 U B U L U1 L1 U U B U1 B1 U1 R1 U R
