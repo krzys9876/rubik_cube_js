@@ -83,8 +83,8 @@ function drawLoop() {
         const solver = new RubikSolver(cube);
         const solvingMoves = solver.solveLBL();
         solvingMoves.forEach(m => movements.push(m));
-        //solve = solvingMoves.length > 0; // uninterrupted solving
-        solve = false; // step-by-step solving
+        solve = solvingMoves.length > 0; // uninterrupted solving
+        // solve = false; // step-by-step solving
         shouldRefresh = true;
     }
 

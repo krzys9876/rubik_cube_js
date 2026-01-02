@@ -431,7 +431,34 @@ export class RubikSolver {
         // For each case we follow the sequence from the guide:
         // F R U R1 U1 F1, front is determined by top yellow pattern
 
-        // case 4
+        // case 2, 3
+        const topEdgesYellow = edges.filter(c => c.metadata.coords.y === 1 && c.hasSide(SideType.UP, sideStyles.get(SideType.UP)));
+        if(topEdgesYellow.length === 2) {
+            // 2 yellow on top
+            // Check if there are two yellow edges on opposite sides
+            const edge1Other = topEdgesYellow[0].getSides().filter(s => s.metadata.orientation !== SideType.UP)[0];
+            const edge2Other = topEdgesYellow[1].getSides().filter(s => s.metadata.orientation !== SideType.UP)[0];
+            const distanceBetween = sideDistance(SideType.UP, edge1Other.metadata.orientation, edge2Other.metadata.orientation);
+            if(distanceBetween.length === 2) {
+                console.log("case 3");
+                // let's choose any side between opposite sides as front for the sequence
+                const frontSideForSequence = nextSide(SideType.UP, edge1Other.metadata.orientation, MoveDirection.CLOCKWISE);
+                this.#solveYellowCross(frontSideForSequence).forEach( m => movements.push(m));
+                return movements;
+            } else {
+                console.log("case 2");
+                console.log(edge1Other, edge2Other, distanceBetween);
+                // choose proper front side (According to the guide)
+                const frontSideForSequence = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ?
+                    nextSide(SideType.UP, edge2Other.metadata.orientation, MoveDirection.COUNTERCLOCKWISE) :
+                    nextSide(SideType.UP, edge1Other.metadata.orientation, MoveDirection.COUNTERCLOCKWISE);
+                this.#solveYellowCross(frontSideForSequence).forEach( m => movements.push(m));
+                return movements;
+            }
+        }
+
+
+            // case 4
         // In this case it does not matter which side is front
         const topEdgesNoYellow = edges.filter(c => c.metadata.coords.y === 1 && !c.hasSide(SideType.UP, sideStyles.get(SideType.UP)));
         if(topEdgesNoYellow.length >= 3) {
