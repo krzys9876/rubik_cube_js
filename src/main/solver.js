@@ -166,6 +166,7 @@ export class RubikSolver {
          * 2. White on upper edge on top side of the corner
          * 3. White on upper edge on the left side of the corner
          * 4. White on upper edge on the right side of the corner
+         * 5. White on lower edge - convert to other cases
          * TBC
          **/
 
@@ -228,7 +229,6 @@ export class RubikSolver {
                 c.hasSide(SideType.BACK, sideStyles.get(SideType.DOWN))));
         if(sideTopCorners.length > 0) {
             const corner = sideTopCorners[0];
-            corner.select();
 
             const whiteSide = corner.getSides().filter(e => e.metadata.style.name === sideStyles.get(SideType.DOWN).name)[0];
             const otherSide = corner.getSides().filter(e => e.metadata.style.name !== sideStyles.get(SideType.DOWN).name &&
@@ -261,6 +261,29 @@ export class RubikSolver {
             return movements;
         }
 
+        // case 5
+        const sideDownCorners = corners.filter(c => c.metadata.coords.y === -1 && !c.isInPlace() &&
+            (c.hasSide(SideType.LEFT, sideStyles.get(SideType.DOWN)) ||
+                c.hasSide(SideType.RIGHT, sideStyles.get(SideType.DOWN)) ||
+                c.hasSide(SideType.FRONT, sideStyles.get(SideType.DOWN)) ||
+                c.hasSide(SideType.BACK, sideStyles.get(SideType.DOWN)) ||
+                c.hasSide(SideType.DOWN, sideStyles.get(SideType.DOWN))));
+        if(sideDownCorners.length > 0) {
+            console.log("case 5");
+            const corner = sideDownCorners[0];
+
+            // Let's determine any side (except for down side) and move the corner to upper side
+            const otherSides = corner.getSides().filter(e => e.metadata.orientation !== SideType.DOWN);
+            const otherSide1 = otherSides[0];
+            const otherSide2 = otherSides[1];
+            const directionU = sideDistance(otherSide1.metadata.orientation, otherSide2.metadata.orientation, SideType.UP)[0];
+            movements.push(new Movement(otherSide1.metadata.orientation, directionU));
+            movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+            movements.push(new Movement(otherSide1.metadata.orientation, reverseDirection(directionU)));
+
+            return movements;
+        }
+
         return [];
     }
 }
@@ -273,3 +296,6 @@ export class RubikSolver {
 
 // Test sequence for white corners, case 3
 // D R R U F1 F1 L1 L1 U B B L1 L1 U R R U1 F U U F1 U1 F U F1 U B U U B1 U1 B U B1
+
+// Test sequence for white corners, case 5
+// L R1 L1 L1 F L B L D1 F D1 L B1 R U U R1 L1 L1 F R U B1 U1 B U1 U1 B U U B1 U1 B U B1
