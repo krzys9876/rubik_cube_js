@@ -434,12 +434,11 @@ export class RubikSolver {
         // case 4
         // In this case it does not matter which side is front
         const topEdgesNoYellow = edges.filter(c => c.metadata.coords.y === 1 && !c.hasSide(SideType.UP, sideStyles.get(SideType.UP)));
-        if(topEdgesNoYellow.length === 4) {
+        if(topEdgesNoYellow.length >= 3) {
             console.log("case 4");
             this.#solveYellowCross(SideType.FRONT).forEach( m => movements.push(m));
             return movements;
         }
-
 
         return [];
     }
