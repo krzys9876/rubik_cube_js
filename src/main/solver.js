@@ -22,19 +22,16 @@ export class RubikSolver {
         console.log("White cross stage");
         const whiteCrossMovements = this.solveWhiteCross();
         movements = movements.concat(whiteCrossMovements);
-        whiteCrossMovements.forEach(m => console.log(m.toCode()));
 
         if(whiteCrossMovements.length === 0) {
             console.log("White corners stage");
             const whiteCornersMovements = this.solveWhiteCorners();
             movements = movements.concat(whiteCornersMovements);
-            whiteCornersMovements.forEach(m => console.log(m.toCode()));
 
             if(whiteCornersMovements.length === 0) {
                 console.log("Middle layer stage");
                 const midLayerMovements = this.solveMidLayer();
                 movements = movements.concat(midLayerMovements);
-                midLayerMovements.forEach(m => console.log(m.toCode()));
             }
         }
 
@@ -293,6 +290,41 @@ export class RubikSolver {
         return [];
     }
 
+    #solveMidLayerCase2(topSideOrientation, frontSideOrientation) {
+        const movements = [];
+        // move to the left, use the sequence from the guide:
+        // U1 L1 U L U F U1 F1 front is the front side (determined)
+        const directionL = sideDistance(topSideOrientation, frontSideOrientation, SideType.UP)[0];
+        const directionF = sideDistance(frontSideOrientation, topSideOrientation, SideType.UP)[0];
+        movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+        movements.push(new Movement(topSideOrientation, directionL));
+        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(topSideOrientation, reverseDirection(directionL)));
+        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(frontSideOrientation, directionF));
+        movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+        movements.push(new Movement(frontSideOrientation, reverseDirection(directionF)));
+        return movements;
+    }
+
+    #solveMidLayerCase3(topSideOrientation, frontSideOrientation) {
+        const movements = [];
+        // move to the right, use the sequence from the guide:
+        // U R U1 R1 U1 F1 U F front is the front side (determined)
+        const directionR = sideDistance(topSideOrientation, frontSideOrientation, SideType.UP)[0];
+        const directionF = sideDistance(frontSideOrientation, topSideOrientation, SideType.UP)[0];
+        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(topSideOrientation, directionR));
+        movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+        movements.push(new Movement(topSideOrientation, reverseDirection(directionR)));
+        movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+        movements.push(new Movement(frontSideOrientation, directionF));
+        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(frontSideOrientation, reverseDirection(directionF)));
+        return movements;
+    }
+
+
     solveMidLayer() {
         const movements = [];
         const edges = this.cube.getEdgeCubes();
@@ -340,37 +372,44 @@ export class RubikSolver {
 
             if(direction === MoveDirection.CLOCKWISE) {
                 console.log("case 2");
-                // move to the left, use the sequence from the guide:
-                // U1 L1 U L U F U1 F1 front is the front side (determined)
-                const directionL = sideDistance(styleSide(topSide.metadata.style), frontSide.metadata.orientation, SideType.UP)[0];
-                const directionF = sideDistance(frontSide.metadata.orientation, styleSide(topSide.metadata.style), SideType.UP)[0];
-                movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-                movements.push(new Movement(styleSide(topSide.metadata.style), directionL));
-                movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-                movements.push(new Movement(styleSide(topSide.metadata.style), reverseDirection(directionL)));
-                movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-                movements.push(new Movement(frontSide.metadata.orientation, directionF));
-                movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-                movements.push(new Movement(frontSide.metadata.orientation, reverseDirection(directionF)));
+                this.#solveMidLayerCase2(styleSide(topSide.metadata.style), frontSide.metadata.orientation).forEach( m => movements.push(m));
             } else {
                 console.log("case 3");
-                // move to the right, use the sequence from the guide:
-                // U R U1 R1 U1 F1 U F front is the front side (determined)
-                const directionR = sideDistance(styleSide(topSide.metadata.style), frontSide.metadata.orientation, SideType.UP)[0];
-                const directionF = sideDistance(frontSide.metadata.orientation, styleSide(topSide.metadata.style), SideType.UP)[0];
-                movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-                movements.push(new Movement(styleSide(topSide.metadata.style), directionR));
-                movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-                movements.push(new Movement(styleSide(topSide.metadata.style), reverseDirection(directionR)));
-                movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-                movements.push(new Movement(frontSide.metadata.orientation, directionF));
-                movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-                movements.push(new Movement(frontSide.metadata.orientation, reverseDirection(directionF)));
+                this.#solveMidLayerCase3(styleSide(topSide.metadata.style), frontSide.metadata.orientation).forEach( m => movements.push(m));
             }
             return movements;
-
         }
 
+        // case 4
+        const midEdgesWrong = edges.filter(c => c.metadata.coords.y === 0 && !c.isInPlace());
+        if(midEdgesWrong.length > 0) {
+            console.log("case 4");
+            const edge = midEdgesWrong[0];
+
+            const sides = edge.getSides().filter(s => s.metadata.orientation !== SideType.UP);
+            const side1 = sides[0];
+            const side2 = sides[1];
+            const distanceBetween = sideDistance(SideType.UP, side1.metadata.orientation, side2.metadata.orientation);
+            const leftSide = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ? side1 : side2;
+            const rightSide = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ? side2 : side1;
+
+            // We must determine the top edge with which we will flip the cube - choose arbitrary the right side,
+            // so we will then move the selected cube to the left - case 2
+            const topEdgeToReplace = edges.filter(e => {
+                const isTop = e.metadata.coords.y === 1;
+                const sides = e.getSides();
+                const isRight = sides.filter(s => s.metadata.orientation === rightSide.metadata.orientation).length > 0;
+                return isTop && isRight;
+            })[0];
+            // Use the sequence for case 2 - we will replace the edges and will be able to convert case 4 to case 2 or 3
+            const frontSide = topEdgeToReplace.getSides().filter(s => s.metadata.orientation !== SideType.UP)[0];
+            const topSide = topEdgeToReplace.getSides().filter(s => s.metadata.orientation === SideType.UP)[0];
+            console.log(frontSide, topSide);
+            topEdgeToReplace.select();
+            this.#solveMidLayerCase2(leftSide.metadata.orientation, frontSide.metadata.orientation).forEach( m => movements.push(m));
+
+            return movements;
+        }
         return [];
     }
 }
