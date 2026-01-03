@@ -107,7 +107,7 @@ function drawLoop() {
 
         if(moveSide !== null && moveDirection !== null) {
             cube.startMoveSide(new Movement(moveSide, moveDirection));
-            console.log("Current movement: "+new Movement(moveSide, moveDirection).toCode());
+            console.log("Current move: "+new Movement(moveSide, moveDirection).toCode());
             moveSide = null;
             moveDirection = null;
         }

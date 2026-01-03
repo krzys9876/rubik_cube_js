@@ -660,7 +660,6 @@ export class RubikSolver {
 
         // case 1
         const incorrectEdges = edges.filter(e => e.metadata.coords.y === 1 && !e.isInPlace());
-        console.log(incorrectEdges);
         if(incorrectEdges.length === 0) {
             console.log("case 1 (finished)");
             return [];
@@ -678,7 +677,6 @@ export class RubikSolver {
         // We must determine edges layout (a triangle with top side with correct edge)
         const distance12 = sideDistance(SideType.UP, otherSide1.metadata.orientation, otherSide2.metadata.orientation);
         const distance23 = sideDistance(SideType.UP, otherSide2.metadata.orientation, otherSide3.metadata.orientation);
-        const distance13 = sideDistance(SideType.UP, otherSide1.metadata.orientation, otherSide3.metadata.orientation);
 
         let oppositeSide1, oppositeSide2, remainingSide, leftSide, rightSide;
         if(distance12.length === 2) {
@@ -704,15 +702,6 @@ export class RubikSolver {
         }
         // Now me must determine rotation direction
         const rotateRight = leftSide.metadata.style.name === sideStyles.get(rightSide.metadata.orientation).name;
-
-
-        console.log(otherSide1.metadata.orientation, otherSide2.metadata.orientation, otherSide3.metadata.orientation);
-        console.log(distance12, distance23, distance13);
-        console.log(oppositeSide1.metadata.orientation, oppositeSide2.metadata.orientation, remainingSide.metadata.orientation);
-        console.log(distanceOpposite1ToRemaining);
-        console.log(leftSide.metadata.orientation, rightSide.metadata.orientation, remainingSide.metadata.orientation);
-        console.log(rotateRight);
-
         if(rotateRight) console.log("case 2");
         else console.log("case 3");
         this.#solveYellowEdges(remainingSide.metadata.orientation, rotateRight).forEach(m => movements.push(m));
