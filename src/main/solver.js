@@ -41,6 +41,10 @@ export class RubikSolver {
         const yellowCornersMovements = this.solveYellowCorners();
         if(yellowCornersMovements.length > 0) return yellowCornersMovements;
 
+        console.log("Yellow edges stage");
+        const yellowEdgesMovements = this.solveYellowEdges();
+        if(yellowEdgesMovements.length > 0) return yellowEdgesMovements;
+
         return [];
     }
 
@@ -639,6 +643,103 @@ export class RubikSolver {
         movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
         movements.push(new Movement(rightSide, directionR));
         movements.push(new Movement(rightSide, directionR));
+
+        return movements;
+    }
+
+    solveYellowEdges() {
+        const movements = [];
+        const edges = this.cube.getEdgeCubes();
+
+        /**
+         * We have the following cases to address:
+         * 1. Complete yellow edges
+         * 2. Edges to be moved around to the right between opposite sides
+         * 3. Edges to be moved around to the left between opposite sides
+         **/
+
+        // case 1
+        const incorrectEdges = edges.filter(e => e.metadata.coords.y === 1 && !e.isInPlace());
+        console.log(incorrectEdges);
+        if(incorrectEdges.length === 0) {
+            console.log("case 1 (finished)");
+            return [];
+        }
+        if(incorrectEdges.length < 3) {
+            console.error("Error in cube layout");
+            return [];
+        }
+        const edge1 = incorrectEdges[0];
+        const edge2 = incorrectEdges[1];
+        const edge3 = incorrectEdges[2];
+        const otherSide1= edge1.getSides().filter(s => s.metadata.orientation !== SideType.UP)[0];
+        const otherSide2 = edge2.getSides().filter(s => s.metadata.orientation !== SideType.UP)[0];
+        const otherSide3 = edge3.getSides().filter(s => s.metadata.orientation !== SideType.UP)[0];
+        // We must determine edges layout (a triangle with top side with correct edge)
+        const distance12 = sideDistance(SideType.UP, otherSide1.metadata.orientation, otherSide2.metadata.orientation);
+        const distance23 = sideDistance(SideType.UP, otherSide2.metadata.orientation, otherSide3.metadata.orientation);
+        const distance13 = sideDistance(SideType.UP, otherSide1.metadata.orientation, otherSide3.metadata.orientation);
+
+        let oppositeSide1, oppositeSide2, remainingSide, leftSide, rightSide;
+        if(distance12.length === 2) {
+            oppositeSide1 = otherSide1;
+            oppositeSide2 = otherSide2;
+            remainingSide = otherSide3;
+        } else if(distance23.length === 2) {
+            oppositeSide1 = otherSide2;
+            oppositeSide2 = otherSide3;
+            remainingSide = otherSide1;
+        } else {
+            oppositeSide1 = otherSide1;
+            oppositeSide2 = otherSide3;
+            remainingSide = otherSide2;
+        }
+        const distanceOpposite1ToRemaining = sideDistance(SideType.UP, oppositeSide1.metadata.orientation, remainingSide.metadata.orientation);
+        if(distanceOpposite1ToRemaining[0] === MoveDirection.COUNTERCLOCKWISE) {
+            leftSide = oppositeSide1;
+            rightSide = oppositeSide2;
+        } else {
+            leftSide = oppositeSide2;
+            rightSide = oppositeSide1;
+        }
+        // Now me must determine rotation direction
+        const rotateRight = leftSide.metadata.style.name === sideStyles.get(rightSide.metadata.orientation).name;
+
+
+        console.log(otherSide1.metadata.orientation, otherSide2.metadata.orientation, otherSide3.metadata.orientation);
+        console.log(distance12, distance23, distance13);
+        console.log(oppositeSide1.metadata.orientation, oppositeSide2.metadata.orientation, remainingSide.metadata.orientation);
+        console.log(distanceOpposite1ToRemaining);
+        console.log(leftSide.metadata.orientation, rightSide.metadata.orientation, remainingSide.metadata.orientation);
+        console.log(rotateRight);
+
+        if(rotateRight) console.log("case 2");
+        else console.log("case 3");
+        this.#solveYellowEdges(remainingSide.metadata.orientation, rotateRight).forEach(m => movements.push(m));
+        return movements;
+    }
+
+    #solveYellowEdges(frontSide, moveRight) {
+        const movements = [];
+
+        // F F U/U1 L R1 F F L1 R U/U1 F F, front is determined by edges layout
+        const rightSide = nextSide(SideType.UP,  frontSide, MoveDirection.COUNTERCLOCKWISE);
+        const leftSide = nextSide(SideType.UP,  frontSide, MoveDirection.CLOCKWISE);
+        const directionR = sideDistance(rightSide, frontSide, SideType.UP)[0];
+        const directionL = sideDistance(leftSide, SideType.UP, frontSide)[0];
+
+        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(SideType.UP, moveRight ? MoveDirection.CLOCKWISE : MoveDirection.COUNTERCLOCKWISE));
+        movements.push(new Movement(leftSide, directionL));
+        movements.push(new Movement(rightSide, reverseDirection(directionR)));
+        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(leftSide, reverseDirection(directionL)));
+        movements.push(new Movement(rightSide, directionR));
+        movements.push(new Movement(SideType.UP, moveRight ? MoveDirection.CLOCKWISE : MoveDirection.COUNTERCLOCKWISE));
+        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
+        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
 
         return movements;
     }

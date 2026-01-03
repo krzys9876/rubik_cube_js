@@ -161,7 +161,7 @@ export class Cube {
 }
 
 export class SideAnimation {
-    static step = 45;
+    static step = 30;
     ongoing;
     currentAngle;
     movement;
