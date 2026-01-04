@@ -176,10 +176,24 @@ function startSolving() {
 document.getElementById('speedSlider').addEventListener('input', (event) => {
     const speed = parseInt(event.target.value);
     const speedDisplay = document.getElementById('speedValue');
-
-    speedDisplay.textContent = speed.toString();
+    switch(speed) {
+        case 1:
+            speedDisplay.textContent = "slowest";
+            break;
+        case 2:
+            speedDisplay.textContent = "slow";
+            break;
+        case 3:
+            speedDisplay.textContent = "moderate";
+            break;
+        case 4:
+            speedDisplay.textContent = "fast";
+            break;
+        case 5:
+            speedDisplay.textContent = "fastest";
+            break;
+    }
     SideAnimation.setSpeed(speed);
-
     console.log(`Animation speed set to: ${speed} (step: ${SideAnimation.animationStep})`);
 });
 

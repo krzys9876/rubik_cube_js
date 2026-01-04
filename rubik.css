@@ -18,8 +18,12 @@ body {
     width: 400px;
 }
 #speedSlider {
+    width: 100px;
     margin-top: 10px;
     margin-bottom: 10px;
+}
+#speedValue {
+    font-size: 12px;
 }
 #shuffleNumber {
     width: 50px;
