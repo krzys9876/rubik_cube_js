@@ -10,7 +10,7 @@ console.log("START");
 const rotationCenter = new Point3D(0,0,3);
 const observer = new Point3D(0,0,-Point3D.focalLength);
 
-const cubeCenter = rotationCenter.clone().moveBy(new Vector3D(-0.2, 0.3, 0));
+const cubeCenter = rotationCenter.clone().moveBy(new Vector3D(0, 0, 0));
 
 const cube = new RubikCube(cubeCenter, 1);
 
