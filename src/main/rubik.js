@@ -1,7 +1,7 @@
 import { MoveDirection, SideType, Axis } from './common.js';
 import { canvas, ctx } from './common-dom.js';
 import { Point3D, Vector3D } from './geometry.js';
-import { Movement, RubikCube} from './cube.js';
+import {Movement, RubikCube, SideAnimation} from './cube.js';
 import { scene } from './scene.js';
 import {RubikSolver} from "./solver.js";
 
@@ -30,7 +30,8 @@ let shuffle = false;
 let solve = false;
 
 document.addEventListener('keydown', (event) => {
-    if (document.activeElement.id === 'textMovements') return;
+    if (document.activeElement.id === 'textMovements' ||
+        document.activeElement.id === 'speedSlider') return;
 
     if (event.key === 'ArrowLeft') rotate.set(Axis.Y, step.get(Axis.Y));
     if (event.key === 'ArrowRight') rotate.set(Axis.Y, -step.get(Axis.Y));
@@ -57,7 +58,8 @@ document.addEventListener('keydown', (event) => {
 });
 
 document.addEventListener('keyup', (event) => {
-    if (document.activeElement.id === 'textMovements') return;
+    if (document.activeElement.id === 'textMovements' ||
+        document.activeElement.id === 'speedSlider') return;
 
     if (event.key === 'ArrowLeft') rotate.delete(Axis.Y);
     if (event.key === 'ArrowRight') rotate.delete(Axis.Y);
@@ -139,6 +141,31 @@ document.getElementById('processButton').addEventListener('click', () => {
     });
 
     input.value='';
+});
+
+document.getElementById('shuffleButton').addEventListener('click', () => {
+    const input = document.getElementById('shuffleNumber');
+    const moves = parseInt(input.value);
+
+    console.log("Shuffling moves: ", moves);
+
+    cube.shuffle(moves - 1);
+    shuffle = true;
+});
+
+document.getElementById('solveButton').addEventListener('click', () => {
+    console.log("Start solving");
+    solve = true;
+});
+
+document.getElementById('speedSlider').addEventListener('input', (event) => {
+    const speed = parseInt(event.target.value);
+    const speedDisplay = document.getElementById('speedValue');
+
+    speedDisplay.textContent = speed.toString();
+    SideAnimation.setSpeed(speed);
+
+    console.log(`Animation speed set to: ${speed} (step: ${SideAnimation.animationStep})`);
 });
 
 drawLoop();

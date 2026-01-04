@@ -9,13 +9,18 @@ body {
     margin-right: 10px;
     font-size: 14px;
 }
-#textMovements {
-    width: 400px;
+.input-box {
     padding: 10px;
     margin-left: 10px;
     font-size: 14px;
 }
-#processButton {
+#textMovements {
+    width: 400px;
+}
+#shuffleNumber {
+    width: 50px;
+}
+.action-button {
     padding: 10px 25px;
     font-size: 14px;
     cursor: pointer;

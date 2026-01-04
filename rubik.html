@@ -8,8 +8,22 @@
 </head>
 <body>
     <div id="controls">
-        <label for="textMovements">Movements:</label><input type="text" id="textMovements" placeholder="Movements or commands...">
-        <button id="processButton">Process</button>
+        <div>
+            <label for="textMovements">Movements:</label>
+            <input type="text" id="textMovements" class="input-box" placeholder="Movements or commands...">
+            <button id="processButton" class="action-button">Process</button>
+        </div>
+        <div>
+            <label for="speedSlider">Animation:</label>
+            <input type="range" id="speedSlider" min="1" max="5" value="3" step="1">
+            <span id="speedValue">3</span>
+        </div>
+        <div>
+            <label for="shuffleNumber">Shuffle moves:</label>
+            <input type="text" id="shuffleNumber" class="input-box" value="100">
+            <button id="shuffleButton" class="action-button">Shuffle</button>
+            <button id="solveButton" class="action-button">Solve</button>
+        </div>
     </div>
     <canvas id="drawing" width="800" height="800"></canvas>
     <script type="module" src="src/main/rubik.js"></script>

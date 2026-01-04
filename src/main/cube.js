@@ -161,9 +161,11 @@ export class Cube {
 }
 
 export class SideAnimation {
-    static step = 30;
+    static animationStep = 15;
+    step = 15;
     ongoing;
     currentAngle;
+    movedAngle;
     movement;
 
     constructor() {
@@ -175,12 +177,16 @@ export class SideAnimation {
 
         this.movement = movement;
         this.currentAngle = 0;
+        this.movedAngle = 0;
+        this.step = SideAnimation.animationStep;
         this.ongoing = true;
     }
 
     continue() {
         if(!this.ongoing) return;
-        this.currentAngle = this.currentAngle + SideAnimation.step;
+        const prevAngle = this.currentAngle;
+        this.currentAngle = Math.min(this.currentAngle + this.step, 90);
+        this.movedAngle = this.currentAngle - prevAngle;
         if(Math.round(this.currentAngle)>=90) this.stop();
     }
 
@@ -191,6 +197,16 @@ export class SideAnimation {
         this.currentAngle = 0;
         this.side = null;
         this.direction = null;
+    }
+
+    static setSpeed(code) {
+        switch(code) {
+            case 1: SideAnimation.animationStep = 5; break;
+            case 2: SideAnimation.animationStep = 10; break;
+            case 3: SideAnimation.animationStep = 15; break;
+            case 4: SideAnimation.animationStep = 30; break;
+            case 5: SideAnimation.animationStep = 90; break;
+        }
     }
 }
 
@@ -461,9 +477,9 @@ export class RubikCube {
     animate() {
         if(!this.animation.ongoing) return;
 
-        this.#moveSide(this.animation.movement, SideAnimation.step);
-
         this.animation.continue();
+        this.#moveSide(this.animation.movement, this.animation.movedAngle);
+
         if(!this.animation.ongoing) {
             // Conclude animation - update cubes' coords
             this.#finishMoveSide(this.animation.movement);
