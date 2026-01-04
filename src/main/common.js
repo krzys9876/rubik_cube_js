@@ -88,6 +88,12 @@ const sideDistances = new Map([
     [SideType.RIGHT, [SideType.UP, SideType.BACK, SideType.DOWN, SideType.FRONT]]
 ]);
 
+export const opposideSides = new Map([
+    [SideType.FRONT, SideType.BACK], [SideType.BACK, SideType.FRONT],
+    [SideType.UP, SideType.DOWN], [SideType.DOWN, SideType.UP],
+    [SideType.LEFT, SideType.RIGHT], [SideType.RIGHT, SideType.LEFT]
+]);
+
 export function sideDistance(turn, source, target) {
     if(source === target) return [];
     const sideOrder = sideDistances.get(turn);

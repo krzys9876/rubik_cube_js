@@ -1,5 +1,15 @@
 import {Coords3D, Plane3D, PlaneMetadata, Point3D, Vector3D} from "./geometry.js";
-import {globalStyle, MoveDirection, reverseDirection, sideAxis, sideStyles, SideType} from "./common.js";
+import {
+    globalStyle,
+    MoveDirection,
+    nextSide,
+    reverseDirection,
+    sideAxis,
+    sideDistance,
+    opposideSides,
+    sideStyles,
+    SideType
+} from "./common.js";
 import {scene, Scene} from "./scene.js";
 
 // Using Coords3D may be an overkill (floating point operations for simple 1/-1 coords) but performance-wise it is irrelevant.
@@ -251,6 +261,29 @@ export class Movement {
         return Movement.#codeToMovement.entries().filter(e => e[1].side === this.side && e[1].direction === this.direction).toArray()[0][0];
     }
 
+    // The whole function could be just a lookup table
+    // We want to know the movement after the cube os rotated so that an arbitrarily selected side becomes a front side
+    translate(frontSide) {
+        if(this.side === SideType.UP || this.side === SideType.DOWN) return this;
+
+        // Assess side orientation - we should get either UP or DOWN and after translation this should be the same result
+        const rightSideBefore = nextSide(SideType.UP, this.side, MoveDirection.CLOCKWISE);
+        const nextSideBefore = nextSide(this.side, rightSideBefore, this.direction);
+
+        const distance = sideDistance(SideType.UP, SideType.FRONT, frontSide);
+        let translatedSide;
+        switch (distance.length) {
+            case 2: translatedSide = opposideSides.get(this.side); break;
+            case 0: translatedSide = this.side; break;
+            case 1: translatedSide = nextSide(SideType.UP, this.side, distance[0]); break;
+        }
+        // Now verify the direction, if the result is not the same we should flip it
+        const rightSideAfter = nextSide(SideType.UP, translatedSide, MoveDirection.CLOCKWISE);
+        const nextSideAfter = nextSide(translatedSide, rightSideAfter, this.direction);
+        const translatedDirection = nextSideBefore === nextSideAfter ? this.direction : reverseDirection(this.direction);
+
+        return new Movement(translatedSide, translatedDirection);
+    }
 }
 
 export class RubikCube {

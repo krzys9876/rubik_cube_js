@@ -712,23 +712,9 @@ export class RubikSolver {
         const movements = [];
 
         // F F U/U1 L R1 F F L1 R U/U1 F F, front is determined by edges layout
-        const rightSide = nextSide(SideType.UP,  frontSide, MoveDirection.COUNTERCLOCKWISE);
-        const leftSide = nextSide(SideType.UP,  frontSide, MoveDirection.CLOCKWISE);
-        const directionR = sideDistance(rightSide, frontSide, SideType.UP)[0];
-        const directionL = sideDistance(leftSide, SideType.UP, frontSide)[0];
-
-        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(SideType.UP, moveRight ? MoveDirection.CLOCKWISE : MoveDirection.COUNTERCLOCKWISE));
-        movements.push(new Movement(leftSide, directionL));
-        movements.push(new Movement(rightSide, reverseDirection(directionR)));
-        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(leftSide, reverseDirection(directionL)));
-        movements.push(new Movement(rightSide, directionR));
-        movements.push(new Movement(SideType.UP, moveRight ? MoveDirection.CLOCKWISE : MoveDirection.COUNTERCLOCKWISE));
-        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
+        const sequence = moveRight ? "F F U L R1 F F L1 R U F F" : "F F U1 L R1 F F L1 R U1 F F";
+        const codes = sequence.split(" ");
+        codes.forEach(code => movements.push(Movement.from(code).translate(frontSide)));
 
         return movements;
     }
