@@ -40,7 +40,7 @@ body {
 #drawing {
     border: 1px solid black;
 }
-#moveLogText {
+#moveLogList {
     width: 75px;
     height: 700px;
     margin-left: 10px;

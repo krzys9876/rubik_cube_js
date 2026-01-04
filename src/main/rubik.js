@@ -169,8 +169,8 @@ function startSolving() {
 
     solve = true;
     currentMoveNo = 1;
-    const logBox = document.getElementById('moveLogText');
-    logBox.value = '';
+    const logBox = document.getElementById('moveLogList');
+    while(logBox.options.length > 0) logBox.options.remove(logBox.options.length - 1);
 }
 
 document.getElementById('speedSlider').addEventListener('input', (event) => {
@@ -198,8 +198,10 @@ document.getElementById('speedSlider').addEventListener('input', (event) => {
 });
 
 function logMove(message) {
-    const logBox = document.getElementById('moveLogText');
-    logBox.value += message + '\n';
+    const logBox = document.getElementById('moveLogList');
+    const option = document.createElement('option');
+    option.text = message;
+    logBox.add(option);
     logBox.scrollTop = logBox.scrollHeight; // Auto-scroll to bottom
 }
 
