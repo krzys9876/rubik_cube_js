@@ -17,6 +17,10 @@ body {
 #textMovements {
     width: 400px;
 }
+#speedSlider {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
 #shuffleNumber {
     width: 50px;
 }
