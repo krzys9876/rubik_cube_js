@@ -52,7 +52,7 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'y') { moveSide = SideType.RIGHT; moveDirection = MoveDirection.CLOCKWISE; }
     if (event.key === 'h') { moveSide = SideType.RIGHT; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
     if (event.key === 'z') shuffle = true;
-    if (event.key === 'x') solve = true;
+    if (event.key === 'x') startSolving();
 
     globalKeyDown = true;
 });
@@ -75,6 +75,7 @@ document.addEventListener('keyup', (event) => {
 const bkStyle = 'lightgray';
 
 const movements = []
+let currentMoveNo = 1;
 
 function drawLoop() {
     // Let's not redraw the screen if nothing changed
@@ -108,8 +109,12 @@ function drawLoop() {
         cube.draw(observer, rotationCenter);
 
         if(moveSide !== null && moveDirection !== null) {
-            cube.startMoveSide(new Movement(moveSide, moveDirection));
-            console.log("Current move: "+new Movement(moveSide, moveDirection).toCode());
+            const movement = new Movement(moveSide, moveDirection);
+            const code = movement.toCode();
+            cube.startMoveSide(movement);
+            console.log("Current move: "+code);
+            logMove(`${currentMoveNo} ${code}`);
+            currentMoveNo+=1;
             moveSide = null;
             moveDirection = null;
         }
@@ -155,8 +160,17 @@ document.getElementById('shuffleButton').addEventListener('click', () => {
 
 document.getElementById('solveButton').addEventListener('click', () => {
     console.log("Start solving");
-    solve = true;
+    startSolving();
 });
+
+function startSolving() {
+    if(solve) return;
+
+    solve = true;
+    currentMoveNo = 1;
+    const logBox = document.getElementById('moveLogText');
+    logBox.value = '';
+}
 
 document.getElementById('speedSlider').addEventListener('input', (event) => {
     const speed = parseInt(event.target.value);
@@ -168,6 +182,13 @@ document.getElementById('speedSlider').addEventListener('input', (event) => {
     console.log(`Animation speed set to: ${speed} (step: ${SideAnimation.animationStep})`);
 });
 
+function logMove(message) {
+    const logBox = document.getElementById('moveLogText');
+    logBox.value += message + '\n';
+    logBox.scrollTop = logBox.scrollHeight; // Auto-scroll to bottom
+}
+
 drawLoop();
 
 console.log("END (init)");
+
