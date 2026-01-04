@@ -204,7 +204,6 @@ export class RubikSolver {
             const distanceBetween = sideDistance(SideType.UP, otherSide1.metadata.orientation, otherSide2.metadata.orientation);
 
             // order other sides (left and right) to simplify further steps
-            const otherSideLeft = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ? otherSide1 : otherSide2;
             const otherSideRight = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ? otherSide2 : otherSide1;
             const distanceLeft = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ? distance1 : distance2;
             const distanceRight = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ? distance2 : distance1;
@@ -220,17 +219,8 @@ export class RubikSolver {
             if(movements.length >0 ) return movements;
 
             // R U U R1 U1 R U R1 where front is the left side
-            const directionR = sideDistance(otherSideRight.metadata.orientation, otherSideLeft.metadata.orientation, SideType.UP)[0];
-            movements.push(new Movement(otherSideRight.metadata.orientation, directionR));
-            movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-            movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-            movements.push(new Movement(otherSideRight.metadata.orientation, reverseDirection(directionR)));
-            movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-            movements.push(new Movement(otherSideRight.metadata.orientation, directionR));
-            movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-            movements.push(new Movement(otherSideRight.metadata.orientation, reverseDirection(directionR)));
-
-            return movements
+            const frontSide = nextSide(SideType.UP, otherSideRight.metadata.orientation, MoveDirection.CLOCKWISE);
+            return this.#translateSequence("R U U R1 U1 R U R1", frontSide);
         }
 
         // case 3, 4
@@ -258,19 +248,12 @@ export class RubikSolver {
                 // case 3, white on left
                 // L1 U1 L, front os other side
                 console.log("case 3");
-                const directionW = sideDistance(whiteSide.metadata.orientation, otherSide.metadata.orientation, SideType.UP)[0];
-                movements.push(new Movement(whiteSide.metadata.orientation, directionW));
-                movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-                movements.push(new Movement(whiteSide.metadata.orientation, reverseDirection(directionW)));
+                return this.#translateSequence("L1 U1 L", otherSide.metadata.orientation);
             } else {
                 console.log("case 4");
                 // R U R1, front os other side
-                const directionW = sideDistance(whiteSide.metadata.orientation, otherSide.metadata.orientation, SideType.UP)[0];
-                movements.push(new Movement(whiteSide.metadata.orientation, directionW));
-                movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-                movements.push(new Movement(whiteSide.metadata.orientation, reverseDirection(directionW)));
+                return this.#translateSequence("R U R1", otherSide.metadata.orientation);
             }
-            return movements;
         }
 
         // case 5
@@ -299,40 +282,17 @@ export class RubikSolver {
         return [];
     }
 
-    #solveMidLayerCase2(topSideOrientation, frontSideOrientation) {
-        const movements = [];
+    #solveMidLayerCase2(frontSide) {
         // move to the left, use the sequence from the guide:
-        // U1 L1 U L U F U1 F1 front is the front side (determined)
-        const directionL = sideDistance(topSideOrientation, frontSideOrientation, SideType.UP)[0];
-        const directionF = sideDistance(frontSideOrientation, topSideOrientation, SideType.UP)[0];
-        movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-        movements.push(new Movement(topSideOrientation, directionL));
-        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(topSideOrientation, reverseDirection(directionL)));
-        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(frontSideOrientation, directionF));
-        movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-        movements.push(new Movement(frontSideOrientation, reverseDirection(directionF)));
-        return movements;
+        // U1 L1 U L U F U1 F1 front is determined by corner orientation
+        return this.#translateSequence("U1 L1 U L U F U1 F1", frontSide);
     }
 
-    #solveMidLayerCase3(topSideOrientation, frontSideOrientation) {
-        const movements = [];
+    #solveMidLayerCase3(frontSide) {
         // move to the right, use the sequence from the guide:
-        // U R U1 R1 U1 F1 U F front is the front side (determined)
-        const directionR = sideDistance(topSideOrientation, frontSideOrientation, SideType.UP)[0];
-        const directionF = sideDistance(frontSideOrientation, topSideOrientation, SideType.UP)[0];
-        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(topSideOrientation, directionR));
-        movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-        movements.push(new Movement(topSideOrientation, reverseDirection(directionR)));
-        movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-        movements.push(new Movement(frontSideOrientation, directionF));
-        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(frontSideOrientation, reverseDirection(directionF)));
-        return movements;
+        // U R U1 R1 U1 F1 U F front is determined by corner orientation
+        return this.#translateSequence("U R U1 R1 U1 F1 U F", frontSide);
     }
-
 
     solveMidLayer() {
         const movements = [];
@@ -377,10 +337,10 @@ export class RubikSolver {
             const direction = sideDistance(SideType.UP, frontSide.metadata.orientation, styleSide(topSide.metadata.style))[0];
             if(direction === MoveDirection.CLOCKWISE) {
                 console.log("case 2");
-                this.#solveMidLayerCase2(styleSide(topSide.metadata.style), frontSide.metadata.orientation).forEach( m => movements.push(m));
+                this.#solveMidLayerCase2(frontSide.metadata.orientation).forEach( m => movements.push(m));
             } else {
                 console.log("case 3");
-                this.#solveMidLayerCase3(styleSide(topSide.metadata.style), frontSide.metadata.orientation).forEach( m => movements.push(m));
+                this.#solveMidLayerCase3(frontSide.metadata.orientation).forEach( m => movements.push(m));
             }
             return movements;
         }
@@ -394,7 +354,6 @@ export class RubikSolver {
             const side1 = sides[0];
             const side2 = sides[1];
             const distanceBetween = sideDistance(SideType.UP, side1.metadata.orientation, side2.metadata.orientation);
-            const leftSide = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ? side1 : side2;
             const rightSide = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ? side2 : side1;
 
             // We must determine the top edge with which we will flip the cube - choose arbitrary the right side,
@@ -407,7 +366,7 @@ export class RubikSolver {
             })[0];
             // Use the sequence for case 2 - we will replace the edges and will be able to convert case 4 to case 2 or 3
             const frontSide = topEdgeToReplace.getSides().filter(s => s.metadata.orientation !== SideType.UP)[0];
-            this.#solveMidLayerCase2(leftSide.metadata.orientation, frontSide.metadata.orientation).forEach( m => movements.push(m));
+            this.#solveMidLayerCase2(frontSide.metadata.orientation).forEach( m => movements.push(m));
             return movements;
         }
         return [];
@@ -473,21 +432,8 @@ export class RubikSolver {
     }
 
     #solveYellowCross(frontSide) {
-        const movements = [];
-
         // F R U R1 U1 F1, front is determined by top yellow pattern
-        const rightSide = nextSide(SideType.UP,  frontSide, MoveDirection.COUNTERCLOCKWISE);
-        const directionR = sideDistance(rightSide, frontSide, SideType.UP)[0];
-        const directionF = sideDistance(frontSide, SideType.UP, rightSide)[0];
-
-        movements.push(new Movement(frontSide, directionF));
-        movements.push(new Movement(rightSide, directionR));
-        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(rightSide, reverseDirection(directionR)));
-        movements.push(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-        movements.push(new Movement(frontSide, reverseDirection(directionF)));
-
-        return movements;
+        return this.#translateSequence("F R U R1 U1 F1", frontSide);
     }
 
     solveYellowLayer() {
@@ -548,22 +494,8 @@ export class RubikSolver {
     }
 
     #solveYellowLayer(frontSide) {
-        const movements = [];
-
         // R U R1 U R U U R1, front is determined by top yellow pattern
-        const rightSide = nextSide(SideType.UP,  frontSide, MoveDirection.COUNTERCLOCKWISE);
-        const directionR = sideDistance(rightSide, frontSide, SideType.UP)[0];
-
-        movements.push(new Movement(rightSide, directionR));
-        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(rightSide, reverseDirection(directionR)));
-        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(rightSide, directionR));
-        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(rightSide, reverseDirection(directionR)));
-
-        return movements;
+        return this.#translateSequence("R U R1 U R U U R1", frontSide);
     }
 
     solveYellowCorners() {
@@ -623,28 +555,8 @@ export class RubikSolver {
     }
 
     #solveYellowCorners(frontSide) {
-        const movements = [];
-
         // R B1 R F F R1 B R F F R R, front is determined by corners layout
-        const rightSide = nextSide(SideType.UP,  frontSide, MoveDirection.COUNTERCLOCKWISE);
-        const backSide = nextSide(SideType.UP, rightSide, MoveDirection.COUNTERCLOCKWISE);
-        const directionR = sideDistance(rightSide, frontSide, SideType.UP)[0];
-        const directionB = sideDistance(frontSide, rightSide, SideType.UP)[0];
-
-        movements.push(new Movement(rightSide, directionR));
-        movements.push(new Movement(backSide, reverseDirection(directionB)));
-        movements.push(new Movement(rightSide, directionR));
-        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(rightSide, reverseDirection(directionR)));
-        movements.push(new Movement(backSide, directionB));
-        movements.push(new Movement(rightSide, directionR));
-        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(frontSide, MoveDirection.CLOCKWISE));
-        movements.push(new Movement(rightSide, directionR));
-        movements.push(new Movement(rightSide, directionR));
-
-        return movements;
+        return this.#translateSequence("R B1 R F F R1 B R F F R R", frontSide);
     }
 
     solveYellowEdges() {
@@ -709,12 +621,14 @@ export class RubikSolver {
     }
 
     #solveYellowEdges(frontSide, moveRight) {
-        const movements = [];
-
         // F F U/U1 L R1 F F L1 R U/U1 F F, front is determined by edges layout
         const sequence = moveRight ? "F F U L R1 F F L1 R U F F" : "F F U1 L R1 F F L1 R U1 F F";
-        const codes = sequence.split(" ");
-        codes.forEach(code => movements.push(Movement.from(code).translate(frontSide)));
+        return this.#translateSequence(sequence, frontSide);
+    }
+
+    #translateSequence(sequence, frontSide) {
+        const movements = [];
+        sequence.split(" ").forEach(code => movements.push(Movement.from(code).translate(frontSide)));
 
         return movements;
     }
