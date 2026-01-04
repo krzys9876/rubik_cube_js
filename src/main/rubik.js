@@ -9,7 +9,6 @@ console.log("START");
 
 const rotationCenter = new Point3D(0,0,3);
 const observer = new Point3D(0,0,-Point3D.focalLength);
-
 const cubeCenter = rotationCenter.clone().moveBy(new Vector3D(0, 0, 0));
 
 const cube = new RubikCube(cubeCenter, 1);
@@ -76,6 +75,8 @@ const bkStyle = 'lightgray';
 
 const movements = []
 let currentMoveNo = 1;
+// Set initial point of view
+scene.rotate(-15,30,-5);
 
 function drawLoop() {
     // Let's not redraw the screen if nothing changed
