@@ -304,7 +304,11 @@ export class Movement {
     }
 
     reverse() {
-        return new Movement(this.side, reverseDirection(this.direction));
+        return new Movement(this.side, reverseDirection(this.direction), this.type);
+    }
+
+    isReverseOf(other) {
+        return this.side === other.side && this.direction === reverseDirection(other.direction);
     }
 
     withType(type) {
@@ -570,7 +574,14 @@ export class RubikCube {
         let coordsDirection = reverseDirection(movement.direction);
         if(movement.side === SideType.UP || movement.side === SideType.DOWN) coordsDirection = movement.direction;
         for (let c of this.#sideCubes(movement.side)) c.rotateSide(movement.side, coordsDirection);
-        this.history.push(movement);
+        const lastMove = this.history.length > 0 ? this.history[this.history.length - 1] : null;
+        // If last movement is reversed we do not want to put the pair of moves into history
+        if(lastMove && movement.isReverseOf(lastMove) && lastMove.type === MoveType.REVERSE && movement.type === MoveType.REVERSE) {
+            console.log("removing reverse history entries");
+            this.history.splice(this.history.length - 1, 1);
+        } else {
+            this.history.push(movement);
+        }
     }
 
     shuffle(moves) {
@@ -615,8 +626,24 @@ export class RubikCube {
         moves.forEach(m => this.planned.push(m));
     }
 
-    hasPlannedMoves() {
-        return this.planned.length > 0;
+    hasPlannedMoves(length = 1) {
+        return this.planned.length > (length - 1);
     }
+
+    revertOneMove() {
+        const lastMove = this.history.length > 0 ? this.history[this.history.length - 1] : null;
+        const reverseMove = lastMove ? lastMove.reverse().withType(MoveType.REVERSE) : null;
+        const firstPlanned = this.hasPlannedMoves() ? this.planned[0] : null;
+        const secondPlanned = this.hasPlannedMoves(2) ? this.planned[1] : null;
+        const consecutiveReverse = lastMove && firstPlanned && secondPlanned &&
+            firstPlanned.type === MoveType.REVERSE && secondPlanned.type === MoveType.REVERSE &&
+            firstPlanned.isReverseOf(secondPlanned) && lastMove.isReverseOf(firstPlanned);
+        if(!consecutiveReverse && lastMove) {
+            // Plan the move again
+            this.planned.splice(0, 0, lastMove.withType(MoveType.REVERSE));
+            this.planned.splice(0, 0, reverseMove);
+        }
+    }
+
 
 }

@@ -50,34 +50,12 @@ function drawLoop() {
         shouldRefresh = true;
     }
 
-    /*
     if(revertLast) {
-        // Hold the current move
-        if(movement !== null) {
-            console.log("1");
-            movements.splice(0, 0, movement);
-            movement = null;
-        }
-        // Generate a pair of moves using history
-        if(cube.history.length > 0) {
-            console.log("2");
-            const last = cube.history[cube.history.length - 1];
-            const lastReversed = cube.history[cube.history.length - 1].reverse();
-            cube.history.splice(lastReversed.length-1, 1);
-            movements.splice(0, 0, lastReversed.withType(MoveType.REVERSE));
-            if(solve) {
-                console.log("3");
-                movements.splice(1, 0, last.withType(MoveType.REVERSE));
-                if(stepByStep) {
-                    console.log("4");
-                    runNextStep = true;
-                }
-            }
-        }
-        console.log("5");
+        cube.revertOneMove();
         revertLast = false;
         shouldRefresh = true;
-    }*/
+        if(stepByStep) runNextStep = true;
+    }
 
     if(shouldRefresh) {
         ctx.fillStyle = bkStyle;
