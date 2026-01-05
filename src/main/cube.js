@@ -304,6 +304,7 @@ export class RubikCube {
     cubes = [];
     animation;
     history = [];
+    planned = [];
 
     constructor(center, size) {
         this.center = center;
@@ -517,8 +518,14 @@ export class RubikCube {
         }
     }
 
-    startMoveSide(movement) {
-        this.animation.start(movement);
+    startMoveSide(movement = null) {
+        let nextMove = null;
+        if(movement) nextMove = movement;
+        else if(this.planned.length > 0) {
+            nextMove = this.planned[0];
+            this.planned.splice(0, 1);
+        }
+        if(nextMove) this.animation.start(nextMove);
     }
 
     animate() {
@@ -544,7 +551,7 @@ export class RubikCube {
         let coordsDirection = reverseDirection(movement.direction);
         if(movement.side === SideType.UP || movement.side === SideType.DOWN) coordsDirection = movement.direction;
         for (let c of this.#sideCubes(movement.side)) c.rotateSide(movement.side, coordsDirection);
-        if(movement.type !== MoveType.REVERSE) this.history.push(movement);
+        this.history.push(movement);
     }
 
     shuffle(moves) {
@@ -584,4 +591,13 @@ export class RubikCube {
         const notSolved = this.cubes.find(c => !c.isInPlace());
         return notSolved === undefined;
     }
+
+    planMoves(moves) {
+        moves.forEach(m => this.planned.push(m));
+    }
+
+    hasPlannedMoves() {
+        return this.planned.length > 0;
+    }
+
 }
