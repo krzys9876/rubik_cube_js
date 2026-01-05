@@ -291,12 +291,14 @@ export class RubikCube {
     size;
     cubes = [];
     animation;
+    history = [];
 
     constructor(center, size) {
         this.center = center;
         this.size = size;
         this.cubes = this.#generateCubes();
         this.animation = new SideAnimation();
+        this.history = [];
     }
 
     #generateCubes() {
@@ -530,7 +532,7 @@ export class RubikCube {
         let coordsDirection = reverseDirection(movement.direction);
         if(movement.side === SideType.UP || movement.side === SideType.DOWN) coordsDirection = movement.direction;
         for (let c of this.#sideCubes(movement.side)) c.rotateSide(movement.side, coordsDirection);
-
+        this.history.push(movement);
     }
 
     shuffle(moves) {
@@ -560,5 +562,9 @@ export class RubikCube {
                 corners.push(c);
         }
         return corners;
+    }
+
+    clearHistory() {
+        this.history = [];
     }
 }

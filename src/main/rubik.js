@@ -40,7 +40,7 @@ function drawLoop() {
         const solver = new RubikSolver(cube, true);
         const solvingMoves = solver.solveLBL();
         solvingMoves.forEach(m => movements.push(m));
-        solve = solvingMoves.length > 0; // uninterrupted solving
+        updateSolve(solvingMoves.length > 0);
         shouldRefresh = true;
     }
 
@@ -93,18 +93,18 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowDown') rotate.set(Axis.X, -step.get(Axis.X));
     if (event.key === ',') rotate.set(Axis.Z, step.get(Axis.Z));
     if (event.key === '.') rotate.set(Axis.Z, -step.get(Axis.Z));
-    if (event.key === 'q') { movement = new Movement(SideType.UP, MoveDirection.CLOCKWISE); }
-    if (event.key === 'w') { movement = new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE); }
-    if (event.key === 'a') { movement = new Movement(SideType.DOWN, MoveDirection.CLOCKWISE); }
-    if (event.key === 's') { movement = new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE); }
-    if (event.key === 'e') { movement = new Movement(SideType.FRONT, MoveDirection.CLOCKWISE); }
-    if (event.key === 'r') { movement = new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE); }
-    if (event.key === 'd') { movement = new Movement(SideType.BACK, MoveDirection.CLOCKWISE); }
-    if (event.key === 'f') { movement = new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE); }
-    if (event.key === 't') { movement = new Movement(SideType.LEFT, MoveDirection.CLOCKWISE); }
-    if (event.key === 'g') { movement = new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE); }
-    if (event.key === 'y') { movement = new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE); }
-    if (event.key === 'h') { movement = new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE); }
+    if (event.key === 'q') { manualMove(new Movement(SideType.UP, MoveDirection.CLOCKWISE)); }
+    if (event.key === 'w') { manualMove(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE)); }
+    if (event.key === 'a') { manualMove(new Movement(SideType.DOWN, MoveDirection.CLOCKWISE)); }
+    if (event.key === 's') { manualMove(new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE)); }
+    if (event.key === 'e') { manualMove(new Movement(SideType.FRONT, MoveDirection.CLOCKWISE)); }
+    if (event.key === 'r') { manualMove(new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE)); }
+    if (event.key === 'd') { manualMove(new Movement(SideType.BACK, MoveDirection.CLOCKWISE)); }
+    if (event.key === 'f') { manualMove(new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE)); }
+    if (event.key === 't') { manualMove(new Movement(SideType.LEFT, MoveDirection.CLOCKWISE)); }
+    if (event.key === 'g') { manualMove(new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE)); }
+    if (event.key === 'y') { manualMove(new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE)); }
+    if (event.key === 'h') { manualMove(new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE)); }
     if (event.key === 'z') shuffle = true;
     if (event.key === 'x') startSolving();
 });
@@ -154,14 +154,24 @@ document.getElementById('solveButton').addEventListener('click', () => {
     startSolving();
 });
 
+function updateSolve(newSolve) {
+    if(solve === newSolve) return;
+
+    solve = newSolve;
+    console.log(`Solve changed to: ${solve}`);
+    const button = document.getElementById('solveButton');
+    button.classList.toggle('solving', solve);
+}
+
 function startSolving() {
     if(solve && !stepByStep) return;
 
     runNextStep = stepByStep; // This is only important when stepByStep is enabled
     if(!solve) {
-        solve = true;
         currentMoveNo = 1;
         clearMoveLog();
+        cube.clearHistory();
+        updateSolve(true);
     }
 }
 
@@ -206,6 +216,12 @@ document.getElementById('stepByStepCheckbox').addEventListener('change', (event)
     stepByStep = event.target.checked;
     console.log(`Step-by-step enabled: ${stepByStep}`);
 });
+
+function manualMove(m) {
+    movements.splice(0, movements.length);
+    movement = m;
+    updateSolve(false);
+}
 
 drawLoop();
 
