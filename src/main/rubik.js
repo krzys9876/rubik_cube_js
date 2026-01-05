@@ -16,60 +16,13 @@ const cube = new RubikCube(cubeCenter, 1);
 let counter = 0;
 
 const step = new Map([[Axis.X, 3 / 5], [Axis.Y, 3 / 5], [Axis.Z, 3 / 5]]);
-
 const rotate = new Map();
 
-let moveSide = null;
-let moveDirection = null;
-
-let globalKeyDown = false;
-
+let movement = null;
 let shuffle = false;
-
 let solve = false;
-
-document.addEventListener('keydown', (event) => {
-    if (document.activeElement.id === 'textMovements' ||
-        document.activeElement.id === 'speedSlider') return;
-
-    if (event.key === 'ArrowLeft') rotate.set(Axis.Y, step.get(Axis.Y));
-    if (event.key === 'ArrowRight') rotate.set(Axis.Y, -step.get(Axis.Y));
-    if (event.key === 'ArrowUp') rotate.set(Axis.X, step.get(Axis.X));
-    if (event.key === 'ArrowDown') rotate.set(Axis.X, -step.get(Axis.X));
-    if (event.key === ',') rotate.set(Axis.Z, step.get(Axis.Z));
-    if (event.key === '.') rotate.set(Axis.Z, -step.get(Axis.Z));
-    if (event.key === 'q') { moveSide = SideType.UP; moveDirection = MoveDirection.CLOCKWISE; }
-    if (event.key === 'w') { moveSide = SideType.UP; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
-    if (event.key === 'a') { moveSide = SideType.DOWN; moveDirection = MoveDirection.CLOCKWISE; }
-    if (event.key === 's') { moveSide = SideType.DOWN; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
-    if (event.key === 'e') { moveSide = SideType.FRONT; moveDirection = MoveDirection.CLOCKWISE; }
-    if (event.key === 'r') { moveSide = SideType.FRONT; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
-    if (event.key === 'd') { moveSide = SideType.BACK; moveDirection = MoveDirection.CLOCKWISE; }
-    if (event.key === 'f') { moveSide = SideType.BACK; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
-    if (event.key === 't') { moveSide = SideType.LEFT; moveDirection = MoveDirection.CLOCKWISE; }
-    if (event.key === 'g') { moveSide = SideType.LEFT; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
-    if (event.key === 'y') { moveSide = SideType.RIGHT; moveDirection = MoveDirection.CLOCKWISE; }
-    if (event.key === 'h') { moveSide = SideType.RIGHT; moveDirection = MoveDirection.COUNTERCLOCKWISE; }
-    if (event.key === 'z') shuffle = true;
-    if (event.key === 'x') startSolving();
-
-    globalKeyDown = true;
-});
-
-document.addEventListener('keyup', (event) => {
-    if (document.activeElement.id === 'textMovements' ||
-        document.activeElement.id === 'speedSlider') return;
-
-    if (event.key === 'ArrowLeft') rotate.delete(Axis.Y);
-    if (event.key === 'ArrowRight') rotate.delete(Axis.Y);
-    if (event.key === 'ArrowUp') rotate.delete(Axis.X);
-    if (event.key === 'ArrowDown') rotate.delete(Axis.X);
-    if (event.key === ',') rotate.delete(Axis.Z);
-    if (event.key === '.') rotate.delete(Axis.Z);
-    if (event.key === 'z') shuffle = false;
-
-    globalKeyDown = false;
-});
+let stepByStep = false;
+let runNextStep = false;
 
 const bkStyle = 'lightgray';
 
@@ -80,7 +33,7 @@ scene.rotate(-15,30,-5);
 
 function drawLoop() {
     // Let's not redraw the screen if nothing changed
-    let isAutoMoving = movements.length > 0 || cube.animation.ongoing || moveSide !== null || moveDirection !== null ;
+    let isAutoMoving = movements.length > 0 || cube.animation.ongoing || movement !== null ;
     let shouldRefresh = counter === 0 || rotate.size > 0 || isAutoMoving;
 
     if(solve && !isAutoMoving) {
@@ -88,7 +41,6 @@ function drawLoop() {
         const solvingMoves = solver.solveLBL();
         solvingMoves.forEach(m => movements.push(m));
         solve = solvingMoves.length > 0; // uninterrupted solving
-        // solve = false; // step-by-step solving
         shouldRefresh = true;
     }
 
@@ -109,21 +61,20 @@ function drawLoop() {
 
         cube.draw(observer, rotationCenter);
 
-        if(moveSide !== null && moveDirection !== null) {
-            const movement = new Movement(moveSide, moveDirection);
+        if(movement !== null) {
             const code = movement.toCode();
             cube.startMoveSide(movement);
             console.log("Current move: "+code);
             logMove(`${currentMoveNo} ${code}`);
             currentMoveNo+=1;
-            moveSide = null;
-            moveDirection = null;
+            movement = null;
         }
 
-        if(movements.length > 0 && !cube.animation.ongoing) {
-            moveSide = movements[0].side;
-            moveDirection = movements[0].direction;
+        if(movements.length > 0 && !cube.animation.ongoing &&
+            (!solve || !stepByStep || runNextStep)) {
+            movement = movements[0];
             movements.splice(0, 1);
+            runNextStep = false;
         }
     }
 
@@ -131,6 +82,45 @@ function drawLoop() {
     if(counter < 10000000000000) setTimeout(drawLoop, 1000 / 60);
     else console.log("END (drawLoop)");
 }
+
+document.addEventListener('keydown', (event) => {
+    if (document.activeElement.id === 'textMovements' ||
+        document.activeElement.id === 'speedSlider') return;
+
+    if (event.key === 'ArrowLeft') rotate.set(Axis.Y, step.get(Axis.Y));
+    if (event.key === 'ArrowRight') rotate.set(Axis.Y, -step.get(Axis.Y));
+    if (event.key === 'ArrowUp') rotate.set(Axis.X, step.get(Axis.X));
+    if (event.key === 'ArrowDown') rotate.set(Axis.X, -step.get(Axis.X));
+    if (event.key === ',') rotate.set(Axis.Z, step.get(Axis.Z));
+    if (event.key === '.') rotate.set(Axis.Z, -step.get(Axis.Z));
+    if (event.key === 'q') { movement = new Movement(SideType.UP, MoveDirection.CLOCKWISE); }
+    if (event.key === 'w') { movement = new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE); }
+    if (event.key === 'a') { movement = new Movement(SideType.DOWN, MoveDirection.CLOCKWISE); }
+    if (event.key === 's') { movement = new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE); }
+    if (event.key === 'e') { movement = new Movement(SideType.FRONT, MoveDirection.CLOCKWISE); }
+    if (event.key === 'r') { movement = new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE); }
+    if (event.key === 'd') { movement = new Movement(SideType.BACK, MoveDirection.CLOCKWISE); }
+    if (event.key === 'f') { movement = new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE); }
+    if (event.key === 't') { movement = new Movement(SideType.LEFT, MoveDirection.CLOCKWISE); }
+    if (event.key === 'g') { movement = new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE); }
+    if (event.key === 'y') { movement = new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE); }
+    if (event.key === 'h') { movement = new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE); }
+    if (event.key === 'z') shuffle = true;
+    if (event.key === 'x') startSolving();
+});
+
+document.addEventListener('keyup', (event) => {
+    if (document.activeElement.id === 'textMovements' ||
+        document.activeElement.id === 'speedSlider') return;
+
+    if (event.key === 'ArrowLeft') rotate.delete(Axis.Y);
+    if (event.key === 'ArrowRight') rotate.delete(Axis.Y);
+    if (event.key === 'ArrowUp') rotate.delete(Axis.X);
+    if (event.key === 'ArrowDown') rotate.delete(Axis.X);
+    if (event.key === ',') rotate.delete(Axis.Z);
+    if (event.key === '.') rotate.delete(Axis.Z);
+    if (event.key === 'z') shuffle = false;
+});
 
 document.getElementById('processButton').addEventListener('click', () => {
     const input = document.getElementById('textMovements');
@@ -165,12 +155,15 @@ document.getElementById('solveButton').addEventListener('click', () => {
 });
 
 function startSolving() {
-    if(solve) return;
+    if(solve && !stepByStep) return;
 
-    solve = true;
-    currentMoveNo = 1;
-    const logBox = document.getElementById('moveLogList');
-    while(logBox.options.length > 0) logBox.options.remove(logBox.options.length - 1);
+    runNextStep = stepByStep; // This is only important when stepByStep is enabled
+    if(!solve) {
+        solve = true;
+        currentMoveNo = 1;
+        const logBox = document.getElementById('moveLogList');
+        while (logBox.options.length > 0) logBox.options.remove(logBox.options.length - 1);
+    }
 }
 
 document.getElementById('speedSlider').addEventListener('input', (event) => {
@@ -204,6 +197,11 @@ function logMove(message) {
     logBox.add(option);
     logBox.scrollTop = logBox.scrollHeight; // Auto-scroll to bottom
 }
+
+document.getElementById('stepByStepCheckbox').addEventListener('change', (event) => {
+    stepByStep = event.target.checked;
+    console.log(`Step-by-step enabled: ${stepByStep}`);
+});
 
 drawLoop();
 
