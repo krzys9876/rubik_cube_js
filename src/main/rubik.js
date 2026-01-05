@@ -23,6 +23,7 @@ let shuffle = false;
 let solve = false;
 let stepByStep = false;
 let runNextStep = false;
+let revertLast = false;
 
 const bkStyle = 'lightgray';
 
@@ -47,6 +48,33 @@ function drawLoop() {
     if(shuffle) {
         cube.shuffle(1);
         shuffle = false;
+        shouldRefresh = true;
+    }
+
+    if(revertLast) {
+        // Hold the current move
+        if(movement !== null) {
+            console.log("1");
+            movements.splice(0, 0, movement);
+            movement = null;
+        }
+        // Generate a pair of moves using history
+        if(cube.history.length > 0) {
+            console.log("2");
+            const last = cube.history[cube.history.length - 1];
+            const lastReversed = cube.history[cube.history.length - 1].reverse();
+            movements.splice(0, 0, lastReversed);
+            if(solve) {
+                console.log("3");
+                movements.splice(1, 0, last);
+                if(stepByStep) {
+                    console.log("4");
+                    runNextStep = true;
+                }
+            }
+        }
+        console.log("5");
+        revertLast = false;
         shouldRefresh = true;
     }
 
@@ -107,6 +135,7 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'h') { manualMove(new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE)); }
     if (event.key === 'z') shuffle = true;
     if (event.key === 'x') startSolving();
+    if (event.key === 'c') revertLast = true;
 });
 
 document.addEventListener('keyup', (event) => {

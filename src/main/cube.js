@@ -285,6 +285,10 @@ export class Movement {
 
         return new Movement(translatedSide, translatedDirection);
     }
+
+    reverse() {
+        return new Movement(this.side, reverseDirection(this.direction));
+    }
 }
 
 export class RubikCube {
