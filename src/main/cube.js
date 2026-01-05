@@ -528,6 +528,10 @@ export class RubikCube {
         if(nextMove) this.animation.start(nextMove);
     }
 
+    getCurrentMove() {
+        return this.animation.movement;
+    }
+
     animate() {
         if(!this.animation.ongoing) return;
 

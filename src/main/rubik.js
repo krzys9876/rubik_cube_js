@@ -34,13 +34,14 @@ scene.rotate(-15,30,-5);
 
 function drawLoop() {
     // Let's not redraw the screen if nothing changed
-    let isAutoMoving = movements.length > 0 || cube.animation.ongoing || movement !== null ;
+    let isAutoMoving = cube.hasPlannedMoves() || cube.animation.ongoing || movement !== null ;
     let shouldRefresh = counter === 0 || rotate.size > 0 || isAutoMoving;
 
     if(solve && !isAutoMoving) {
         const solver = new RubikSolver(cube, true);
         const solvingMoves = solver.solveLBL();
-        solvingMoves.forEach(m => movements.push(m));
+        cube.planMoves(solvingMoves);
+        //solvingMoves.forEach(m => movements.push(m));
         updateSolve(solvingMoves.length > 0);
         shouldRefresh = true;
     }
@@ -51,6 +52,7 @@ function drawLoop() {
         shouldRefresh = true;
     }
 
+    /*
     if(revertLast) {
         // Hold the current move
         if(movement !== null) {
@@ -77,7 +79,7 @@ function drawLoop() {
         console.log("5");
         revertLast = false;
         shouldRefresh = true;
-    }
+    }*/
 
     if(shouldRefresh) {
         ctx.fillStyle = bkStyle;
@@ -91,18 +93,17 @@ function drawLoop() {
         cube.draw(observer, rotationCenter);
 
         if(movement !== null) {
-            const code = movement.toCode();
-            cube.startMoveSide(movement);
-            console.log("Current move: "+code);
-            logMove(`${currentMoveNo} ${code}`);
-            currentMoveNo+=1;
+            cube.planMoves([movement]);
             movement = null;
         }
 
-        if(movements.length > 0 && !cube.animation.ongoing &&
+        if(cube.hasPlannedMoves() && !cube.animation.ongoing &&
             (!solve || !stepByStep || runNextStep)) {
-            movement = movements[0];
-            movements.splice(0, 1);
+            cube.startMoveSide(movement);
+            const code = cube.getCurrentMove().toCode();
+            console.log("Current move: "+code);
+            logMove(`${currentMoveNo} ${code}`);
+            currentMoveNo+=1;
             runNextStep = false;
         }
     }
@@ -163,7 +164,9 @@ document.getElementById('processButton').addEventListener('click', () => {
 
     codes.forEach(code => {
         const movement = Movement.from(code);
-        if (movement) movements.push(Movement.from(code));
+        if (movement)
+            //movements.push(Movement.from(code));
+            cube.planMoves([Movement.from(code)])
     });
 
     input.value='';
@@ -251,7 +254,7 @@ document.getElementById('stepByStepCheckbox').addEventListener('change', (event)
 });
 
 function manualMove(m) {
-    movements.splice(0, movements.length);
+    //movements.splice(0, movements.length);
     movement = m;
     updateSolve(false);
 }
