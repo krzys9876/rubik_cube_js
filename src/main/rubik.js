@@ -1,4 +1,4 @@
-import { MoveDirection, SideType, Axis } from './common.js';
+import {MoveDirection, SideType, Axis, MoveType} from './common.js';
 import { canvas, ctx } from './common-dom.js';
 import { Point3D, Vector3D } from './geometry.js';
 import {Movement, RubikCube, SideAnimation} from './cube.js';
@@ -63,10 +63,11 @@ function drawLoop() {
             console.log("2");
             const last = cube.history[cube.history.length - 1];
             const lastReversed = cube.history[cube.history.length - 1].reverse();
-            movements.splice(0, 0, lastReversed);
+            cube.history.splice(lastReversed.length-1, 1);
+            movements.splice(0, 0, lastReversed.withType(MoveType.REVERSE));
             if(solve) {
                 console.log("3");
-                movements.splice(1, 0, last);
+                movements.splice(1, 0, last.withType(MoveType.REVERSE));
                 if(stepByStep) {
                     console.log("4");
                     runNextStep = true;

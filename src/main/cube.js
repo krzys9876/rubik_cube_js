@@ -8,7 +8,7 @@ import {
     sideDistance,
     opposideSides,
     sideStyles,
-    SideType
+    SideType, MoveType
 } from "./common.js";
 import {scene, Scene} from "./scene.js";
 
@@ -240,22 +240,24 @@ export class Movement {
 
     side;
     direction;
+    type;
 
-    constructor(side, direction) {
+    constructor(side, direction, type = MoveType.MANUAL) {
         this.side = side;
         this.direction = direction;
+        this.type = type;
     }
 
-    static from(code) {
-        if(code === "S") return Movement.random();
-        else return Movement.#codeToMovement.has(code) ? Movement.#codeToMovement.get(code) : null;
+    static from(code, type = MoveType.MANUAL) {
+        if(code === "S") return Movement.random(type);
+        else return Movement.#codeToMovement.has(code) ? Movement.#codeToMovement.get(code).withType(type) : null;
     }
 
-    static random() {
+    static random(type = MoveType.MANUAL) {
         const sideIndex = Math.round(Math.random() * Movement.#sides.length) % Movement.#sides.length;
         const side = Movement.#sides[sideIndex];
         const direction = (Math.random() > 0.5) ? MoveDirection.CLOCKWISE : MoveDirection.COUNTERCLOCKWISE;
-        return new Movement(side, direction);
+        return new Movement(side, direction, type);
     }
 
     toCode() {
@@ -283,11 +285,16 @@ export class Movement {
         const nextSideAfter = nextSide(translatedSide, rightSideAfter, this.direction);
         const translatedDirection = nextSideBefore === nextSideAfter ? this.direction : reverseDirection(this.direction);
 
-        return new Movement(translatedSide, translatedDirection);
+        return new Movement(translatedSide, translatedDirection, this.type);
     }
 
     reverse() {
         return new Movement(this.side, reverseDirection(this.direction));
+    }
+
+    withType(type) {
+        this.type = type;
+        return this;
     }
 }
 
@@ -537,7 +544,7 @@ export class RubikCube {
         let coordsDirection = reverseDirection(movement.direction);
         if(movement.side === SideType.UP || movement.side === SideType.DOWN) coordsDirection = movement.direction;
         for (let c of this.#sideCubes(movement.side)) c.rotateSide(movement.side, coordsDirection);
-        this.history.push(movement);
+        if(movement.type !== MoveType.REVERSE) this.history.push(movement);
     }
 
     shuffle(moves) {

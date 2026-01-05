@@ -38,6 +38,8 @@ export function styleSide(style) {
 
 export const MoveDirection = { CLOCKWISE: 1, COUNTERCLOCKWISE: 2 };
 
+export const MoveType = { MANUAL: 1, SOLVING: 2, REVERSE: 3};
+
 export function reverseDirection(direction) {
     if (direction === MoveDirection.CLOCKWISE) return MoveDirection.COUNTERCLOCKWISE
     else return MoveDirection.CLOCKWISE;
