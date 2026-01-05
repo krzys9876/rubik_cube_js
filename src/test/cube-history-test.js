@@ -29,16 +29,38 @@ function testHistoryWithReverts() {
     applyOnePlannedMove(cube);
     applyOnePlannedMove(cube);
     assertEquals(Movement.toText(cube.history), "F D U", "History should reflect processed moves");
+    assertEquals(Movement.toText(cube.planned), "R L D B R F U", "Planned moves contain only moves that have not been processed yet");
 
-    //revertOneMove(cube);
-    //revertOneMove(cube);
+    // TODO: Consider this: when the newly processed move is marked as "reverse" and the last move in history is the opposite move that both these moves are deleted from history
+    // so: "F D U" after planning reverse is: "U1 U R ..." but after processing U1 we should get: "F D" and planned: "U R ..." (the pair U U1 disappears)
+    revertOneMove(cube);
+    assertEquals(Movement.toText(cube.history), "F D U", "History should reflect processed moves");
+    assertEquals(Movement.toText(cube.planned), "U1 U R L D B R F U", "Planned moves contain only moves that have not been processed yet");
+    applyOnePlannedMove(cube);
+    assertEquals(Movement.toText(cube.history), "F D U U1", "History should reflect processed moves");
+    assertEquals(Movement.toText(cube.planned), "U R L D B R F U", "Planned moves contain only moves that have not been processed yet");
+    applyOnePlannedMove(cube);
+    assertEquals(Movement.toText(cube.history), "F D U U1 U", "History should reflect processed moves");
+    assertEquals(Movement.toText(cube.planned), "R L D B R F U", "Planned moves contain only moves that have not been processed yet");
+
+    revertOneMove(cube);
+    assertEquals(Movement.toText(cube.history), "F D U U1 U", "History should reflect processed moves");
+    assertEquals(Movement.toText(cube.planned), "U1 U R L D B R F U", "Planned moves contain only moves that have not been processed yet");
 
     applyOnePlannedMove(cube);
-    assertEquals(Movement.toText(cube.history), "F D U R", "History should reflect processed moves");
-    //revertOneMove(cube);
+    assertEquals(Movement.toText(cube.history), "F D U U1 U U1", "History should reflect processed moves");
+    assertEquals(Movement.toText(cube.planned), "U R L D B R F U", "Planned moves contain only moves that have not been processed yet");
     applyOnePlannedMove(cube);
     applyOnePlannedMove(cube);
-    assertEquals(Movement.toText(cube.history), "F D U R L D", "History should reflect processed moves");
+    applyOnePlannedMove(cube);
+    assertEquals(Movement.toText(cube.history), "F D U U1 U U1 U R L", "History should reflect processed moves");
+    assertEquals(Movement.toText(cube.planned), "D B R F U", "Planned moves contain only moves that have not been processed yet");
+    revertOneMove(cube);
+    assertEquals(Movement.toText(cube.history), "F D U U1 U U1 U R L", "History should reflect processed moves");
+    assertEquals(Movement.toText(cube.planned), "L1 L D B R F U", "Planned moves contain only moves that have not been processed yet");
+    revertOneMove(cube);
+    assertEquals(Movement.toText(cube.history), "F D U U1 U U1 U R L", "History should reflect processed moves");
+    assertEquals(Movement.toText(cube.planned), "L1 L D B R F U", "Planned moves contain only moves that have not been processed yet");
 }
 
 function applyAllPlannedMoves(cube) {
@@ -54,7 +76,8 @@ function revertOneMove(cube) {
     const lastMove = cube.history[cube.history.length - 1];
     const reverseMove = new Movement(lastMove.side, reverseDirection(lastMove.direction), MoveType.REVERSE);
     // Plan the move again
-    cube.planned.splice(0, 0, lastMove);
+    cube.planned.splice(0, 0, lastMove.withType(MoveType.REVERSE));
+    cube.planned.splice(0, 0, reverseMove);
 }
 
 runTest(testSimpleHistory);
