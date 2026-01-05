@@ -570,7 +570,7 @@ export class RubikCube {
     }
 
     isSolved() {
-        const notSolved = this.cubes.find(c => c.metadata.coords.x !== 0 && c.metadata.coords.y !== 0 && c.metadata.coords.z !== 0 && !c.isInPlace());
+        const notSolved = this.cubes.find(c => !c.isInPlace());
         return notSolved === undefined;
     }
 }
