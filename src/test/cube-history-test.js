@@ -17,11 +17,24 @@ function testSimpleHistory() {
         assertEquals(history[i], movesToTest[i], "History should reflect the same moves");
 }
 
+function testHistoryWithReverts() {
+    const movesToTest = [];
+    for(let i=0; i<10; i++) movesToTest.push(Movement.random());
+
+    SideAnimation.animationStep = 90; // no animation
+    const cube = new RubikCube(new Point3D(0,0,0), 1);
+    cube.planMoves(movesToTest);
+
+}
+
 function applyAllPlannedMoves(cube) {
-    while(cube.hasPlannedMoves()) {
-        cube.startMoveSide();
-        while(cube.animation.ongoing) cube.animate();
-    }
+    while(cube.hasPlannedMoves()) applyOnePlannedMove(cube);
+}
+
+function applyOnePlannedMove(cube) {
+    cube.startMoveSide();
+    while(cube.animation.ongoing) cube.animate();
 }
 
 runTest(testSimpleHistory);
+runTest(testHistoryWithReverts);
