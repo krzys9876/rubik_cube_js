@@ -161,8 +161,7 @@ function startSolving() {
     if(!solve) {
         solve = true;
         currentMoveNo = 1;
-        const logBox = document.getElementById('moveLogList');
-        while (logBox.options.length > 0) logBox.options.remove(logBox.options.length - 1);
+        clearMoveLog();
     }
 }
 
@@ -196,6 +195,11 @@ function logMove(message) {
     option.text = message;
     logBox.add(option);
     logBox.scrollTop = logBox.scrollHeight; // Auto-scroll to bottom
+}
+
+function clearMoveLog() {
+    const logBox = document.getElementById('moveLogList');
+    while (logBox.options.length > 0) logBox.options.remove(logBox.options.length - 1);
 }
 
 document.getElementById('stepByStepCheckbox').addEventListener('change', (event) => {
