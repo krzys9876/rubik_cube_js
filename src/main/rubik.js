@@ -84,7 +84,7 @@ function drawLoop() {
     let shouldRefresh = counter === 0 || rotate.size > 0 || isAutoMoving;
 
     if(solve && !isAutoMoving) {
-        const solver = new RubikSolver(cube);
+        const solver = new RubikSolver(cube, true);
         const solvingMoves = solver.solveLBL();
         solvingMoves.forEach(m => movements.push(m));
         solve = solvingMoves.length > 0; // uninterrupted solving

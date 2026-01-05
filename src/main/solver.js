@@ -10,38 +10,40 @@ import {Movement} from "./cube.js";
 
 export class RubikSolver {
     cube;
+    debug;
 
-    constructor(cube) {
+    constructor(cube, debug) {
         this.cube = cube;
+        this.debug = debug;
     }
 
     // LBL method (layer by layer)
     solveLBL() {
-        console.log("White cross stage");
+        if(this.debug) console.log("White cross stage");
         const whiteCrossMovements = this.solveWhiteCross();
         if(whiteCrossMovements.length > 0) return whiteCrossMovements;
 
-        console.log("White corners stage");
+        if(this.debug) console.log("White corners stage");
         const whiteCornersMovements = this.solveWhiteCorners();
         if(whiteCornersMovements.length > 0) return whiteCornersMovements;
 
-        console.log("Middle layer stage");
+        if(this.debug) console.log("Middle layer stage");
         const midLayerMovements = this.solveMidLayer();
         if(midLayerMovements.length > 0) return midLayerMovements;
 
-        console.log("Yellow cross stage");
+        if(this.debug) console.log("Yellow cross stage");
         const yellowCrossMovements = this.solveYellowCross();
         if(yellowCrossMovements.length > 0) return yellowCrossMovements;
 
-        console.log("Yellow layer stage");
+        if(this.debug) console.log("Yellow layer stage");
         const yellowLayerMovements = this.solveYellowLayer();
         if(yellowLayerMovements.length > 0) return yellowLayerMovements;
 
-        console.log("Yellow corners stage");
+        if(this.debug) console.log("Yellow corners stage");
         const yellowCornersMovements = this.solveYellowCorners();
         if(yellowCornersMovements.length > 0) return yellowCornersMovements;
 
-        console.log("Yellow edges stage");
+        if(this.debug) console.log("Yellow edges stage");
         const yellowEdgesMovements = this.solveYellowEdges();
         if(yellowEdgesMovements.length > 0) return yellowEdgesMovements;
 
@@ -66,14 +68,14 @@ export class RubikSolver {
         // Case 1
         const bottomEdges = edges.filter(e => e.metadata.coords.y === -1 && !e.isInPlace());
         if(bottomEdges.length === 0) {
-            console.log("case 1");
+            if(this.debug) console.log("case 1");
             return [];
         }
 
         // Case 2
         const whiteBottomEdges = bottomEdges.filter(e => e.hasSideInPlace(SideType.DOWN));
         if(whiteBottomEdges.length > 0) {
-            console.log("case 2");
+            if(this.debug) console.log("case 2");
             const edge = whiteBottomEdges[0];
             // NOTE: the ther side must exist, hence [0]
             const otherSide = edge.getSides().filter(e => e.metadata.orientation !== SideType.DOWN)[0];
@@ -90,7 +92,7 @@ export class RubikSolver {
         // Case 3
         const whiteUpperEdges = edges.filter(e => e.metadata.coords.y === 1 && e.hasSide(SideType.UP, sideStyles.get(SideType.DOWN)));
         if(whiteUpperEdges.length > 0) {
-            console.log("case 3");
+            if(this.debug) console.log("case 3");
             const edge = whiteUpperEdges[0];
             const otherSide = edge.getSides().filter(e => e.metadata.orientation !== SideType.UP)[0];
             const targetSide = styleSide(otherSide.metadata.style);
@@ -115,13 +117,13 @@ export class RubikSolver {
 
             if(otherSide.metadata.style.name === sideStyles.get(otherSide.metadata.orientation).name) {
                 // Case 4
-                console.log("case 4");
+                if(this.debug) console.log("case 4");
                 const distance = sideDistance(otherSide.metadata.orientation, whiteSide.metadata.orientation, SideType.DOWN);
                 distance.forEach(d => movements.push(new Movement(otherSide.metadata.orientation, d)));
                 return movements;
             } else {
                 // Case 5 - do not solve it, rather convert it to case 3 (white on top)
-                console.log("case 5");
+                if(this.debug) console.log("case 5");
                 const distance1 = sideDistance(otherSide.metadata.orientation, whiteSide.metadata.orientation,SideType.UP);
                 //const distance1 = sideDistance(whiteSide.metadata.orientation,SideType.UP);
                 distance1.forEach(d => movements.push(new Movement(otherSide.metadata.orientation, d)));
@@ -141,7 +143,7 @@ export class RubikSolver {
                 e.hasSide(SideType.BACK, sideStyles.get(SideType.DOWN))));
 
         if(whiteUpperSideEdges.length > 0) {
-            console.log("case 6");
+            if(this.debug) console.log("case 6");
             const edge = whiteUpperSideEdges[0];
             const whiteSide = edge.getSides().filter(e => e.metadata.style.name === sideStyles.get(SideType.DOWN).name)[0];
             const otherSide = edge.getSides().filter(e => e.metadata.style.name !== sideStyles.get(SideType.DOWN).name)[0];
@@ -161,7 +163,7 @@ export class RubikSolver {
                 e.hasSide(SideType.BACK, sideStyles.get(SideType.DOWN))));
 
         if(whiteDownSideEdges.length > 0) {
-            console.log("case 7");
+            if(this.debug) console.log("case 7");
             const edge = whiteDownSideEdges[0];
             const whiteSide = edge.getSides().filter(e => e.metadata.style.name === sideStyles.get(SideType.DOWN).name)[0];
             movements.push(new Movement(whiteSide.metadata.orientation, MoveDirection.CLOCKWISE));
@@ -186,14 +188,14 @@ export class RubikSolver {
         // Case 1
         const bottomCorners = corners.filter(c => c.metadata.coords.y === -1 && !c.isInPlace());
         if(bottomCorners.length === 0) {
-            console.log("case 1");
+            if(this.debug) console.log("case 1");
             return [];
         }
 
         // Case 2
         const whiteTopCorners = corners.filter(c => c.metadata.coords.y === 1 && c.hasSide(SideType.UP, sideStyles.get(SideType.DOWN)));
         if(whiteTopCorners.length > 0) {
-            console.log("case 2");
+            if(this.debug) console.log("case 2");
             const corner = whiteTopCorners[0];
 
             const otherSides = corner.getSides().filter(e => e.metadata.style.name !== sideStyles.get(SideType.DOWN).name);
@@ -247,10 +249,10 @@ export class RubikSolver {
             if(distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE) {
                 // case 3, white on left
                 // L1 U1 L, front os other side
-                console.log("case 3");
+                if(this.debug) console.log("case 3");
                 return this.#translateSequence("L1 U1 L", otherSide.metadata.orientation);
             } else {
-                console.log("case 4");
+                if(this.debug) console.log("case 4");
                 // R U R1, front os other side
                 return this.#translateSequence("R U R1", otherSide.metadata.orientation);
             }
@@ -264,7 +266,7 @@ export class RubikSolver {
                 c.hasSide(SideType.BACK, sideStyles.get(SideType.DOWN)) ||
                 c.hasSide(SideType.DOWN, sideStyles.get(SideType.DOWN))));
         if(sideDownCorners.length > 0) {
-            console.log("case 5");
+            if(this.debug) console.log("case 5");
             const corner = sideDownCorners[0];
 
             // Let's determine any side (except for down side) and move the corner to upper side
@@ -309,7 +311,7 @@ export class RubikSolver {
         // Case 1
         const midEdges = edges.filter(c => c.metadata.coords.y === 0 && !c.isInPlace());
         if(midEdges.length === 0) {
-            console.log("case 1");
+            if(this.debug) console.log("case 1");
             return [];
         }
 
@@ -321,7 +323,7 @@ export class RubikSolver {
             !c.hasSide(SideType.FRONT, sideStyles.get(SideType.UP)) &&
             !c.hasSide(SideType.BACK, sideStyles.get(SideType.UP)));
         if(topEdges.length > 0) {
-            console.log("case 2, 3");
+            if(this.debug) console.log("case 2, 3");
             const edge = topEdges[0];
             const frontSide = edge.getSides().filter(s => s.metadata.orientation !== SideType.UP)[0];
             const topSide = edge.getSides().filter(s => s.metadata.orientation === SideType.UP)[0];
@@ -336,10 +338,10 @@ export class RubikSolver {
             // Determine if the top side should be moved right/down or left/down
             const direction = sideDistance(SideType.UP, frontSide.metadata.orientation, styleSide(topSide.metadata.style))[0];
             if(direction === MoveDirection.CLOCKWISE) {
-                console.log("case 2");
+                if(this.debug) console.log("case 2");
                 this.#solveMidLayerCase2(frontSide.metadata.orientation).forEach( m => movements.push(m));
             } else {
-                console.log("case 3");
+                if(this.debug) console.log("case 3");
                 this.#solveMidLayerCase3(frontSide.metadata.orientation).forEach( m => movements.push(m));
             }
             return movements;
@@ -348,7 +350,7 @@ export class RubikSolver {
         // case 4
         const midEdgesWrong = edges.filter(c => c.metadata.coords.y === 0 && !c.isInPlace());
         if(midEdgesWrong.length > 0) {
-            console.log("case 4");
+            if(this.debug) console.log("case 4");
             const edge = midEdgesWrong[0];
             const sides = edge.getSides().filter(s => s.metadata.orientation !== SideType.UP);
             const side1 = sides[0];
@@ -387,7 +389,7 @@ export class RubikSolver {
         // case 1
         const topEdges = edges.filter(c => c.metadata.coords.y === 1 && !c.isInPlace());
         if(topEdges.length === 0) {
-            console.log("case 1");
+            if(this.debug) console.log("case 1");
             return [];
         }
 
@@ -403,13 +405,13 @@ export class RubikSolver {
             const edge2Other = topEdgesYellow[1].getSides().filter(s => s.metadata.orientation !== SideType.UP)[0];
             const distanceBetween = sideDistance(SideType.UP, edge1Other.metadata.orientation, edge2Other.metadata.orientation);
             if(distanceBetween.length === 2) {
-                console.log("case 3");
+                if(this.debug) console.log("case 3");
                 // let's choose any side between opposite sides as front for the sequence
                 const frontSideForSequence = nextSide(SideType.UP, edge1Other.metadata.orientation, MoveDirection.CLOCKWISE);
                 this.#solveYellowCross(frontSideForSequence).forEach( m => movements.push(m));
                 return movements;
             } else {
-                console.log("case 2");
+                if(this.debug) console.log("case 2");
                 // choose proper front side (According to the guide)
                 const frontSideForSequence = distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE ?
                     nextSide(SideType.UP, edge2Other.metadata.orientation, MoveDirection.COUNTERCLOCKWISE) :
@@ -423,7 +425,7 @@ export class RubikSolver {
         // In this case it does not matter which side is front
         const topEdgesNoYellow = edges.filter(c => c.metadata.coords.y === 1 && !c.hasSide(SideType.UP, sideStyles.get(SideType.UP)));
         if(topEdgesNoYellow.length >= 3) {
-            console.log("case 4");
+            if(this.debug) console.log("case 4");
             this.#solveYellowCross(SideType.FRONT).forEach( m => movements.push(m));
             return movements;
         }
@@ -451,7 +453,7 @@ export class RubikSolver {
         // case 1
         const topCorners = corners.filter(c => c.metadata.coords.y === 1 && !c.hasSide(SideType.UP, sideStyles.get(SideType.UP)));
         if(topCorners.length === 0) {
-            console.log("case 1");
+            if(this.debug) console.log("case 1");
             return [];
         }
 
@@ -462,7 +464,7 @@ export class RubikSolver {
         const topCornersYellow = corners.filter(c => c.metadata.coords.y === 1 && c.hasSide(SideType.UP, sideStyles.get(SideType.UP)));
         const otherCorners = corners.filter(c => c.metadata.coords.y === 1 && !c.hasSide(SideType.UP, sideStyles.get(SideType.UP)));
         if(topCornersYellow.length >= 2) {
-            console.log("case 2");
+            if(this.debug) console.log("case 2");
             // We take any corner without yellow on top and select yellow side as front side for the sequence
             const otherCorner = otherCorners[0];
             const yellowSide = otherCorner.getSides().filter(s =>
@@ -470,7 +472,7 @@ export class RubikSolver {
             this.#solveYellowLayer(yellowSide.metadata.orientation).forEach( m => movements.push(m));
             return movements;
         } else if(topCornersYellow.length === 1) {
-            console.log("case 3");
+            if(this.debug) console.log("case 3");
             // We take the yellow corner and select its tight side as front side for the sequence
             const yellowCorner = topCornersYellow[0];
             const otherSides = yellowCorner.getSides().filter(s => s.metadata.orientation !== SideType.UP);
@@ -481,7 +483,7 @@ export class RubikSolver {
             this.#solveYellowLayer(frontSideForSequence.metadata.orientation).forEach( m => movements.push(m));
             return movements;
         } else if(topCornersYellow.length === 0) {
-            console.log("case 4");
+            if(this.debug) console.log("case 4");
             // We take any corner without yellow on top and select yellow side as front side for the sequence
             const otherCorner = otherCorners[0];
             const otherSide = otherCorner.getSides().filter(s =>
@@ -512,7 +514,7 @@ export class RubikSolver {
         // case 1
         const topCornersIncorrect = corners.filter(c => c.metadata.coords.y === 1 && !c.isInPlace());
         if(topCornersIncorrect.length === 0) {
-            console.log("case 1");
+            if(this.debug) console.log("case 1");
             return [];
         }
 
@@ -532,7 +534,7 @@ export class RubikSolver {
                 const corner1Side = corners[0].getSides().filter(s => s.metadata.orientation === side)[0];
                 const corner2Side = corners[1].getSides().filter(s => s.metadata.orientation === side)[0];
                 if (corner1Side.metadata.style.name === corner2Side.metadata.style.name) {
-                    console.log("case 2");
+                    if(this.debug) console.log("case 2");
                     // We found the pair, but we must first move the pair to the native side
                     const distance = sideDistance(SideType.UP, corner1Side.metadata.orientation, styleSide(corner1Side.metadata.style));
                     if (distance.length > 0) {
@@ -546,7 +548,7 @@ export class RubikSolver {
             }
         }
         // Apparently we have not found the pair so we may run the sequence for any side with incorrect cube
-        console.log("case 3");
+        if(this.debug) console.log("case 3");
         const corner = topCornersIncorrect[0];
         const side = corner.getSides().filter(s => s.metadata.orientation !== SideType.UP)[0];
         this.#solveYellowCorners(side.metadata.orientation).forEach(m => movements.push(m));
@@ -573,7 +575,7 @@ export class RubikSolver {
         // case 1
         const incorrectEdges = edges.filter(e => e.metadata.coords.y === 1 && !e.isInPlace());
         if(incorrectEdges.length === 0) {
-            console.log("case 1 (finished)");
+            if(this.debug) console.log("case 1 (finished)");
             return [];
         }
         if(incorrectEdges.length < 3) {
@@ -614,8 +616,8 @@ export class RubikSolver {
         }
         // Now me must determine rotation direction
         const rotateRight = leftSide.metadata.style.name === sideStyles.get(rightSide.metadata.orientation).name;
-        if(rotateRight) console.log("case 2");
-        else console.log("case 3");
+        if(rotateRight) if(this.debug) console.log("case 2");
+        else if(this.debug) console.log("case 3");
         this.#solveYellowEdges(remainingSide.metadata.orientation, rotateRight).forEach(m => movements.push(m));
         return movements;
     }
