@@ -1,6 +1,7 @@
 import {assertEquals, runTest} from "./common-test.js";
 import {Movement, RubikCube, SideAnimation} from "../main/cube.js";
 import {Point3D} from "../main/geometry.js";
+import {MoveType, reverseDirection} from "../main/common.js";
 
 function testSimpleHistory() {
     const movesToTest = [];
@@ -18,13 +19,26 @@ function testSimpleHistory() {
 }
 
 function testHistoryWithReverts() {
-    const movesToTest = [];
-    for(let i=0; i<10; i++) movesToTest.push(Movement.random());
+    const movesToTest = Movement.fromText("F D U R L D B R F U");
 
     SideAnimation.animationStep = 90; // no animation
     const cube = new RubikCube(new Point3D(0,0,0), 1);
     cube.planMoves(movesToTest);
 
+    applyOnePlannedMove(cube);
+    applyOnePlannedMove(cube);
+    applyOnePlannedMove(cube);
+    assertEquals(Movement.toText(cube.history), "F D U", "History should reflect processed moves");
+
+    //revertOneMove(cube);
+    //revertOneMove(cube);
+
+    applyOnePlannedMove(cube);
+    assertEquals(Movement.toText(cube.history), "F D U R", "History should reflect processed moves");
+    //revertOneMove(cube);
+    applyOnePlannedMove(cube);
+    applyOnePlannedMove(cube);
+    assertEquals(Movement.toText(cube.history), "F D U R L D", "History should reflect processed moves");
 }
 
 function applyAllPlannedMoves(cube) {
@@ -34,6 +48,13 @@ function applyAllPlannedMoves(cube) {
 function applyOnePlannedMove(cube) {
     cube.startMoveSide();
     while(cube.animation.ongoing) cube.animate();
+}
+
+function revertOneMove(cube) {
+    const lastMove = cube.history[cube.history.length - 1];
+    const reverseMove = new Movement(lastMove.side, reverseDirection(lastMove.direction), MoveType.REVERSE);
+    // Plan the move again
+    cube.planned.splice(0, 0, lastMove);
 }
 
 runTest(testSimpleHistory);

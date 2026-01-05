@@ -156,15 +156,9 @@ document.getElementById('processButton').addEventListener('click', () => {
     const text = input.value;
     if(!text) return;
 
-    const codes = text.split(" ");
-
-    console.log("Processing: ", codes);
-
-    codes.forEach(code => {
-        const movement = Movement.from(code);
-        if (movement) cube.planMoves([Movement.from(code)])
-    });
-
+    console.log("Processing: ", text);
+    const toProcess = Movement.fromText(text);
+    cube.planMoves(toProcess)
     input.value='';
 });
 

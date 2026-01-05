@@ -253,6 +253,21 @@ export class Movement {
         else return Movement.#codeToMovement.has(code) ? Movement.#codeToMovement.get(code).withType(type) : null;
     }
 
+    static fromText(codes, type = MoveType.MANUAL) {
+        const movements = [];
+        codes.split(" ").forEach(code => {
+            const movement = Movement.from(code).withType(type);
+            if (movement) movements.push(movement)
+        });
+        return movements;
+    }
+
+    static toText(moves) {
+        let text = "";
+        moves.forEach(m => text += m.toCode() + " ");
+        return text.trim();
+    }
+
     static random(type = MoveType.MANUAL) {
         const sideIndex = Math.round(Math.random() * Movement.#sides.length) % Movement.#sides.length;
         const side = Movement.#sides[sideIndex];
