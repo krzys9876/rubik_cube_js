@@ -145,7 +145,8 @@ export class Cube {
     isInPlace() {
         const actualSides = this.getSides();
         const correctSides = actualSides.filter(p => sideStyles.get(p.metadata.orientation).name === p.metadata.style.name);
-        return actualSides.length === correctSides.length && actualSides.length > 0;
+        // NOTE: this will always be true for inner cube (0,0,0)
+        return actualSides.length === correctSides.length;
     }
 
     hasSideInPlace(side) {
@@ -566,5 +567,10 @@ export class RubikCube {
 
     clearHistory() {
         this.history = [];
+    }
+
+    isSolved() {
+        const notSolved = this.cubes.find(c => c.metadata.coords.x !== 0 && c.metadata.coords.y !== 0 && c.metadata.coords.z !== 0 && !c.isInPlace());
+        return notSolved === undefined;
     }
 }

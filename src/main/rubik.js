@@ -150,7 +150,6 @@ document.getElementById('shuffleButton').addEventListener('click', () => {
 });
 
 document.getElementById('solveButton').addEventListener('click', () => {
-    console.log("Start solving");
     startSolving();
 });
 
@@ -165,6 +164,7 @@ function updateSolve(newSolve) {
 
 function startSolving() {
     if(solve && !stepByStep) return;
+    if(cube.isSolved()) return;
 
     runNextStep = stepByStep; // This is only important when stepByStep is enabled
     if(!solve) {
