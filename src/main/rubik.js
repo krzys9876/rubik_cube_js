@@ -1,4 +1,4 @@
-import {MoveDirection, SideType, Axis, MoveType} from './common.js';
+import {MoveDirection, SideType, Axis} from './common.js';
 import { canvas, ctx } from './common-dom.js';
 import { Point3D, Vector3D } from './geometry.js';
 import {Movement, RubikCube, SideAnimation} from './cube.js';
@@ -27,7 +27,6 @@ let revertLast = false;
 
 const bkStyle = 'lightgray';
 
-const movements = []
 let currentMoveNo = 1;
 // Set initial point of view
 scene.rotate(-15,30,-5);
@@ -41,7 +40,6 @@ function drawLoop() {
         const solver = new RubikSolver(cube, true);
         const solvingMoves = solver.solveLBL();
         cube.planMoves(solvingMoves);
-        //solvingMoves.forEach(m => movements.push(m));
         updateSolve(solvingMoves.length > 0);
         shouldRefresh = true;
     }
@@ -164,9 +162,7 @@ document.getElementById('processButton').addEventListener('click', () => {
 
     codes.forEach(code => {
         const movement = Movement.from(code);
-        if (movement)
-            //movements.push(Movement.from(code));
-            cube.planMoves([Movement.from(code)])
+        if (movement) cube.planMoves([Movement.from(code)])
     });
 
     input.value='';
@@ -254,7 +250,6 @@ document.getElementById('stepByStepCheckbox').addEventListener('change', (event)
 });
 
 function manualMove(m) {
-    //movements.splice(0, movements.length);
     movement = m;
     updateSolve(false);
 }
