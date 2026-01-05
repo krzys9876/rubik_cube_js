@@ -164,7 +164,10 @@ function updateSolve(newSolve) {
 
 function startSolving() {
     if(solve && !stepByStep) return;
-    if(cube.isSolved()) return;
+    if(cube.isSolved()) {
+        console.log("Already solved")
+        return;
+    }
 
     runNextStep = stepByStep; // This is only important when stepByStep is enabled
     if(!solve) {
