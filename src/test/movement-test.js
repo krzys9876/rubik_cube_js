@@ -29,7 +29,6 @@ function testVerticalSidesTranslation() {
         const frontSide = codes[i][1];
         const movement = Movement.from(code);
         const translatedCode = movement.translate(frontSide).toCode();
-        console.log(code, frontSide, expected[i]);
         assertEquals(translatedCode, expected[i], 'Should translate (rotate) move according to selected front side');
         const movement1 = Movement.from(code+"1");
         const translatedCode1 = movement1.translate(frontSide).toCode();
