@@ -1,5 +1,4 @@
 import {globalStyle, planeOrientation, sideAxis} from './common.js';
-import { canvas, ctx } from './common-dom.js';
 
 export class Point2D {
     static #size = 5;
@@ -13,18 +12,18 @@ export class Point2D {
         this.style = style;
     }
 
-    draw() {
+    draw(canvas, ctx) {
         ctx.fillStyle = this.style.pointStyle;
-        ctx.fillRect(this.actualX() - Point2D.#size / 2, this.actualY() - Point2D.#size / 2, Point2D.#size, Point2D.#size);
+        ctx.fillRect(this.actualX(canvas) - Point2D.#size / 2, this.actualY(canvas) - Point2D.#size / 2, Point2D.#size, Point2D.#size);
     }
 
     // 3D point's X and Y are in range -1 to 1, so point 0.0 is in the middle of the screen
     // and axis grow up and right
-    actualX() {
+    actualX(canvas) {
         return (this.x + 1) * canvas.width / 2;
     }
 
-    actualY() {
+    actualY(canvas) {
         return (1 - this.y) * canvas.height /2;
     }
 }
@@ -109,17 +108,17 @@ export class Line2D {
         this.style = style;
     }
 
-    draw(drawPoints = false) {
+    draw(canvas, ctx, drawPoints = false) {
         if(drawPoints) {
-            this.lineStart.draw();
-            this.lineEnd.draw();
+            this.lineStart.draw(canvas, ctx);
+            this.lineEnd.draw(canvas, ctx);
         }
 
         ctx.beginPath();
         ctx.strokeStyle = this.style.lineStyle;
         ctx.lineWidth = 2;
-        ctx.moveTo(this.lineStart.actualX(), this.lineStart.actualY());
-        ctx.lineTo(this.lineEnd.actualX(), this.lineEnd.actualY());
+        ctx.moveTo(this.lineStart.actualX(canvas), this.lineStart.actualY(canvas));
+        ctx.lineTo(this.lineEnd.actualX(canvas), this.lineEnd.actualY(canvas));
         ctx.stroke();
     }
 }
@@ -135,8 +134,8 @@ export class Line3D {
         this.style = style;
     }
 
-    project() {
-        return new Line2D(this.lineStart.project(), this.lineEnd.project(), this.style);
+    project(canvas) {
+        return new Line2D(this.lineStart.project(), this.lineEnd.project(), this.style, canvas);
     }
 
     rotate(matrix, center, reverse = false) {
@@ -189,31 +188,31 @@ export class Plane2D {
     metadata;
     functions = [];
 
-    constructor(points, center, normalLine, isVisible, metadata) {
+    constructor(points, center, normalLine, isVisible, metadata, canvas) {
         this.points = points;
         this.center = center;
         this.normalLine = normalLine;
         this.isVisible = isVisible;
         this.metadata = metadata;
-        this.#calculateFunctions();
+        this.#calculateFunctions(canvas);
     }
 
-    #calculateFunctions() {
+    #calculateFunctions(canvas) {
         this.functions = [];
         // We assume that all planes have points ordered in the same direction (counter- or clockwise)
-        this.functions.push(new LinearFunction(this.points[0], this.points[1]));
-        this.functions.push(new LinearFunction(this.points[1], this.points[2]));
-        this.functions.push(new LinearFunction(this.points[2], this.points[3]));
-        this.functions.push(new LinearFunction(this.points[3], this.points[0]));
+        this.functions.push(new LinearFunction(this.points[0], this.points[1], canvas));
+        this.functions.push(new LinearFunction(this.points[1], this.points[2], canvas));
+        this.functions.push(new LinearFunction(this.points[2], this.points[3], canvas));
+        this.functions.push(new LinearFunction(this.points[3], this.points[0], canvas));
     }
 
-    draw(drawPoints = false, drawLines = false, fill = true) {
+    draw(canvas, ctx, drawPoints, drawLines, fill) {
         if(this.isVisible && fill && this.metadata.style.fillStyle && this.points.length > 0) {
             ctx.fillStyle = this.metadata.style.fillStyle;
             ctx.beginPath();
-            ctx.moveTo(this.points[0].actualX(), this.points[0].actualY());
+            ctx.moveTo(this.points[0].actualX(canvas), this.points[0].actualY(canvas));
             for(let i=1; i<this.points.length; i++) {
-                ctx.lineTo(this.points[i].actualX(), this.points[i].actualY());
+                ctx.lineTo(this.points[i].actualX(canvas), this.points[i].actualY(canvas));
             }
             ctx.closePath();
             ctx.fill();
@@ -222,21 +221,21 @@ export class Plane2D {
         if(drawLines || this.metadata.selected) {
             for(let i=0; i<this.points.length; i++) {
                 let endPointIndex = (i+1) % this.points.length;
-                new Line2D(this.points[i], this.points[endPointIndex], this.metadata.style).draw(drawPoints);
+                new Line2D(this.points[i], this.points[endPointIndex], this.metadata.style).draw(canvas, ctx, drawPoints);
             }
             /*if(this.normalLine != null) {
-                this.normalLine.draw(lineStyle, pointStyle, drawPoints);
+                this.normalLine.draw(canvas, ctx, lineStyle, pointStyle, drawPoints);
             }*/
         }
 
         if(!drawLines && drawPoints) {
             for(let point of this.points) {
-                point.draw();
+                point.draw(canvas, ctx);
             }
         }
 
         if(drawPoints && this.center) {
-            this.center.draw();
+            this.center.draw(canvas, ctx);
         }
         // print metadata
         /*if(this.isVisible) {
@@ -339,7 +338,7 @@ export class Plane3D {
         return new Point3D(x, y, z, this.metadata.style);
     }
 
-    project(observer) {
+    project(observer, canvas) {
         const isVisible = this.normalLine && this.normalLine.isFacing(observer);
 
         //console.log(this.normalLine);
@@ -347,7 +346,7 @@ export class Plane3D {
         let points2D = this.points.map((point) => point.project());
         let center2D = this.center ? this.center.project() : null;
         let normal2D = this.normal ? this.normalLine.project() : null;
-        this.plane2D = new Plane2D(points2D, center2D, normal2D, isVisible, this.metadata);
+        this.plane2D = new Plane2D(points2D, center2D, normal2D, isVisible, this.metadata, canvas);
         return this.plane2D;
     }
 
@@ -380,22 +379,24 @@ class LinearFunction {
     a;
     b;
     flip;
+    canvas;
 
-    constructor(p1, p2) {
+    constructor(p1, p2, canvas) {
         this.point1 = p1;
         this.point2 = p2;
+        this.canvas = canvas;
 
         // deduced from Excel prototype
-        this.dx = this.point2.actualX() - this.point1.actualX();
-        this.dy = this.point2.actualY() - this.point1.actualY();
+        this.dx = this.point2.actualX(this.canvas) - this.point1.actualX(this.canvas);
+        this.dy = this.point2.actualY(this.canvas) - this.point1.actualY(this.canvas);
         this.a = this.dx === 0 ? null : this.dy / this.dx;
-        this.b = this.dx === 0 ? null : this.point1.actualY() - this.point1.actualX() * this.a;
-        this.flip = this.dx === 0 ? this.point2.actualY() < this.point1.actualY() :  this.point2.actualX() < this.point1.actualX();
+        this.b = this.dx === 0 ? null : this.point1.actualY(this.canvas) - this.point1.actualX(this.canvas) * this.a;
+        this.flip = this.dx === 0 ? this.point2.actualY(this.canvas) < this.point1.actualY(this.canvas) :  this.point2.actualX(this.canvas) < this.point1.actualX(this.canvas);
     }
 
     isAboveLine(point) {
         // deduced from Excel prototype
-        const flag = this.a === null ? point.actualX()<this.point1.actualX() : point.actualX()*this.a + this.b < point.actualY();
+        const flag = this.a === null ? point.actualX(this.canvas)<this.point1.actualX(this.canvas) : point.actualX(this.canvas)*this.a + this.b < point.actualY(this.canvas);
         return flag !== this.flip; // effectively XOR
     }
 

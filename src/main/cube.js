@@ -101,7 +101,7 @@ export class Cube {
         }
     }
 
-    draw(observer) {
+    draw(canvas, ctx, observer) {
         this.planes.sort((a, b) => {
             let distA = Vector3D.fromPoints(observer, a.center).length();
             let distB = Vector3D.fromPoints(observer, b.center).length();
@@ -109,7 +109,7 @@ export class Cube {
         });
 
         for (let plane of this.planes) {
-            plane.project(observer).draw(false, true, true);
+            plane.project(observer, canvas).draw(canvas, ctx, false, true, true);
         }
     }
 
@@ -325,13 +325,15 @@ export class RubikCube {
     history = [];
     planned = [];
     planes = [];
+    canvas;
 
-    constructor(center, size) {
+    constructor(center, size, canvas) {
         this.center = center;
         this.size = size;
         this.cubes = this.#generateCubes();
         this.animation = new SideAnimation();
         this.history = [];
+        this.planes = [];
     }
 
     #generateCubes() {
@@ -506,14 +508,14 @@ export class RubikCube {
         });
     }
 
-    draw(observer, rotationCenter) {
+    draw(canvas, ctx, observer, rotationCenter) {
         this.animate();
 
         this.rotate(scene.rotationMatrix, rotationCenter, false);
         // Draw all cubes' planes instead of drawing cubes. We must sort planes anyway in order to properly render image.
         this.#preparePlanes(observer);
         for (let plane of this.planes) {
-            plane.project(observer).draw(false, true, true);
+            plane.project(observer, canvas).draw(canvas, ctx, false, true, true);
         }
         this.rotate(scene.rotationMatrix, rotationCenter, true);
     }
@@ -648,12 +650,12 @@ export class RubikCube {
         }
     }
 
-    debugVisiblePlanes() {
+    debugVisiblePlanes(canvas, ctx) {
         const point1 = new Point2D(0,0.2, globalStyle);
         const point2 = new Point2D(0,0.0, globalStyle);
         const point3 = new Point2D(-0.2,0, globalStyle);
         const point4 = new Point2D(-0.2,0.2, globalStyle);
-        point1.draw();
+        point1.draw(canvas, ctx);
         //point2.draw();
         //point3.draw();
         //point4.draw();
@@ -663,10 +665,10 @@ export class RubikCube {
         const planePoint2 = planeToAnalyze.points[1];
         const planePoint3 = planeToAnalyze.points[2];
         const planePoint4 = planeToAnalyze.points[3];
-        planePoint1.draw();
-        planePoint2.draw();
-        planePoint3.draw();
-        planePoint4.draw();
+        planePoint1.draw(canvas, ctx);
+        planePoint2.draw(canvas, ctx);
+        planePoint3.draw(canvas, ctx);
+        planePoint4.draw(canvas, ctx);
 
         console.log(planeToAnalyze.isInside(point1));
 

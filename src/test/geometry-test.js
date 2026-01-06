@@ -1,8 +1,11 @@
-import {PlaneMetadata, Point3D} from "../main/geometry.js";
+import {Line2D, Plane2D, PlaneMetadata, Point2D, Point3D} from "../main/geometry.js";
 import {Scene} from "../main/scene.js";
-import {assertEqualCoords, assertEqualMatrices, assertEquals, runTest} from "./common-test.js";
+import {assertEqualCoords, assertEqualMatrices, assertEquals, assertFalse, assertTrue, runTest} from "./common-test.js";
 import {CubeCoords} from "../main/cube.js";
-import {Axis, globalStyle, MoveDirection, SideType} from "../main/common.js";
+import {Axis, blueStyle, globalStyle, MoveDirection, SideType} from "../main/common.js";
+
+// Fake canvas for test purposes
+const canvas = {width: 100, height: 100};
 
 function testPoint3DRotation() {
     const point = new Point3D(1, 2, 3);
@@ -95,7 +98,31 @@ function testPlaneRotation() {
     _doTestPlaneRotation({ moveSide: SideType.BACK, sides: [SideType.FRONT, SideType.FRONT, SideType.FRONT, SideType.FRONT] });
 }
 
+function testPointInsidePlane() {
+    // We must ensure that points are ordered counterclockwise (using standard axis, not screen coordinates!)
+    // for a plane to be visible
+    const point1 = new Point2D(0.4,0.6, globalStyle);
+    const point2 = new Point2D(-0.6,0.5, globalStyle);
+    const point3 = new Point2D(-0.6,-0.5, globalStyle);
+    const point4 = new Point2D(0.6,-0.4, globalStyle);
+    const center = new Point2D(0, 0, globalStyle); // irrelevant for testing, just needed as constructor parameter
+    const normalEnd = new Point2D(0.1, 0.1, globalStyle); // as above
+    const normal = new Line2D(center, normalEnd);
+    const plane = new Plane2D([point1, point2, point3, point4], center, normal, true,
+        new PlaneMetadata(blueStyle, SideType.FRONT, 'NONE'), canvas);
+
+    assertTrue(plane.isInside(new Point2D(0, 0, globalStyle)), "The point is inside the plane");
+    assertFalse(plane.isInside(new Point2D(0.6, 0.6, globalStyle)), "The point is outside the plane");
+    assertFalse(plane.isInside(new Point2D(0.41, 0.61, globalStyle)), "The point is outside the plane");
+    assertTrue(plane.isInside(new Point2D(-0.49, 0, globalStyle)), "The point is inside the plane");
+    assertFalse(plane.isInside(new Point2D(-0.61, 0, globalStyle)), "The point is outside plane");
+    assertTrue(plane.isInside(new Point2D(0, -0.44, globalStyle)), "The point is inside the plane");
+    assertFalse(plane.isInside(new Point2D(0, -0.46, globalStyle)), "The point is outside the plane");
+
+}
+
 runTest(testPoint3DRotation);
 runTest(testSceneRotation);
 runTest(testCubeCoordsRotation);
 runTest(testPlaneRotation);
+runTest(testPointInsidePlane);
