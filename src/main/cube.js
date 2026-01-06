@@ -1,4 +1,4 @@
-import {Coords3D, Plane3D, PlaneMetadata, Point3D, Vector3D} from "./geometry.js";
+import {Coords3D, Plane3D, PlaneMetadata, Point2D, Point3D, Vector3D} from "./geometry.js";
 import {
     globalStyle,
     MoveDirection,
@@ -324,6 +324,7 @@ export class RubikCube {
     animation;
     history = [];
     planned = [];
+    planes = [];
 
     constructor(center, size) {
         this.center = center;
@@ -491,27 +492,29 @@ export class RubikCube {
         for (let cube of this.cubes) cube.rotate(matrix, center, false, reverse)
     }
 
+    #preparePlanes(observer) {
+        this.planes = [];
+        for (let cube of this.cubes) {
+            for (let plane of cube.planes) {
+                this.planes.push(plane);
+            }
+        }
+        this.planes.sort((a, b) => {
+            let distA = Vector3D.fromPoints(observer, a.center).length();
+            let distB = Vector3D.fromPoints(observer, b.center).length();
+            return distB - distA;
+        });
+    }
+
     draw(observer, rotationCenter) {
         this.animate();
 
         this.rotate(scene.rotationMatrix, rotationCenter, false);
         // Draw all cubes' planes instead of drawing cubes. We must sort planes anyway in order to properly render image.
-        let allPlanes = [];
-        for (let cube of this.cubes) {
-            for (let plane of cube.planes) {
-                allPlanes.push(plane);
-            }
-        }
-        allPlanes.sort((a, b) => {
-            let distA = Vector3D.fromPoints(observer, a.center).length();
-            let distB = Vector3D.fromPoints(observer, b.center).length();
-            return distB - distA;
-        });
-
-        for (let plane of allPlanes) {
+        this.#preparePlanes(observer);
+        for (let plane of this.planes) {
             plane.project(observer).draw(false, true, true);
         }
-
         this.rotate(scene.rotationMatrix, rotationCenter, true);
     }
 
@@ -645,5 +648,23 @@ export class RubikCube {
         }
     }
 
+    debugVisiblePlanes() {
+        const point1 = new Point2D(0,0.2, globalStyle);
+        const point2 = new Point2D(0,0.0, globalStyle);
+        const point3 = new Point2D(-0.2,0, globalStyle);
+        const point4 = new Point2D(-0.2,0.2, globalStyle);
+        point1.draw();
+        point2.draw();
+        point3.draw();
+        point4.draw();
 
+        this.planes.forEach(p => {
+            if(p.plane2D.isVisible) {
+                console.log(p.plane2D);
+                p.plane2D.points.forEach(point => {
+                    console.log(`(${point.x},${point.y}})/(${point.actualX()},${point.actualY()})`)
+                });
+            }
+        });
+    }
 }

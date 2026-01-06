@@ -283,6 +283,7 @@ export class Plane3D {
     normal = null;
     normalLine = null;
     center = null;
+    plane2D = null;
     metadata;
 
     constructor(points, metadata) {
@@ -322,14 +323,15 @@ export class Plane3D {
     }
 
     project(observer) {
-        let isVisible = this.normalLine && this.normalLine.isFacing(observer);
+        const isVisible = this.normalLine && this.normalLine.isFacing(observer);
 
         //console.log(this.normalLine);
 
         let points2D = this.points.map((point) => point.project());
         let center2D = this.center ? this.center.project() : null;
         let normal2D = this.normal ? this.normalLine.project() : null;
-        return new Plane2D(points2D, center2D, normal2D, isVisible, this.metadata);
+        this.plane2D = new Plane2D(points2D, center2D, normal2D, isVisible, this.metadata);
+        return this.plane2D;
     }
 
     rotate(matrix, center, reverse = false) {

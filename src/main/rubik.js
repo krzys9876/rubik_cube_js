@@ -67,6 +67,7 @@ function drawLoop() {
             rotate.has(Axis.Z) ? rotate.get(Axis.Z) : 0);
 
         cube.draw(observer, rotationCenter);
+        //cube.debugVisiblePlanes();
 
         if(movement !== null) {
             cube.planMoves([movement]);
