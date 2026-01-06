@@ -325,9 +325,8 @@ export class RubikCube {
     history = [];
     planned = [];
     planes = [];
-    canvas;
 
-    constructor(center, size, canvas) {
+    constructor(center, size) {
         this.center = center;
         this.size = size;
         this.cubes = this.#generateCubes();
@@ -671,6 +670,5 @@ export class RubikCube {
         planePoint4.draw(canvas, ctx);
 
         console.log(planeToAnalyze.isInside(point1));
-
     }
 }
