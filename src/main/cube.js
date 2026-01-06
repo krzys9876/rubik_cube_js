@@ -654,17 +654,21 @@ export class RubikCube {
         const point3 = new Point2D(-0.2,0, globalStyle);
         const point4 = new Point2D(-0.2,0.2, globalStyle);
         point1.draw();
-        point2.draw();
-        point3.draw();
-        point4.draw();
+        //point2.draw();
+        //point3.draw();
+        //point4.draw();
 
-        this.planes.forEach(p => {
-            if(p.plane2D.isVisible) {
-                console.log(p.plane2D);
-                p.plane2D.points.forEach(point => {
-                    console.log(`(${point.x},${point.y}})/(${point.actualX()},${point.actualY()})`)
-                });
-            }
-        });
+        const planeToAnalyze = this.planes[this.planes.length - 1].plane2D;
+        const planePoint1 = planeToAnalyze.points[0];
+        const planePoint2 = planeToAnalyze.points[1];
+        const planePoint3 = planeToAnalyze.points[2];
+        const planePoint4 = planeToAnalyze.points[3];
+        planePoint1.draw();
+        planePoint2.draw();
+        planePoint3.draw();
+        planePoint4.draw();
+
+        console.log(planeToAnalyze.isInside(point1));
+
     }
 }

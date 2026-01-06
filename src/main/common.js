@@ -14,7 +14,7 @@ export class Style {
     }
 }
 
-export const globalStyle = new Style('black', 'black', 'darkgray', 'NONE', 'X');
+export const globalStyle = new Style('pink', 'black', 'darkgray', 'NONE', 'X');
 
 export const redStyle = new Style('black', 'black', 'red', 'RED', 'R');
 export const yellowStyle = new Style('black', 'black', 'yellow', 'YELLOW', 'Y');

@@ -187,6 +187,7 @@ export class Plane2D {
     normalLine = null;
     isVisible = true;
     metadata;
+    functions = [];
 
     constructor(points, center, normalLine, isVisible, metadata) {
         this.points = points;
@@ -194,6 +195,16 @@ export class Plane2D {
         this.normalLine = normalLine;
         this.isVisible = isVisible;
         this.metadata = metadata;
+        this.#calculateFunctions();
+    }
+
+    #calculateFunctions() {
+        this.functions = [];
+        // We assume that all planes have points ordered in the same direction (counter- or clockwise)
+        this.functions.push(new LinearFunction(this.points[0], this.points[1]));
+        this.functions.push(new LinearFunction(this.points[1], this.points[2]));
+        this.functions.push(new LinearFunction(this.points[2], this.points[3]));
+        this.functions.push(new LinearFunction(this.points[3], this.points[0]));
     }
 
     draw(drawPoints = false, drawLines = false, fill = true) {
@@ -234,6 +245,12 @@ export class Plane2D {
             ctx.font = "12px arial";
             ctx.fillText(this.metadata.text, this.center.actualX()-20, this.center.actualY());
         }*/
+    }
+
+    isInside(point) {
+        // The point inside a plane should be "below" all lines (below depending on their directions)
+        return this.functions.find(f => f.isAboveLine(point)) === undefined;
+
     }
 }
 
@@ -353,4 +370,36 @@ export class Plane3D {
 
     select() { this.metadata.select(); }
     unselect() { this.metadata.unselect(); }
+}
+
+class LinearFunction {
+    point1;
+    point2;
+    dx;
+    dy;
+    a;
+    b;
+    flip;
+
+    constructor(p1, p2) {
+        this.point1 = p1;
+        this.point2 = p2;
+
+        // deduced from Excel prototype
+        this.dx = this.point2.actualX() - this.point1.actualX();
+        this.dy = this.point2.actualY() - this.point1.actualY();
+        this.a = this.dx === 0 ? null : this.dy / this.dx;
+        this.b = this.dx === 0 ? null : this.point1.actualY() - this.point1.actualX() * this.a;
+        this.flip = this.dx === 0 ? this.point2.actualY() < this.point1.actualY() :  this.point2.actualX() < this.point1.actualX();
+    }
+
+    isAboveLine(point) {
+        // deduced from Excel prototype
+        const flag = this.a === null ? point.actualX()<this.point1.actualX() : point.actualX()*this.a + this.b < point.actualY();
+        return flag !== this.flip; // effectively XOR
+    }
+
+    isBelowLine(point) {
+        return !this.isAboveLine(point);
+    }
 }
