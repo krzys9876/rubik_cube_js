@@ -260,26 +260,35 @@ canvas.addEventListener('mousemove', (event) => {
     const deltaX = currentX - dragStart.x;
     const deltaY = currentY - dragStart.y;
 
-    console.log(`Dragging - delta: (${deltaX}, ${deltaY})`);
-
     // Update drag start position for next move event
     dragStart.x = currentX;
     dragStart.y = currentY;
 
-    // Your drag handling logic here (e.g., rotate the cube)
+    rotateOneAxisWhenDragging(deltaX, Axis.Y, 2);
+    // ctrl - Z axis
+    if(event.ctrlKey) rotateOneAxisWhenDragging(deltaY, Axis.Z, 4);
+    else rotateOneAxisWhenDragging(deltaY, Axis.X, 2);
 });
+
+function rotateOneAxisWhenDragging(delta, axis, axisMultipier = 1) {
+    const multiplier = Math.abs(delta) > 4 ? 2 :
+        Math.abs(delta) >= 1 ? 1 : 0;
+    if (delta > 1) rotate.set(axis, -step.get(axis) * multiplier * axisMultipier)
+    else if (delta < -1) rotate.set(axis, step.get(axis) * multiplier * axisMultipier)
+    else rotate.delete(axis);
+}
 
 canvas.addEventListener('mouseup', (event) => {
     if (mouseDragging) {
         mouseDragging = false;
-        console.log('Drag ended');
+        rotate.clear();
     }
 });
 
 canvas.addEventListener('mouseleave', (event) => {
     if (mouseDragging) {
         mouseDragging = false;
-        console.log('Drag ended');
+        rotate.clear();
     }
 });
 
