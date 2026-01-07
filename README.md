@@ -30,4 +30,11 @@ You can set your own colors according to your physical cube (double-click to sel
 or use random shuffling. Then just press solve and relax. I particularly like the slowest animation, there is something
 to it that makes me smile.
 
-![solving the cube](solving02.gif)
+---
+
+
+<img src="rubik01.png" alt="" width="300"/>
+
+---
+
+<img src="solving02.gif" alt="" width="300"/>
