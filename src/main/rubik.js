@@ -21,7 +21,8 @@ const rotate = new Map();
 let movement = null;
 let shuffle = false;
 let solve = false;
-let stepByStep = false;
+let stepByStep;
+setStepByStep(false);
 let runNextStep = false;
 let revertLast = false;
 let doubleClicked = {x: -1, y: -1};
@@ -173,6 +174,10 @@ document.getElementById('solveButton').addEventListener('click', () => {
     startSolving();
 });
 
+document.getElementById('revertButton').addEventListener('click', () => {
+    revertLast = true;
+});
+
 function updateSolve(newSolve) {
     if(solve === newSolve) return;
 
@@ -304,9 +309,14 @@ function clearMoveLog() {
 }
 
 document.getElementById('stepByStepCheckbox').addEventListener('change', (event) => {
-    stepByStep = event.target.checked;
-    console.log(`Step-by-step enabled: ${stepByStep}`);
+    setStepByStep(event.target.checked);
 });
+
+function setStepByStep(newStepByStep) {
+    stepByStep = newStepByStep;
+    document.getElementById('revertButton').disabled = !stepByStep;
+    console.log(`Step-by-step: ${stepByStep}`);
+}
 
 function manualMove(m) {
     movement = m;
