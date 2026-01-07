@@ -57,8 +57,8 @@ function drawLoop() {
         }
     }
 
-    if(shuffle) {
-        cube.shuffle(1);
+    if(shuffle && !cube.animation.ongoing) {
+        cube.shuffle(shuffleNumber());
         shuffle = false;
         shouldRefresh = true;
     }
@@ -164,14 +164,12 @@ document.getElementById('processButton').addEventListener('click', () => {
 });
 
 document.getElementById('shuffleButton').addEventListener('click', () => {
-    const input = document.getElementById('shuffleNumber');
-    const moves = parseInt(input.value);
-
-    console.log("Shuffling moves: ", moves);
-
-    cube.shuffle(moves - 1);
     shuffle = true;
 });
+
+function shuffleNumber() {
+    return parseInt(document.getElementById('shuffleNumber').value);
+}
 
 document.getElementById('solveButton').addEventListener('click', () => {
     startSolving();
