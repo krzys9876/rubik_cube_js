@@ -1,4 +1,4 @@
-import {globalStyle, planeOrientation, sideAxis} from './common.js';
+import {globalStyle, planeOrientation, sideAxis, sideStyles} from './common.js';
 
 export class Point2D {
     static #size = 5;
@@ -294,6 +294,12 @@ export class PlaneMetadata {
     setSelected(selected) {
         this.selected = selected;
         this.updateText(this.origText)
+    }
+
+    resetStyle() {
+        if(this.orientation !== null) {
+            this.style = sideStyles.get(this.orientation);
+        }
     }
 }
 

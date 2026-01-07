@@ -181,6 +181,11 @@ document.getElementById('revertButton').addEventListener('click', () => {
     revertLast = true;
 });
 
+document.getElementById('resetButton').addEventListener('click', () => {
+    cube.reset();
+    forceRefresh = true;
+});
+
 function updateSolve(newSolve) {
     if(solve === newSolve) return;
 
