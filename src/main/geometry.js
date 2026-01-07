@@ -108,15 +108,15 @@ export class Line2D {
         this.style = style;
     }
 
-    draw(canvas, ctx, drawPoints = false) {
+    draw(canvas, ctx, selected, drawPoints = false) {
         if(drawPoints) {
             this.lineStart.draw(canvas, ctx);
             this.lineEnd.draw(canvas, ctx);
         }
 
         ctx.beginPath();
-        ctx.strokeStyle = this.style.lineStyle;
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = selected ? this.style.lineStyleSelected : this.style.lineStyle;
+        ctx.lineWidth = selected ? 4 : 2;
         ctx.moveTo(this.lineStart.actualX(canvas), this.lineStart.actualY(canvas));
         ctx.lineTo(this.lineEnd.actualX(canvas), this.lineEnd.actualY(canvas));
         ctx.stroke();
@@ -221,7 +221,7 @@ export class Plane2D {
         if(drawLines || this.metadata.selected) {
             for(let i=0; i<this.points.length; i++) {
                 let endPointIndex = (i+1) % this.points.length;
-                new Line2D(this.points[i], this.points[endPointIndex], this.metadata.style).draw(canvas, ctx, drawPoints);
+                new Line2D(this.points[i], this.points[endPointIndex], this.metadata.style).draw(canvas, ctx, this.metadata.selected, drawPoints);
             }
             /*if(this.normalLine != null) {
                 this.normalLine.draw(canvas, ctx, lineStyle, pointStyle, drawPoints);
@@ -246,9 +246,9 @@ export class Plane2D {
         }*/
     }
 
-    isInside(point) {
+    isInside(x, y) {
         // The point inside a plane should be "below" all lines (below depending on their directions)
-        return this.functions.find(f => f.isAboveLine(point)) === undefined;
+        return this.functions.find(f => f.isAboveLineScreen(x, y)) === undefined;
 
     }
 }
@@ -286,7 +286,8 @@ export class PlaneMetadata {
     }
 
     select() { this.setSelected(true); }
-    unselect() { this.setSelected(false); }
+    deselect() { this.setSelected(false); }
+    flipSelection() { this.setSelected(!this.selected); }
 
     setSelected(selected) {
         this.selected = selected;
@@ -322,8 +323,6 @@ export class Plane3D {
         let y = w1.z * w2.x - w1.x * w2.z;
         let z = w1.x * w2.y - w1.y * w2.x;
 
-        //console.log(w1, w2, x, y, z);
-
         return new Vector3D(x, y, z);
     }
 
@@ -333,15 +332,11 @@ export class Plane3D {
         let y = this.points.map(point => point.y).reduce((a, b) => a + b) / this.points.length;
         let z = this.points.map(point => point.z).reduce((a, b) => a + b) / this.points.length;
 
-        //console.log(x, y, z);
-
         return new Point3D(x, y, z, this.metadata.style);
     }
 
     project(observer, canvas) {
         const isVisible = this.normalLine && this.normalLine.isFacing(observer);
-
-        //console.log(this.normalLine);
 
         let points2D = this.points.map((point) => point.project());
         let center2D = this.center ? this.center.project() : null;
@@ -368,7 +363,8 @@ export class Plane3D {
     }
 
     select() { this.metadata.select(); }
-    unselect() { this.metadata.unselect(); }
+    deselect() { this.metadata.deselect(); }
+    flipSelection() { this.metadata.flipSelection(); }
 }
 
 class LinearFunction {
@@ -394,13 +390,14 @@ class LinearFunction {
         this.flip = this.dx === 0 ? this.point2.actualY(this.canvas) < this.point1.actualY(this.canvas) :  this.point2.actualX(this.canvas) < this.point1.actualX(this.canvas);
     }
 
-    isAboveLine(point) {
-        // deduced from Excel prototype
-        const flag = this.a === null ? point.actualX(this.canvas)<this.point1.actualX(this.canvas) : point.actualX(this.canvas)*this.a + this.b < point.actualY(this.canvas);
+    // use screen (canvas) coords
+    isAboveLineScreen(x, y) {
+        const flag = this.a === null ? x<this.point1.actualX(this.canvas) : x*this.a + this.b < y;
         return flag !== this.flip; // effectively XOR
     }
 
-    isBelowLine(point) {
-        return !this.isAboveLine(point);
+    // use normal coords
+    isAboveLine(point) {
+        return this.isAboveLineScreen(point.actualX(this.canvas), point.actualY(this.canvas));
     }
 }

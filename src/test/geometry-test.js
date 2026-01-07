@@ -111,13 +111,18 @@ function testPointInsidePlane() {
     const plane = new Plane2D([point1, point2, point3, point4], center, normal, true,
         new PlaneMetadata(blueStyle, SideType.FRONT, 'NONE'), canvas);
 
-    assertTrue(plane.isInside(new Point2D(0, 0, globalStyle)), "The point is inside the plane");
-    assertFalse(plane.isInside(new Point2D(0.6, 0.6, globalStyle)), "The point is outside the plane");
-    assertFalse(plane.isInside(new Point2D(0.41, 0.61, globalStyle)), "The point is outside the plane");
-    assertTrue(plane.isInside(new Point2D(-0.49, 0, globalStyle)), "The point is inside the plane");
-    assertFalse(plane.isInside(new Point2D(-0.61, 0, globalStyle)), "The point is outside plane");
-    assertTrue(plane.isInside(new Point2D(0, -0.44, globalStyle)), "The point is inside the plane");
-    assertFalse(plane.isInside(new Point2D(0, -0.46, globalStyle)), "The point is outside the plane");
+    // assuming 100x100 pixels
+    console.log(point1.actualX(canvas), point1.actualY(canvas));
+    console.log(point2.actualX(canvas), point2.actualY(canvas));
+    console.log(point3.actualX(canvas), point3.actualY(canvas));
+    console.log(point4.actualX(canvas), point4.actualY(canvas));
+    assertTrue(plane.isInside(50, 50), "The point is inside the plane");
+    assertFalse(plane.isInside(80, 80), "The point is outside the plane");
+    assertFalse(plane.isInside(71, 21), "The point is outside the plane");
+    assertTrue(plane.isInside(21, 50), "The point is inside the plane");
+    assertFalse(plane.isInside(19, 50), "The point is outside plane");
+    assertTrue(plane.isInside(50, 72), "The point is inside the plane");
+    assertFalse(plane.isInside(50, 22), "The point is outside the plane");
 
 }
 

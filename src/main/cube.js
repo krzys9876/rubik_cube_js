@@ -1,4 +1,4 @@
-import {Coords3D, Plane3D, PlaneMetadata, Point2D, Point3D, Vector3D} from "./geometry.js";
+import {Coords3D, Plane3D, PlaneMetadata, Point3D, Vector3D} from "./geometry.js";
 import {
     globalStyle,
     MoveDirection,
@@ -513,10 +513,16 @@ export class RubikCube {
         this.rotate(scene.rotationMatrix, rotationCenter, false);
         // Draw all cubes' planes instead of drawing cubes. We must sort planes anyway in order to properly render image.
         this.#preparePlanes(observer);
-        for (let plane of this.planes) {
-            plane.project(observer, canvas).draw(canvas, ctx, false, true, true);
-        }
+        this.planes.forEach(plane => plane.project(observer, canvas).draw(canvas, ctx, false, true, true));
+        this.drawSelection(canvas, ctx);
         this.rotate(scene.rotationMatrix, rotationCenter, true);
+    }
+
+    drawSelection(canvas, ctx) {
+        // Show border of all selected frames even if not visible
+        this.planes
+            .filter(p => p.metadata.selected)
+            .forEach(p => p.plane2D.draw(canvas, ctx, false, true, false));
     }
 
     #sideCubes(side) {
@@ -649,26 +655,27 @@ export class RubikCube {
         }
     }
 
-    debugVisiblePlanes(canvas, ctx) {
-        const point1 = new Point2D(0,0.2, globalStyle);
-        const point2 = new Point2D(0,0.0, globalStyle);
-        const point3 = new Point2D(-0.2,0, globalStyle);
-        const point4 = new Point2D(-0.2,0.2, globalStyle);
-        point1.draw(canvas, ctx);
-        //point2.draw();
-        //point3.draw();
-        //point4.draw();
+    deselectPlanes() {
+        for (let c of this.cubes) {
+            for(let p of c.planes) {
+                p.deselect();
+            }
+        }
+    }
 
-        const planeToAnalyze = this.planes[this.planes.length - 1].plane2D;
-        const planePoint1 = planeToAnalyze.points[0];
-        const planePoint2 = planeToAnalyze.points[1];
-        const planePoint3 = planeToAnalyze.points[2];
-        const planePoint4 = planeToAnalyze.points[3];
-        planePoint1.draw(canvas, ctx);
-        planePoint2.draw(canvas, ctx);
-        planePoint3.draw(canvas, ctx);
-        planePoint4.draw(canvas, ctx);
-
-        console.log(planeToAnalyze.isInside(point1));
+    analyzeSelection(selectionPoint) {
+        let shouldRefresh = false;
+        const invisibleSelectedPlanes = this.planes.filter(p => p.metadata.selected && !p.plane2D.isVisible);
+        invisibleSelectedPlanes.forEach(p => p.deselect());
+        const visiblePlanes = this.planes.filter(p => p.plane2D.isVisible && p.metadata.orientation !== null);
+        for(let p of visiblePlanes) {
+            const planeToAnalyze = p.plane2D;
+            const isInside = planeToAnalyze.isInside(selectionPoint.x, selectionPoint.y);
+            const prevSelected = p.metadata.selected;
+            if(isInside) p.metadata.setSelected(!prevSelected);
+            else p.deselect();
+            shouldRefresh = shouldRefresh || p.metadata.selected !== prevSelected;
+        }
+        return shouldRefresh;
     }
 }

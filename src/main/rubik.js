@@ -1,6 +1,6 @@
 import {MoveDirection, SideType, Axis} from './common.js';
 import { canvas, ctx } from './common-dom.js';
-import { Point3D, Vector3D } from './geometry.js';
+import {Point3D, Vector3D} from './geometry.js';
 import {Movement, RubikCube, SideAnimation} from './cube.js';
 import { scene } from './scene.js';
 import {RubikSolver} from "./solver.js";
@@ -24,6 +24,7 @@ let solve = false;
 let stepByStep = false;
 let runNextStep = false;
 let revertLast = false;
+let doubleClicked = {x: -1, y: -1};
 
 const bkStyle = 'lightgray';
 
@@ -34,7 +35,7 @@ scene.rotate(-15,30,-5);
 function drawLoop() {
     // Let's not redraw the screen if nothing changed
     let isAutoMoving = cube.hasPlannedMoves() || cube.animation.ongoing || movement !== null ;
-    let shouldRefresh = counter === 0 || rotate.size > 0 || isAutoMoving;
+    let shouldRefresh = counter === 0 || rotate.size > 0 || isAutoMoving || doubleClicked.x > -1
 
     if(solve && !isAutoMoving) {
         const solver = new RubikSolver(cube, true);
@@ -67,7 +68,12 @@ function drawLoop() {
             rotate.has(Axis.Z) ? rotate.get(Axis.Z) : 0);
 
         cube.draw(canvas, ctx, observer, rotationCenter);
-        //cube.debugVisiblePlanes(canvas, ctx);
+        if(doubleClicked.x > -1) {
+            // Redraw full cube if selection changed (this happens only once, we can't redraw only selection)
+            if (cube.analyzeSelection(doubleClicked)) cube.draw(canvas, ctx, observer, rotationCenter);
+            doubleClicked.x = -1;
+            doubleClicked.y = -1;
+        }
 
         if(movement !== null) {
             cube.planMoves([movement]);
@@ -203,6 +209,16 @@ document.getElementById('speedSlider').addEventListener('input', (event) => {
     SideAnimation.setSpeed(speed);
     console.log(`Animation speed set to: ${speed} (step: ${SideAnimation.animationStep})`);
 });
+
+canvas.addEventListener('dblclick', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    doubleClicked.x = x;
+    doubleClicked.y = y;
+});
+
 
 function logMove(message) {
     const logBox = document.getElementById('moveLogList');

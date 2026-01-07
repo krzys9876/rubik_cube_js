@@ -3,25 +3,27 @@ export class Style {
     tag = 'X';
     pointStyle = 'red';
     lineStyle = 'blue';
+    lineStyleSelected = 'pink';
     fillStyle = 'purple';
 
-    constructor(pointStyle, lineStyle, fillStyle, name, tag) {
+    constructor(pointStyle, lineStyle, lineStyleSelected, fillStyle, name, tag) {
         this.pointStyle = pointStyle;
         this.lineStyle = lineStyle;
         this.fillStyle = fillStyle;
+        this.lineStyleSelected = lineStyleSelected;
         this.name = name;
         this.tag = tag;
     }
 }
 
-export const globalStyle = new Style('pink', 'black', 'darkgray', 'NONE', 'X');
+export const globalStyle = new Style('pink', 'black', 'pink', 'darkgray', 'NONE', 'X');
 
-export const redStyle = new Style('black', 'black', 'red', 'RED', 'R');
-export const yellowStyle = new Style('black', 'black', 'yellow', 'YELLOW', 'Y');
-export const blueStyle = new Style('black', 'black', 'blue', 'BLUE', 'B');
-export const whiteStyle = new Style('black', 'black', 'white', 'WHITE', 'W');
-export const greenStyle = new Style('black', 'black', 'green', 'GREEN', 'G');
-export const orangeStyle = new Style('black', 'black', 'orange', 'ORANGE', 'O');
+export const redStyle = new Style('black', 'black', 'pink', 'red', 'RED', 'R');
+export const yellowStyle = new Style('black', 'black', 'pink', 'yellow', 'YELLOW', 'Y');
+export const blueStyle = new Style('black', 'black', 'pink', 'blue', 'BLUE', 'B');
+export const whiteStyle = new Style('black', 'black', 'pink', 'white', 'WHITE', 'W');
+export const greenStyle = new Style('black', 'black', 'pink', 'green', 'GREEN', 'G');
+export const orangeStyle = new Style('black', 'black', 'pink', 'orange', 'ORANGE', 'O');
 
 export const SideType = {
     UP: "U", DOWN: "D", FRONT: "F", BACK: "B", LEFT: "L", RIGHT: "R"
