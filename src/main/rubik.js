@@ -11,7 +11,7 @@ const rotationCenter = new Point3D(0,0,3);
 const observer = new Point3D(0,0,-Point3D.focalLength);
 const cubeCenter = rotationCenter.clone().moveBy(new Vector3D(0, 0, 0));
 
-const cube = new RubikCube(cubeCenter, 1);
+const cube = new RubikCube(cubeCenter, 1.6);
 
 let counter = 0;
 
@@ -29,6 +29,7 @@ let doubleClicked = {x: -1, y: -1};
 let singleClicked = {x: -1, y: -1};
 let dragStart = {x: -1, y: -1}
 let mouseDragging = false;
+let forceRefresh = false;
 
 const bkStyle = 'lightgray';
 
@@ -40,7 +41,7 @@ function drawLoop() {
     // Let's not redraw the screen if nothing changed
     let isAutoMoving = cube.hasPlannedMoves() || cube.animation.ongoing || movement !== null ;
     let clickEvent = doubleClicked.x > -1 || singleClicked.x > -1;
-    let shouldRefresh = counter === 0 || rotate.size > 0 || isAutoMoving || clickEvent
+    let shouldRefresh = forceRefresh || counter === 0 || rotate.size > 0 || isAutoMoving || clickEvent
 
     if(solve && !isAutoMoving) {
         // Let's protect fron infinite solving loop (e.g. when colors are not properly set)
@@ -102,6 +103,8 @@ function drawLoop() {
             currentMoveNo+=1;
             runNextStep = false;
         }
+
+        forceRefresh = false;
     }
 
     counter ++;
@@ -321,6 +324,23 @@ function setStepByStep(newStepByStep) {
 function manualMove(m) {
     movement = m;
     updateSolve(false);
+}
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function resizeCanvas() {
+    const canvas = document.getElementById('drawing');
+
+    // Minimum size: 100, rectangular
+    const availableWidth = Math.max(window.innerWidth * 0.9, 100);
+    const availableHeight = Math.max(window.innerHeight * 0.7, 100);
+    const size = Math.min(availableWidth, availableHeight)
+    canvas.width = size;
+    canvas.height = size;
+    document.getElementById('moveLogList').style.height = size + 'px';
+
+    forceRefresh = true;
 }
 
 drawLoop();
