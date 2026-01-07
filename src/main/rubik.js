@@ -246,8 +246,6 @@ canvas.addEventListener('mousedown', (event) => {
     mouseDragging = true;
     dragStart.x = event.clientX - rect.left;
     dragStart.y = event.clientY - rect.top;
-
-    console.log(`Drag started at: (${dragStart.x}, ${dragStart.y})`);
 });
 
 canvas.addEventListener('mousemove', (event) => {
