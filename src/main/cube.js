@@ -8,7 +8,7 @@ import {
     sideDistance,
     opposideSides,
     sideStyles,
-    SideType, MoveType
+    SideType, MoveType, nextStyle
 } from "./common.js";
 import {scene, Scene} from "./scene.js";
 
@@ -663,18 +663,30 @@ export class RubikCube {
         }
     }
 
-    analyzeSelection(selectionPoint) {
+    analyzeSelection(selectionPoint, colorChangePoint) {
         let shouldRefresh = false;
+        const selectionFlag = selectionPoint.x > -1;
+        const colorChangeFlag = colorChangePoint.x > -1;
         const invisibleSelectedPlanes = this.planes.filter(p => p.metadata.selected && !p.plane2D.isVisible);
         invisibleSelectedPlanes.forEach(p => p.deselect());
         const visiblePlanes = this.planes.filter(p => p.plane2D.isVisible && p.metadata.orientation !== null);
         for(let p of visiblePlanes) {
             const planeToAnalyze = p.plane2D;
-            const isInside = planeToAnalyze.isInside(selectionPoint.x, selectionPoint.y);
-            const prevSelected = p.metadata.selected;
-            if(isInside) p.metadata.setSelected(!prevSelected);
-            else p.deselect();
-            shouldRefresh = shouldRefresh || p.metadata.selected !== prevSelected;
+            // In case first selection event occurs simultaneously with color change, only the selection should be done
+            if(colorChangeFlag && p.metadata.selected) {
+                const isInsideColorChange = planeToAnalyze.isInside(colorChangePoint.x, colorChangePoint.y);
+                if(isInsideColorChange) {
+                    p.metadata.style = nextStyle(p.metadata.style);
+                    shouldRefresh = true;
+                }
+            }
+            if(selectionFlag) {
+                const isInsideSelect = planeToAnalyze.isInside(selectionPoint.x, selectionPoint.y);
+                const prevSelected = p.metadata.selected;
+                if(isInsideSelect) p.select();
+                else p.deselect();
+                shouldRefresh = shouldRefresh || p.metadata.selected !== prevSelected;
+            }
         }
         return shouldRefresh;
     }

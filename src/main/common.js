@@ -29,6 +29,15 @@ export const SideType = {
     UP: "U", DOWN: "D", FRONT: "F", BACK: "B", LEFT: "L", RIGHT: "R"
 };
 
+
+const sideOrder = [SideType.FRONT, SideType.LEFT, SideType.BACK, SideType.RIGHT, SideType.UP, SideType.DOWN]
+export function nextStyle(style) {
+    const side = styleSide(style);
+    const nextSide = sideOrder[(sideOrder.indexOf(side) + 1) % sideOrder.length];
+    return sideStyles.get(nextSide);
+}
+
+
 export const sideStyles = new Map([
     [SideType.FRONT, blueStyle],[SideType.BACK, greenStyle],
     [SideType.LEFT, orangeStyle],[SideType.RIGHT, redStyle],
