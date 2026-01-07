@@ -26,6 +26,8 @@ let runNextStep = false;
 let revertLast = false;
 let doubleClicked = {x: -1, y: -1};
 let singleClicked = {x: -1, y: -1};
+let dragStart = {x: -1, y: -1}
+let mouseDragging = false;
 
 const bkStyle = 'lightgray';
 
@@ -182,6 +184,7 @@ function updateSolve(newSolve) {
 
 function startSolving() {
     if(solve && !stepByStep) return;
+    cube.deselectPlanes();
     if(cube.isSolved()) {
         console.log("Already solved")
         return;
@@ -236,6 +239,48 @@ canvas.addEventListener('click', (event) => {
 
     singleClicked.x = x;
     singleClicked.y = y;
+});
+
+canvas.addEventListener('mousedown', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    mouseDragging = true;
+    dragStart.x = event.clientX - rect.left;
+    dragStart.y = event.clientY - rect.top;
+
+    console.log(`Drag started at: (${dragStart.x}, ${dragStart.y})`);
+});
+
+canvas.addEventListener('mousemove', (event) => {
+    if (!mouseDragging) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const currentX = event.clientX - rect.left;
+    const currentY = event.clientY - rect.top;
+
+    const deltaX = currentX - dragStart.x;
+    const deltaY = currentY - dragStart.y;
+
+    console.log(`Dragging - delta: (${deltaX}, ${deltaY})`);
+
+    // Update drag start position for next move event
+    dragStart.x = currentX;
+    dragStart.y = currentY;
+
+    // Your drag handling logic here (e.g., rotate the cube)
+});
+
+canvas.addEventListener('mouseup', (event) => {
+    if (mouseDragging) {
+        mouseDragging = false;
+        console.log('Drag ended');
+    }
+});
+
+canvas.addEventListener('mouseleave', (event) => {
+    if (mouseDragging) {
+        mouseDragging = false;
+        console.log('Drag ended');
+    }
 });
 
 function logMove(message) {

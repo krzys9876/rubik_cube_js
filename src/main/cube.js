@@ -36,6 +36,12 @@ export class CubeCoords extends Coords3D {
         this.y = Math.round(this.y);
         this.z = Math.round(this.z);
     }
+
+    isCenter() {
+        return (this.y === 0 && this.z === 0 && (this.x === -1 || this.x === 1)) ||
+            (this.x === 0 && this.z === 0 && (this.y === -1 || this.y === 1)) ||
+            (this.y === 0 && this.x === 0 && (this.z === -1 || this.z === 1));
+    }
 }
 
 export class CubeMetadata {
@@ -53,6 +59,9 @@ export class CubeMetadata {
     toText() {
         return `${this.coords.x},${this.coords.y},${this.coords.z}`;
     }
+
+    select() { this.selected = true; }
+    deselect() { this.selected = false; }
 }
 
 export class Cube {
@@ -79,17 +88,17 @@ export class Cube {
          */
 
         this.planes.push(new Plane3D([this.points[0].clone(), this.points[1].clone(), this.points[2].clone(), this.points[3].clone()],
-            new PlaneMetadata(styles[0], orientation[0], this.metadata.toText()))); // front
+            new PlaneMetadata(styles[0], orientation[0], this.metadata.toText(), this.metadata.coords))); // front
         this.planes.push(new Plane3D([this.points[7].clone(), this.points[6].clone(), this.points[5].clone(), this.points[4].clone()],
-            new PlaneMetadata(styles[1], orientation[1], this.metadata.toText()))); // back
+            new PlaneMetadata(styles[1], orientation[1], this.metadata.toText(), this.metadata.coords))); // back
         this.planes.push(new Plane3D([this.points[4].clone(), this.points[5].clone(), this.points[1].clone(), this.points[0].clone()],
-            new PlaneMetadata(styles[2], orientation[2], this.metadata.toText()))); // up
+            new PlaneMetadata(styles[2], orientation[2], this.metadata.toText(), this.metadata.coords))); // up
         this.planes.push(new Plane3D([this.points[3].clone(), this.points[2].clone(), this.points[6].clone(), this.points[7].clone()],
-            new PlaneMetadata(styles[3], orientation[3], this.metadata.toText()))); // down
+            new PlaneMetadata(styles[3], orientation[3], this.metadata.toText(), this.metadata.coords))); // down
         this.planes.push(new Plane3D([this.points[1].clone(), this.points[5].clone(), this.points[6].clone(), this.points[2].clone()],
-            new PlaneMetadata(styles[4], orientation[4], this.metadata.toText()))); // left
+            new PlaneMetadata(styles[4], orientation[4], this.metadata.toText(), this.metadata.coords))); // left
         this.planes.push(new Plane3D([this.points[4].clone(), this.points[0].clone(), this.points[3].clone(), this.points[7].clone()],
-            new PlaneMetadata(styles[5], orientation[5], this.metadata.toText()))); // right
+            new PlaneMetadata(styles[5], orientation[5], this.metadata.toText(), this.metadata.coords))); // right
     }
 
     rotate(matrix, center, updateCoords, reverse = false) {
@@ -138,11 +147,16 @@ export class Cube {
     }
 
     select() {
-        this.metadata.selected = true;
+        this.metadata.select();
         this.planes.forEach(p => p.select());
     }
 
-    isInPlace() {
+    deselect() {
+        this.metadata.deselect();
+        this.planes.forEach(p => p.deselect());
+    }
+
+        isInPlace() {
         const actualSides = this.getSides();
         const correctSides = actualSides.filter(p => sideStyles.get(p.metadata.orientation).name === p.metadata.style.name);
         // NOTE: this will always be true for inner cube (0,0,0)
@@ -595,6 +609,7 @@ export class RubikCube {
     }
 
     shuffle(moves) {
+        this.deselectPlanes();
         for(let i = 0; i < moves; i++) {
             const movement = Movement.random();
             this.#moveSide(movement, 90);
@@ -656,11 +671,7 @@ export class RubikCube {
     }
 
     deselectPlanes() {
-        for (let c of this.cubes) {
-            for(let p of c.planes) {
-                p.deselect();
-            }
-        }
+        this.cubes.forEach(c => c.planes.forEach(p => p.deselect()));
     }
 
     analyzeSelection(selectionPoint, colorChangePoint) {
@@ -669,7 +680,9 @@ export class RubikCube {
         const colorChangeFlag = colorChangePoint.x > -1;
         const invisibleSelectedPlanes = this.planes.filter(p => p.metadata.selected && !p.plane2D.isVisible);
         invisibleSelectedPlanes.forEach(p => p.deselect());
-        const visiblePlanes = this.planes.filter(p => p.plane2D.isVisible && p.metadata.orientation !== null);
+        // NOTE: we do NOT want to select or change center cubes
+        const visiblePlanes = this.planes
+            .filter(p => p.plane2D.isVisible && p.metadata.orientation !== null && !p.metadata.cubeCoords.isCenter());
         for(let p of visiblePlanes) {
             const planeToAnalyze = p.plane2D;
             // In case first selection event occurs simultaneously with color change, only the selection should be done

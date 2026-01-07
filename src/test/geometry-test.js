@@ -71,7 +71,7 @@ function testCubeCoordsRotation() {
 }
 
 function _doTestPlaneRotation(data) {
-    const planeData = new PlaneMetadata(globalStyle, data.sides[0], "");
+    const planeData = new PlaneMetadata(globalStyle, data.sides[0], "", null);
     for(let i=1; i<=4; i++) {
         planeData.rotateSide(data.moveSide, MoveDirection.CLOCKWISE);
         assertEquals(planeData.orientation, data.sides[i % 4], `Moved side ${data.moveSide}, direction: ${MoveDirection.CLOCKWISE}`);

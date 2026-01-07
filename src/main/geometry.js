@@ -257,13 +257,15 @@ export class PlaneMetadata {
     style;
     orientation;
     text;
+    cubeCoords;
     origText;
     selected = false;
 
-    constructor(style, orientation, text) {
+    constructor(style, orientation, text, cubeCoords) {
         this.style = style;
         this.orientation = orientation;
         this.origText = text;
+        this.cubeCoords = cubeCoords;
         this.updateText(this.origText);
     }
 
