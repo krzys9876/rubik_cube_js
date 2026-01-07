@@ -40,11 +40,17 @@ function drawLoop() {
     let shouldRefresh = counter === 0 || rotate.size > 0 || isAutoMoving || clickEvent
 
     if(solve && !isAutoMoving) {
-        const solver = new RubikSolver(cube, true);
-        const solvingMoves = solver.solveLBL();
-        cube.planMoves(solvingMoves);
-        updateSolve(solvingMoves.length > 0);
-        shouldRefresh = true;
+        // Let's protect fron infinite solving loop (e.g. when colors are not properly set)
+        if(currentMoveNo > 500) {
+            console.log("Something went wrong, too many moves!");
+            updateSolve(false);
+        } else {
+            const solver = new RubikSolver(cube, true);
+            const solvingMoves = solver.solveLBL();
+            cube.planMoves(solvingMoves);
+            updateSolve(solvingMoves.length > 0);
+            shouldRefresh = true;
+        }
     }
 
     if(shuffle) {
