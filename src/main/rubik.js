@@ -69,8 +69,6 @@ function setRotation(axis, value) {
 
 function setSliderValue(axis, value) { getSlider(axis).value = value; }
 
-let movement = null;
-
 let stepByStep;
 setStepByStep(false);
 let runNextStep = false;
@@ -91,7 +89,7 @@ scene.rotate(-15,30,-5);
 
 function drawLoop() {
     // Let's not redraw the screen if nothing changed
-    let isAutoMoving = cube.hasPlannedMoves() || cube.animation.ongoing || movement !== null ;
+    let isAutoMoving = cube.hasPlannedMoves() || cube.animation.ongoing;
     let clickEvent = doubleClicked.x > -1 || singleClicked.x > -1;
     let shouldRefresh = forceRefresh || counter === 0 || rotate.isActive() || isAutoMoving || clickEvent || tasks.length > 0;
 
