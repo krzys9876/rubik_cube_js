@@ -7,6 +7,42 @@ import {RubikSolver} from "./solver.js";
 
 console.log("START");
 
+class Task {
+    startCall;
+    stopCall;
+    endCall;
+    running = false;
+    constructor(startCall, stopCall, endCall) {
+        this.startCall = startCall;
+        this.stopCall = stopCall;
+        this.endCall = endCall;
+    }
+
+    start() {
+        this.running = true;
+        this.startCall();
+    }
+
+    stop() {
+        this.stopCall();
+    }
+
+    tryEnd() {
+        if(this.endCall()) this.running = false;
+    }
+}
+
+class FlagController {
+    active = false;
+    start() { this.active = true; }
+    stop() { this.active = false; }
+    end() { return !this.active; }
+
+    static createTask(flag) {
+        return new Task(flag.start.bind(flag), flag.stop.bind(flag), flag.end.bind(flag));
+    }
+}
+
 const rotationCenter = new Point3D(0,0,3);
 const observer = new Point3D(0,0,-Point3D.focalLength);
 const cubeCenter = rotationCenter.clone().moveBy(new Vector3D(0, 0, 0));
@@ -14,6 +50,9 @@ const cubeCenter = rotationCenter.clone().moveBy(new Vector3D(0, 0, 0));
 const cube = new RubikCube(cubeCenter, 1.6);
 
 let counter = 0;
+
+const shuffle = new FlagController();
+const solve = new FlagController();
 
 const rotate = new Rotation(9);
 
@@ -33,8 +72,7 @@ function setSliderValue(axis, value) {
 }
 
 let movement = null;
-let shuffle = false;
-let solve = false;
+
 let stepByStep;
 setStepByStep(false);
 let runNextStep = false;
@@ -44,6 +82,8 @@ let singleClicked = {x: -1, y: -1};
 let dragStart = {x: -1, y: -1}
 let mouseDragging = false;
 let forceRefresh = false;
+
+const tasks = [];
 
 const bkStyle = 'lightgray';
 
@@ -55,9 +95,11 @@ function drawLoop() {
     // Let's not redraw the screen if nothing changed
     let isAutoMoving = cube.hasPlannedMoves() || cube.animation.ongoing || movement !== null ;
     let clickEvent = doubleClicked.x > -1 || singleClicked.x > -1;
-    let shouldRefresh = forceRefresh || counter === 0 || rotate.isActive() || isAutoMoving || clickEvent
+    let shouldRefresh = forceRefresh || counter === 0 || rotate.isActive() || isAutoMoving || clickEvent || tasks.length > 0;
 
-    if(solve && !isAutoMoving) {
+    if(tasks.length > 0 && !tasks[0].running) tasks[0].start();
+
+    if(solve.active && !isAutoMoving) {
         // Let's protect fron infinite solving loop (e.g. when colors are not properly set)
         if(currentMoveNo > 500) {
             console.log("Something went wrong, too many moves!");
@@ -71,9 +113,8 @@ function drawLoop() {
         }
     }
 
-    if(shuffle && !cube.animation.ongoing) {
+    if(shuffle.active && !cube.animation.ongoing) {
         cube.shuffle(shuffleNumber());
-        shuffle = false;
         shouldRefresh = true;
     }
 
@@ -118,6 +159,12 @@ function drawLoop() {
         forceRefresh = false;
     }
 
+    if(tasks.length > 0) {
+        tasks[0].stop();
+        tasks[0].tryEnd();
+        if(!tasks[0].running) tasks.splice(0, 1);
+    }
+
     counter ++;
     if(counter < 10000000000000) setTimeout(drawLoop, 1000 / 60);
     else console.log("END (drawLoop)");
@@ -149,13 +196,10 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'g') { manualMove(new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE)); }
     if (event.key === 'y') { manualMove(new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE)); }
     if (event.key === 'h') { manualMove(new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE)); }
-    if (event.key === 'z') shuffle = true;
-    if (event.key === 'x') startSolving();
+    if (event.key === 'z') tasks.push(FlagController.createTask(shuffle));
+    if (event.key === 'x') if(isSolved()) tasks.push(new Task(startSolving, () => false, isSolved))
     if (event.key === 'c') revertLast = true;
 });
-
-/*document.addEventListener('keyup', (event) => {
-});*/
 
 document.getElementById('processButton').addEventListener('click', () => {
     const input = document.getElementById('textMovements');
@@ -169,7 +213,7 @@ document.getElementById('processButton').addEventListener('click', () => {
 });
 
 document.getElementById('shuffleButton').addEventListener('click', () => {
-    shuffle = true;
+    tasks.push(FlagController.createTask(shuffle));
 });
 
 function shuffleNumber() {
@@ -177,7 +221,7 @@ function shuffleNumber() {
 }
 
 document.getElementById('solveButton').addEventListener('click', () => {
-    startSolving();
+    if(isSolved()) tasks.push(new Task(startSolving, () => false, isSolved))
 });
 
 document.getElementById('revertButton').addEventListener('click', () => {
@@ -226,18 +270,19 @@ document.getElementById('d1Button').addEventListener('click', () => {
     { manualMove(new Movement(SideType.DOWN, MoveDirection.CLOCKWISE)); }
 });
 
-
 function updateSolve(newSolve) {
-    if(solve === newSolve) return;
+    if(solve.active === newSolve) return;
 
-    solve = newSolve;
-    console.log(`Solve changed to: ${solve}`);
+    if(newSolve) solve.start(); else solve.stop();
+    console.log(`Solve changed to: ${solve.active}`);
     const button = document.getElementById('solveButton');
-    button.classList.toggle('solving', solve);
+    button.classList.toggle('solving', solve.active);
 }
 
+function isSolved() { return !solve.active; }
+
 function startSolving() {
-    if(solve && !stepByStep) return;
+    if(solve.active && !stepByStep) return;
     cube.deselectPlanes();
     if(cube.isSolved()) {
         console.log("Already solved")
@@ -245,7 +290,7 @@ function startSolving() {
     }
 
     runNextStep = stepByStep; // This is only important when stepByStep is enabled
-    if(!solve) {
+    if(!solve.active) {
         currentMoveNo = 1;
         clearMoveLog();
         cube.clearHistory();
@@ -408,4 +453,3 @@ function resizeCanvas() {
 drawLoop();
 
 console.log("END (init)");
-
