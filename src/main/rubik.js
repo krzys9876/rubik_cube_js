@@ -139,7 +139,7 @@ function drawLoop() {
 
         if(cube.hasPlannedMoves() && !cube.animation.ongoing &&
             (!solve || !stepByStep || runNextStep)) {
-            cube.startMoveSide(movement);
+            cube.startMoveSide();
             const code = cube.getCurrentMove().toCode();
             console.log("Current move: "+code);
             logMove(`${currentMoveNo} ${code}`);
@@ -175,18 +175,18 @@ document.addEventListener('keydown', (event) => {
     if (event.key === ',') addRotation(Axis.Z, -1);
     if (event.key === '.') addRotation(Axis.Z, 1);
     if (event.key === " ") clearRotation();
-    if (event.key === 'q') { manualMove(new Movement(SideType.UP, MoveDirection.CLOCKWISE)); }
-    if (event.key === 'w') { manualMove(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE)); }
-    if (event.key === 'a') { manualMove(new Movement(SideType.DOWN, MoveDirection.CLOCKWISE)); }
-    if (event.key === 's') { manualMove(new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE)); }
-    if (event.key === 'e') { manualMove(new Movement(SideType.FRONT, MoveDirection.CLOCKWISE)); }
-    if (event.key === 'r') { manualMove(new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE)); }
-    if (event.key === 'd') { manualMove(new Movement(SideType.BACK, MoveDirection.CLOCKWISE)); }
-    if (event.key === 'f') { manualMove(new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE)); }
-    if (event.key === 't') { manualMove(new Movement(SideType.LEFT, MoveDirection.CLOCKWISE)); }
-    if (event.key === 'g') { manualMove(new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE)); }
-    if (event.key === 'y') { manualMove(new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE)); }
-    if (event.key === 'h') { manualMove(new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE)); }
+    if (event.key === 'q') planMoveTask(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
+    if (event.key === 'w') planMoveTask(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
+    if (event.key === 'a') planMoveTask(new Movement(SideType.DOWN, MoveDirection.CLOCKWISE));
+    if (event.key === 's') planMoveTask(new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE));
+    if (event.key === 'e') planMoveTask(new Movement(SideType.FRONT, MoveDirection.CLOCKWISE));
+    if (event.key === 'r') planMoveTask(new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE));
+    if (event.key === 'd') planMoveTask(new Movement(SideType.BACK, MoveDirection.CLOCKWISE));
+    if (event.key === 'f') planMoveTask(new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE));
+    if (event.key === 't') planMoveTask(new Movement(SideType.LEFT, MoveDirection.CLOCKWISE));
+    if (event.key === 'g') planMoveTask(new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE));
+    if (event.key === 'y') planMoveTask(new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE));
+    if (event.key === 'h') planMoveTask(new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE));
     if (event.key === 'z') tasks.push(FlagController.createTask(shuffle));
     if (event.key === 'x') if(isSolved()) tasks.push(new Task(startSolving, () => false, isSolved))
     if (event.key === 'c') revertLast = true;
@@ -225,40 +225,40 @@ document.getElementById('resetButton').addEventListener('click', () => {
 });
 
 document.getElementById('fButton').addEventListener('click', () => {
-    { manualMove(new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE)); }
+    planMoveTask(new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE));
 });
 document.getElementById('f1Button').addEventListener('click', () => {
-    { manualMove(new Movement(SideType.FRONT, MoveDirection.CLOCKWISE)); }
+    planMoveTask(new Movement(SideType.FRONT, MoveDirection.CLOCKWISE));
 });
 document.getElementById('bButton').addEventListener('click', () => {
-    { manualMove(new Movement(SideType.BACK, MoveDirection.CLOCKWISE)); }
+    planMoveTask(new Movement(SideType.BACK, MoveDirection.CLOCKWISE));
 });
 document.getElementById('b1Button').addEventListener('click', () => {
-    { manualMove(new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE)); }
+    planMoveTask(new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE));
 });
 document.getElementById('rButton').addEventListener('click', () => {
-    { manualMove(new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE)); }
+    planMoveTask(new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE));
 });
 document.getElementById('r1Button').addEventListener('click', () => {
-    { manualMove(new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE)); }
+    planMoveTask(new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE));
 });
 document.getElementById('lButton').addEventListener('click', () => {
-    { manualMove(new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE)); }
+    planMoveTask(new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE));
 });
 document.getElementById('l1Button').addEventListener('click', () => {
-    { manualMove(new Movement(SideType.LEFT, MoveDirection.CLOCKWISE)); }
+    planMoveTask(new Movement(SideType.LEFT, MoveDirection.CLOCKWISE));
 });
 document.getElementById('uButton').addEventListener('click', () => {
-    { manualMove(new Movement(SideType.UP, MoveDirection.CLOCKWISE)); }
+    planMoveTask(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
 });
 document.getElementById('u1Button').addEventListener('click', () => {
-    { manualMove(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE)); }
+    planMoveTask(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
 });
 document.getElementById('dButton').addEventListener('click', () => {
-    { manualMove(new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE)); }
+    planMoveTask(new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE));
 });
 document.getElementById('d1Button').addEventListener('click', () => {
-    { manualMove(new Movement(SideType.DOWN, MoveDirection.CLOCKWISE)); }
+    planMoveTask(new Movement(SideType.DOWN, MoveDirection.CLOCKWISE));
 });
 
 function updateSolve(newSolve) {
@@ -419,9 +419,17 @@ function setStepByStep(newStepByStep) {
     console.log(`Step-by-step: ${stepByStep}`);
 }
 
-function manualMove(m) {
-    cube.planMoves([m]);
+function planMoveTask(m) {
+    tasks.push(new Task(() => manualMove(m), () => false, noMoreMoves));
+}
+function manualMove(m) { planMoves([m]); }
+function planMoves(m) {
+    cube.planMoves(m);
     updateSolve(false);
+}
+
+function noMoreMoves() {
+    return !cube.hasPlannedMoves();
 }
 
 window.addEventListener('resize', resizeCanvas);
