@@ -347,11 +347,11 @@ canvas.addEventListener('mousemove', (event) => {
     else rotate.rotateOneAxisWhenDragging(deltaY, Axis.X, 2);
 });
 
-canvas.addEventListener('mouseup', (event) => {
+canvas.addEventListener('mouseup', () => {
     if (mouseDragging) stopDragging();
 });
 
-canvas.addEventListener('mouseleave', (event) => {
+canvas.addEventListener('mouseleave', () => {
     if (mouseDragging) stopDragging();
 });
 
