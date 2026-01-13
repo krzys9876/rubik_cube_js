@@ -67,9 +67,7 @@ function setRotation(axis, value) {
     setSliderValue(axis, value);
 }
 
-function setSliderValue(axis, value) {
-    getSlider(axis).value = value;
-}
+function setSliderValue(axis, value) { getSlider(axis).value = value; }
 
 let movement = null;
 
@@ -139,11 +137,6 @@ function drawLoop() {
             doubleClicked.y = -1;
             singleClicked.x = -1;
             singleClicked.y = -1;
-        }
-
-        if(movement !== null) {
-            cube.planMoves([movement]);
-            movement = null;
         }
 
         if(cube.hasPlannedMoves() && !cube.animation.ongoing &&
@@ -429,7 +422,7 @@ function setStepByStep(newStepByStep) {
 }
 
 function manualMove(m) {
-    movement = m;
+    cube.planMoves([m]);
     updateSolve(false);
 }
 
