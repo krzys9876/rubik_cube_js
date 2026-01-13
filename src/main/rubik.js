@@ -420,9 +420,8 @@ function setStepByStep(newStepByStep) {
 }
 
 function planMoveTask(m) {
-    tasks.push(new Task(() => manualMove(m), () => false, noMoreMoves));
+    tasks.push(new Task(() => planMoves([m]), () => false, noMoreMoves));
 }
-function manualMove(m) { planMoves([m]); }
 function planMoves(m) {
     cube.planMoves(m);
     updateSolve(false);
