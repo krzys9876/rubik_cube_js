@@ -200,7 +200,7 @@ document.getElementById('processButton').addEventListener('click', () => {
 
     console.log("Processing: ", text);
     const toProcess = Movement.fromText(text);
-    cube.planMoves(toProcess)
+    planMoves(toProcess);
     input.value='';
 });
 
