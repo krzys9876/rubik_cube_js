@@ -103,9 +103,10 @@ function drawLoop() {
         } else {
             const solver = new RubikSolver(cube, true);
             const solvingMoves = solver.solveLBL();
-            cube.planMoves(solvingMoves);
+            planMoves(solvingMoves);
+            //cube.planMoves(solvingMoves);
             updateSolve(solvingMoves.length > 0);
-            shouldRefresh = true;
+            //shouldRefresh = true;
         }
     }
 
@@ -266,8 +267,11 @@ function updateSolve(newSolve) {
 
     if(newSolve) solve.start(); else solve.stop();
     console.log(`Solve changed to: ${solve.active}`);
+
+    // Update buttons
     const button = document.getElementById('solveButton');
     button.classList.toggle('solving', solve.active);
+    document.querySelectorAll('.side-movement-button').forEach(btn => btn.disabled = solve.active);
 }
 
 function isSolved() { return !solve.active; }
