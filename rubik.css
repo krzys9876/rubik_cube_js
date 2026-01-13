@@ -37,6 +37,12 @@ body {
     background-color: blue;
     color: white;
 }
+.side-movement-button {
+    margin-top: 10px;
+    padding: 1px 1px;
+    font-size: 12px;
+    cursor: pointer;
+}
 #solveButton {
     margin-left: 20px;
 }
