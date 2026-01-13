@@ -15,8 +15,29 @@ const cube = new RubikCube(cubeCenter, 1.6);
 
 let counter = 0;
 
-const step = new Map([[Axis.X, 3 / 5], [Axis.Y, 3 / 5], [Axis.Z, 3 / 5]]);
+const minRotate = -4; // This should be consistent with slider min/max values
+const maxRotate = 4;
+const rotateRange = maxRotate - minRotate + 1;
+const rotateScaler = 2 / rotateRange;
+const step = new Map([[Axis.X, rotateScaler], [Axis.Y, rotateScaler], [Axis.Z, rotateScaler]]);
 const rotate = new Map();
+
+function clearRotation() {
+    setRotation(Axis.Y, 0);
+    setRotation(Axis.X, 0);
+    setRotation(Axis.Z, 0);
+
+}
+
+function setRotation(axis, value) {
+    if(value < minRotate || value > maxRotate) return;
+
+    const reverseFlag = axis === Axis.X ? 1 : -1;
+    rotate.set(axis, reverseFlag * value * step.get(axis));
+
+    const slider = getSlider(axis);
+    slider.value = value;
+}
 
 let movement = null;
 let shuffle = false;
@@ -114,14 +135,18 @@ function drawLoop() {
 
 document.addEventListener('keydown', (event) => {
     if (document.activeElement.id === 'textMovements' ||
-        document.activeElement.id === 'speedSlider') return;
+        document.activeElement.id === 'speedSlider' ||
+        document.activeElement.id === 'ySlider' ||
+        document.activeElement.id === 'xSlider' ||
+        document.activeElement.id === 'zSlider') return;
 
-    if (event.key === 'ArrowLeft') rotate.set(Axis.Y, step.get(Axis.Y));
-    if (event.key === 'ArrowRight') rotate.set(Axis.Y, -step.get(Axis.Y));
-    if (event.key === 'ArrowUp') rotate.set(Axis.X, step.get(Axis.X));
-    if (event.key === 'ArrowDown') rotate.set(Axis.X, -step.get(Axis.X));
-    if (event.key === ',') rotate.set(Axis.Z, step.get(Axis.Z));
-    if (event.key === '.') rotate.set(Axis.Z, -step.get(Axis.Z));
+    if (event.key === 'ArrowLeft') addRotation(Axis.Y, -1);
+    if (event.key === 'ArrowRight') addRotation(Axis.Y, 1);
+    if (event.key === 'ArrowUp') addRotation(Axis.X, 1);
+    if (event.key === 'ArrowDown') addRotation(Axis.X, -1);
+    if (event.key === ',') addRotation(Axis.Z, -1);
+    if (event.key === '.') addRotation(Axis.Z, 1);
+    if (event.key === " ") clearRotation();
     if (event.key === 'q') { manualMove(new Movement(SideType.UP, MoveDirection.CLOCKWISE)); }
     if (event.key === 'w') { manualMove(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE)); }
     if (event.key === 'a') { manualMove(new Movement(SideType.DOWN, MoveDirection.CLOCKWISE)); }
@@ -139,18 +164,8 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'c') revertLast = true;
 });
 
-document.addEventListener('keyup', (event) => {
-    if (document.activeElement.id === 'textMovements' ||
-        document.activeElement.id === 'speedSlider') return;
-
-    if (event.key === 'ArrowLeft') rotate.delete(Axis.Y);
-    if (event.key === 'ArrowRight') rotate.delete(Axis.Y);
-    if (event.key === 'ArrowUp') rotate.delete(Axis.X);
-    if (event.key === 'ArrowDown') rotate.delete(Axis.X);
-    if (event.key === ',') rotate.delete(Axis.Z);
-    if (event.key === '.') rotate.delete(Axis.Z);
-    if (event.key === 'z') shuffle = false;
-});
+/*document.addEventListener('keyup', (event) => {
+});*/
 
 document.getElementById('processButton').addEventListener('click', () => {
     const input = document.getElementById('textMovements');
@@ -271,6 +286,31 @@ document.getElementById('speedSlider').addEventListener('input', (event) => {
     SideAnimation.setSpeed(speed);
     console.log(`Animation speed set to: ${speed} (step: ${SideAnimation.animationStep})`);
 });
+
+document.getElementById('ySlider').addEventListener('input', (event) => {
+    setRotation(Axis.Y, parseInt(event.target.value));
+});
+document.getElementById('xSlider').addEventListener('input', (event) => {
+    setRotation(Axis.X, parseInt(event.target.value));
+});
+document.getElementById('zSlider').addEventListener('input', (event) => {
+    setRotation(Axis.Z, parseInt(event.target.value));
+});
+
+function addRotation(axis, step) {
+    const slider = getSlider(axis);
+    const newValue = parseInt(slider.value) + step;
+    slider.value = newValue;
+    setRotation(axis, newValue);
+}
+
+function getSlider(axis) {
+    switch(axis) {
+        case Axis.Y: return document.getElementById('ySlider');
+        case Axis.X: return document.getElementById('xSlider');
+        case Axis.Z: return document.getElementById('zSlider');
+    }
+}
 
 canvas.addEventListener('dblclick', (event) => {
     const rect = canvas.getBoundingClientRect();

@@ -43,6 +43,12 @@ body {
     font-size: 12px;
     cursor: pointer;
 }
+.side-movement-button-left {
+    margin-left: 5px;
+}
+.side-movement-button-right {
+    margin-right: 5px;
+}
 #solveButton {
     margin-left: 20px;
 }

@@ -13,18 +13,18 @@
             <input type="text" id="textMovements" class="input-box" placeholder="Movements or commands...">
             <button id="processButton" class="action-button">Process</button>
         </div>
-            <button id="fButton" class="side-movement-button">F</button>
-            <button id="f1Button" class="side-movement-button">F'</button>
-            <button id="rButton" class="side-movement-button">R</button>
-            <button id="r1Button" class="side-movement-button">R'</button>
-            <button id="bButton" class="side-movement-button">B</button>
-            <button id="b1Button" class="side-movement-button">B'</button>
-            <button id="lButton" class="side-movement-button">L</button>
-            <button id="l1Button" class="side-movement-button">L'</button>
-            <button id="uButton" class="side-movement-button">U</button>
-            <button id="u1Button" class="side-movement-button">U'</button>
-            <button id="dButton" class="side-movement-button">D</button>
-            <button id="d1Button" class="side-movement-button">D'</button>
+            <button id="fButton" class="side-movement-button side-movement-button-left">F</button>
+            <button id="f1Button" class="side-movement-button side-movement-button-right">F'</button>
+            <button id="rButton" class="side-movement-button side-movement-button-left">R</button>
+            <button id="r1Button" class="side-movement-button side-movement-button-right">R'</button>
+            <button id="bButton" class="side-movement-button side-movement-button-left">B</button>
+            <button id="b1Button" class="side-movement-button side-movement-button-right">B'</button>
+            <button id="lButton" class="side-movement-button side-movement-button-left">L</button>
+            <button id="l1Button" class="side-movement-button side-movement-button-right">L'</button>
+            <button id="uButton" class="side-movement-button side-movement-button-left">U</button>
+            <button id="u1Button" class="side-movement-button side-movement-button-right">U'</button>
+            <button id="dButton" class="side-movement-button side-movement-button-left">D</button>
+            <button id="d1Button" class="side-movement-button side-movement-button-right">D'</button>
         <div>
         </div>
         <div>
@@ -46,6 +46,14 @@
     <div id="canvas-container">
         <canvas id="drawing"></canvas>
         <select id="moveLogList" multiple></select>
+    </div>
+    <div>
+        <label for="ySlider">Y</label>
+        <input type="range" id="ySlider" min="-4" max="4" value="0" step="1">
+        <label for="xSlider">X</label>
+        <input type="range" id="xSlider" min="-4" max="4" value="0" step="1">
+        <label for="zSlider">Z</label>
+        <input type="range" id="zSlider" min="-4" max="4" value="0" step="1">
     </div>
     <script type="module" src="src/main/rubik.js"></script>
 </body>
