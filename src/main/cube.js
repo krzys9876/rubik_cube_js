@@ -239,17 +239,17 @@ export class Movement {
     static #sides = [SideType.FRONT, SideType.BACK, SideType.UP, SideType.DOWN, SideType.LEFT, SideType.RIGHT];
     static #codeToMovement = new Map([
         ["U", new Movement(SideType.UP, MoveDirection.CLOCKWISE)],
-        ["U1", new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE)],
+        ["U\'", new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE)],
         ["D", new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE)],
-        ["D1", new Movement(SideType.DOWN, MoveDirection.CLOCKWISE)],
+        ["D\'", new Movement(SideType.DOWN, MoveDirection.CLOCKWISE)],
         ["F", new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE)],
-        ["F1", new Movement(SideType.FRONT, MoveDirection.CLOCKWISE)],
+        ["F\'", new Movement(SideType.FRONT, MoveDirection.CLOCKWISE)],
         ["B", new Movement(SideType.BACK, MoveDirection.CLOCKWISE)],
-        ["B1", new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE)],
+        ["B\'", new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE)],
         ["L", new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE)],
-        ["L1", new Movement(SideType.LEFT, MoveDirection.CLOCKWISE)],
+        ["L\'", new Movement(SideType.LEFT, MoveDirection.CLOCKWISE)],
         ["R", new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE)],
-        ["R1", new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE)]
+        ["R\'", new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE)]
     ]);
 
     side;

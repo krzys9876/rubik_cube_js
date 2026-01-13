@@ -222,7 +222,7 @@ export class RubikSolver {
 
             // R U U R1 U1 R U R1 where front is the left side
             const frontSide = nextSide(SideType.UP, otherSideRight.metadata.orientation, MoveDirection.CLOCKWISE);
-            return this.#translateSequence("R U U R1 U1 R U R1", frontSide);
+            return this.#translateSequence("R U U R\' U\' R U R\'", frontSide);
         }
 
         // case 3, 4
@@ -250,11 +250,11 @@ export class RubikSolver {
                 // case 3, white on left
                 // L1 U1 L, front os other side
                 if(this.debug) console.log("case 3");
-                return this.#translateSequence("L1 U1 L", otherSide.metadata.orientation);
+                return this.#translateSequence("L\' U\' L", otherSide.metadata.orientation);
             } else {
                 if(this.debug) console.log("case 4");
                 // R U R1, front os other side
-                return this.#translateSequence("R U R1", otherSide.metadata.orientation);
+                return this.#translateSequence("R U R\'", otherSide.metadata.orientation);
             }
         }
 
@@ -287,13 +287,13 @@ export class RubikSolver {
     #solveMidLayerCase2(frontSide) {
         // move to the left, use the sequence from the guide:
         // U1 L1 U L U F U1 F1 front is determined by corner orientation
-        return this.#translateSequence("U1 L1 U L U F U1 F1", frontSide);
+        return this.#translateSequence("U\' L\' U L U F U\' F\'", frontSide);
     }
 
     #solveMidLayerCase3(frontSide) {
         // move to the right, use the sequence from the guide:
         // U R U1 R1 U1 F1 U F front is determined by corner orientation
-        return this.#translateSequence("U R U1 R1 U1 F1 U F", frontSide);
+        return this.#translateSequence("U R U\' R\' U\' F\' U F", frontSide);
     }
 
     solveMidLayer() {
@@ -435,7 +435,7 @@ export class RubikSolver {
 
     #solveYellowCross(frontSide) {
         // F R U R1 U1 F1, front is determined by top yellow pattern
-        return this.#translateSequence("F R U R1 U1 F1", frontSide);
+        return this.#translateSequence("F R U R\' U\' F\'", frontSide);
     }
 
     solveYellowLayer() {
@@ -497,7 +497,7 @@ export class RubikSolver {
 
     #solveYellowLayer(frontSide) {
         // R U R1 U R U U R1, front is determined by top yellow pattern
-        return this.#translateSequence("R U R1 U R U U R1", frontSide);
+        return this.#translateSequence("R U R\' U R U U R\'", frontSide);
     }
 
     solveYellowCorners() {
@@ -558,7 +558,7 @@ export class RubikSolver {
 
     #solveYellowCorners(frontSide) {
         // R B1 R F F R1 B R F F R R, front is determined by corners layout
-        return this.#translateSequence("R B1 R F F R1 B R F F R R", frontSide);
+        return this.#translateSequence("R B\' R F F R\' B R F F R R", frontSide);
     }
 
     solveYellowEdges() {
@@ -624,7 +624,7 @@ export class RubikSolver {
 
     #solveYellowEdges(frontSide, moveRight) {
         // F F U/U1 L R1 F F L1 R U/U1 F F, front is determined by edges layout
-        const sequence = moveRight ? "F F U L R1 F F L1 R U F F" : "F F U1 L R1 F F L1 R U1 F F";
+        const sequence = moveRight ? "F F U L R\' F F L\' R U F F" : "F F U\' L R\' F F L\' R U\' F F";
         return this.#translateSequence(sequence, frontSide);
     }
 
