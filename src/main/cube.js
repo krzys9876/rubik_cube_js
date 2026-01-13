@@ -8,7 +8,7 @@ import {
     sideDistance,
     opposideSides,
     sideStyles,
-    SideType, MoveType, nextStyle
+    SideType, MoveType, nextStyle, Axis
 } from "./common.js";
 import {scene, Scene} from "./scene.js";
 
@@ -706,5 +706,46 @@ export class RubikCube {
 
     reset() {
         this.cubes.forEach(c => c.planes.forEach(p => p.metadata.resetStyle()));
+    }
+}
+
+export class Rotation {
+    speed = new Map();
+    step = new Map();
+    minRotate;
+    maxRotate;
+    rotateRange;
+    rotateScale;
+
+    constructor(range) {
+        this.rotateRange = range;
+        this.maxRotate = Math.trunc(this.rotateRange/2);
+        this.minRotate = -this.maxRotate;
+        this.rotateScale = 2 / this.rotateRange; // set-up experimentally
+        this.step.set(Axis.X, this.rotateScale);
+        this.step.set(Axis.Y, this.rotateScale);
+        this.step.set(Axis.Z, this.rotateScale);
+    }
+
+    set(axis, value) {
+        if(value < this.minRotate || value > this.maxRotate) return;
+
+        const reverseFlag = axis === Axis.X ? 1 : -1;
+        this.speed.set(axis, reverseFlag * value * this.step.get(axis));
+    }
+
+    isActive() { return this.speed.entries().find(p => p[1] !== 0) !== undefined;}
+    has(axis) { return this.speed.has(axis); }
+    get(axis) { return this.has(axis) ? this.speed.get(axis) : 0; }
+
+    rotateOneAxisWhenDragging(delta, axis, axisMultiplier = 1) {
+        const multiplier = Math.abs(delta) > 4 ? 2 : Math.abs(delta) >= 1 ? 1 : 0;
+        if (delta > 1) this.speed.set(axis, -this.step.get(axis) * multiplier * axisMultiplier)
+        else if (delta < -1) this.speed.set(axis, this.step.get(axis) * multiplier * axisMultiplier)
+        else this.speed.delete(axis);
+    }
+
+    clear() {
+        this.speed.clear();
     }
 }

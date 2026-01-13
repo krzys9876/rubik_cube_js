@@ -1,7 +1,7 @@
 import {MoveDirection, SideType, Axis} from './common.js';
 import { canvas, ctx } from './common-dom.js';
 import {Point3D, Vector3D} from './geometry.js';
-import {Movement, RubikCube, SideAnimation} from './cube.js';
+import {Movement, Rotation, RubikCube, SideAnimation} from './cube.js';
 import { scene } from './scene.js';
 import {RubikSolver} from "./solver.js";
 
@@ -15,28 +15,21 @@ const cube = new RubikCube(cubeCenter, 1.6);
 
 let counter = 0;
 
-const minRotate = -4; // This should be consistent with slider min/max values
-const maxRotate = 4;
-const rotateRange = maxRotate - minRotate + 1;
-const rotateScaler = 2 / rotateRange;
-const step = new Map([[Axis.X, rotateScaler], [Axis.Y, rotateScaler], [Axis.Z, rotateScaler]]);
-const rotate = new Map();
+const rotate = new Rotation(9);
 
 function clearRotation() {
     setRotation(Axis.Y, 0);
     setRotation(Axis.X, 0);
     setRotation(Axis.Z, 0);
-
 }
 
 function setRotation(axis, value) {
-    if(value < minRotate || value > maxRotate) return;
+    rotate.set(axis, value);
+    setSliderValue(axis, value);
+}
 
-    const reverseFlag = axis === Axis.X ? 1 : -1;
-    rotate.set(axis, reverseFlag * value * step.get(axis));
-
-    const slider = getSlider(axis);
-    slider.value = value;
+function setSliderValue(axis, value) {
+    getSlider(axis).value = value;
 }
 
 let movement = null;
@@ -62,7 +55,7 @@ function drawLoop() {
     // Let's not redraw the screen if nothing changed
     let isAutoMoving = cube.hasPlannedMoves() || cube.animation.ongoing || movement !== null ;
     let clickEvent = doubleClicked.x > -1 || singleClicked.x > -1;
-    let shouldRefresh = forceRefresh || counter === 0 || rotate.size > 0 || isAutoMoving || clickEvent
+    let shouldRefresh = forceRefresh || counter === 0 || rotate.isActive() || isAutoMoving || clickEvent
 
     if(solve && !isAutoMoving) {
         // Let's protect fron infinite solving loop (e.g. when colors are not properly set)
@@ -95,10 +88,7 @@ function drawLoop() {
         ctx.fillStyle = bkStyle;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        scene.rotate(
-            rotate.has(Axis.X) ? rotate.get(Axis.X) : 0,
-            rotate.has(Axis.Y) ? rotate.get(Axis.Y) : 0,
-            rotate.has(Axis.Z) ? rotate.get(Axis.Z) : 0);
+        scene.rotate(rotate.get(Axis.X), rotate.get(Axis.Y), rotate.get(Axis.Z));
 
         cube.draw(canvas, ctx, observer, rotationCenter);
         if(clickEvent) {
@@ -351,33 +341,24 @@ canvas.addEventListener('mousemove', (event) => {
     dragStart.x = currentX;
     dragStart.y = currentY;
 
-    rotateOneAxisWhenDragging(deltaX, Axis.Y, 2);
+    rotate.rotateOneAxisWhenDragging(deltaX, Axis.Y, 2);
     // ctrl - Z axis
-    if(event.ctrlKey) rotateOneAxisWhenDragging(deltaY, Axis.Z, 4);
-    else rotateOneAxisWhenDragging(deltaY, Axis.X, 2);
+    if(event.ctrlKey) rotate.rotateOneAxisWhenDragging(deltaY, Axis.Z, 4);
+    else rotate.rotateOneAxisWhenDragging(deltaY, Axis.X, 2);
 });
 
-function rotateOneAxisWhenDragging(delta, axis, axisMultipier = 1) {
-    const multiplier = Math.abs(delta) > 4 ? 2 :
-        Math.abs(delta) >= 1 ? 1 : 0;
-    if (delta > 1) rotate.set(axis, -step.get(axis) * multiplier * axisMultipier)
-    else if (delta < -1) rotate.set(axis, step.get(axis) * multiplier * axisMultipier)
-    else rotate.delete(axis);
-}
-
 canvas.addEventListener('mouseup', (event) => {
-    if (mouseDragging) {
-        mouseDragging = false;
-        rotate.clear();
-    }
+    if (mouseDragging) stopDragging();
 });
 
 canvas.addEventListener('mouseleave', (event) => {
-    if (mouseDragging) {
-        mouseDragging = false;
-        rotate.clear();
-    }
+    if (mouseDragging) stopDragging();
 });
+
+function stopDragging() {
+    mouseDragging = false;
+    clearRotation();
+}
 
 function logMove(message) {
     const logBox = document.getElementById('moveLogList');
