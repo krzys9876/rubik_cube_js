@@ -463,6 +463,6 @@ if(params.has("speed") && params.get("speed") >= "1" && params.get("speed") <= "
     SideAnimation.setSpeed(parseInt(slider.value));
 }
 
-drawLoop();
-
 console.log("END (init)");
+
+drawLoop();
