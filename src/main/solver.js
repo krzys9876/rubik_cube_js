@@ -220,7 +220,7 @@ export class RubikSolver {
             // Now we have the corner prepared for a sequence from the guide
             if(movements.length >0 ) return movements;
 
-            // R U U R1 U1 R U R1 where front is the left side
+            // R U U R' U' R U R' where front is the left side
             const frontSide = nextSide(SideType.UP, otherSideRight.metadata.orientation, MoveDirection.CLOCKWISE);
             return this.#translateSequence("R U U R\' U\' R U R\'", frontSide);
         }
@@ -248,12 +248,12 @@ export class RubikSolver {
             const distanceBetween = sideDistance(SideType.UP, whiteSide.metadata.orientation, otherSide.metadata.orientation);
             if(distanceBetween[0] === MoveDirection.COUNTERCLOCKWISE) {
                 // case 3, white on left
-                // L1 U1 L, front os other side
+                // L' U' L, front os other side
                 if(this.debug) console.log("case 3");
                 return this.#translateSequence("L\' U\' L", otherSide.metadata.orientation);
             } else {
                 if(this.debug) console.log("case 4");
-                // R U R1, front os other side
+                // R U R', front os other side
                 return this.#translateSequence("R U R\'", otherSide.metadata.orientation);
             }
         }
@@ -286,13 +286,13 @@ export class RubikSolver {
 
     #solveMidLayerCase2(frontSide) {
         // move to the left, use the sequence from the guide:
-        // U1 L1 U L U F U1 F1 front is determined by corner orientation
+        // U' L' U L U F U' F' front is determined by corner orientation
         return this.#translateSequence("U\' L\' U L U F U\' F\'", frontSide);
     }
 
     #solveMidLayerCase3(frontSide) {
         // move to the right, use the sequence from the guide:
-        // U R U1 R1 U1 F1 U F front is determined by corner orientation
+        // U R U' R' U' F' U F front is determined by corner orientation
         return this.#translateSequence("U R U\' R\' U\' F\' U F", frontSide);
     }
 
@@ -394,7 +394,7 @@ export class RubikSolver {
         }
 
         // For each case we follow the sequence from the guide:
-        // F R U R1 U1 F1, front is determined by top yellow pattern
+        // F R U R' U' F', front is determined by top yellow pattern
 
         // case 2, 3
         const topEdgesYellow = edges.filter(c => c.metadata.coords.y === 1 && c.hasSide(SideType.UP, sideStyles.get(SideType.UP)));
@@ -434,7 +434,7 @@ export class RubikSolver {
     }
 
     #solveYellowCross(frontSide) {
-        // F R U R1 U1 F1, front is determined by top yellow pattern
+        // F R U R' U' F', front is determined by top yellow pattern
         return this.#translateSequence("F R U R\' U\' F\'", frontSide);
     }
 
@@ -458,7 +458,7 @@ export class RubikSolver {
         }
 
         // For each case we follow the sequence from the guide:
-        // R U R1 U R U U R1, front is determined by top yellow pattern
+        // R U R' U R U U R', front is determined by top yellow pattern
 
         // case 2
         const topCornersYellow = corners.filter(c => c.metadata.coords.y === 1 && c.hasSide(SideType.UP, sideStyles.get(SideType.UP)));
@@ -496,7 +496,7 @@ export class RubikSolver {
     }
 
     #solveYellowLayer(frontSide) {
-        // R U R1 U R U U R1, front is determined by top yellow pattern
+        // R U R' U R U U R', front is determined by top yellow pattern
         return this.#translateSequence("R U R\' U R U U R\'", frontSide);
     }
 
@@ -519,7 +519,7 @@ export class RubikSolver {
         }
 
         // For each case we follow the sequence from the guide:
-        // R B1 R F F R1 B R F F R R, front is determined by corners layout
+        // R B' R F F R' B R F F R R, front is determined by corners layout
 
         // case 2
         // Try to find a pair with the same color
@@ -557,7 +557,7 @@ export class RubikSolver {
     }
 
     #solveYellowCorners(frontSide) {
-        // R B1 R F F R1 B R F F R R, front is determined by corners layout
+        // R B' R F F R' B R F F R R, front is determined by corners layout
         return this.#translateSequence("R B\' R F F R\' B R F F R R", frontSide);
     }
 
@@ -623,7 +623,7 @@ export class RubikSolver {
     }
 
     #solveYellowEdges(frontSide, moveRight) {
-        // F F U/U1 L R1 F F L1 R U/U1 F F, front is determined by edges layout
+        // F F U/U' L R' F F L' R U/U' F F, front is determined by edges layout
         const sequence = moveRight ? "F F U L R\' F F L\' R U F F" : "F F U\' L R\' F F L\' R U\' F F";
         return this.#translateSequence(sequence, frontSide);
     }
@@ -637,20 +637,20 @@ export class RubikSolver {
 }
 
 // Test sequence for white cross, case 5
-// R B1 U1 R1 F1 D F1 U B1 B D B B1 U L B B U L1 F1 B L B1 B1 F1 R1 U B B
+// R B' U' R' F' D F' U B' B D B B' U L B B U L' F' B L B' B' F' R' U B B
 
 // Initial sequence for white corners:
-// D R R U F1 F1 L1 L1 U B B L1 U R R L1
+// D R R U F' F' L' L' U B B L' U R R L'
 
 // Test sequence for white corners, case 3
-// D R R U F1 F1 L1 L1 U B B L1 L1 U R R U1 F U U F1 U1 F U F1 U B U U B1 U1 B U B1
+// D R R U F' F' L' L' U B B L' L' U R R U' F U U F' U' F U F' U B U U B' U' B U B'
 
 // Test sequence for white corners, case 5
-// L R1 L1 L1 F L B L D1 F D1 L B1 R U U R1 L1 L1 F R U B1 U1 B U1 U1 B U U B1 U1 B U B1
+// L R' L' L' F L B L D' F D' L B' R U U R' L' L' F R U B' U' B U' U' B U U B' U' B U B'
 
 // Test sequence for middle layer, case 4
-// R B R D1 R1 D1 U1 B B D D L D1 D1 U1 L1 F D1 B1 L U U B B B U B1 R R U1 F1 L1 U1 L F1 F1 U1 L1 B1 U1 B L1 L1 U1 L U L1 F1 U F U F U U F1 U1 F U F1 U R U R1 R1 U R B U B1 U U U1 L1 U L U F U1 F1 U U1 B1 U B U L U1 L1 U U B U1 B1 U1 R1 U R
+// R B R D' R' D' U' B B D D L D' D' U' L' F D' B' L U U B B B U B' R R U' F' L' U' L F' F' U' L' B' U' B L' L' U' L U L' F' U F U F U U F' U' F U F' U R U R' R' U R B U B' U U U' L' U L U F U' F' U U' B' U B U L U' L' U U B U' B' U' R' U R
 
 // Test sequence for yellow layer, case 4
-// D1 U1 B1 R1 L U1 F F R D R L1 F1 L1 B D R1 U1 F D1 R R1 B1 F1 F F F1 F1 U U1 U1 F1 U1 L1 L1 R1 U1 R B B U U R B U B1 R R F1 R U R1 F1 F1 U F U U F1 U1 F U F1 U1 U1 R U U R1 U1 R U R1 U1 L U L1 R1 U R B U U B1 U1 B U B1 U U1 R1 U R U B U1 B1 U R U1 R1 U1 F1 U F U U U1 L1 U L U F U1 F1 U1 B1 U B U L U1 L1 U U U1 B1 U B U L U1 L1 F R U R1 U1 F1 B L U L1 U1 B1 B L U L1 U1 B1
+// D' U' B' R' L U' F F R D R L' F' L' B D R' U' F D' R R' B' F' F F F' F' U U' U' F' U' L' L' R' U' R B B U U R B U B' R R F' R U R' F' F' U F U U F' U' F U F' U' U' R U U R' U' R U R' U' L U L' R' U R B U U B' U' B U B' U U' R' U R U B U' B' U R U' R' U' F' U F U U U' L' U L U F U' F' U' B' U B U L U' L' U U U' B' U B U L U' L' F R U R' U' F' B L U L' U' B' B L U L' U' B'
 
