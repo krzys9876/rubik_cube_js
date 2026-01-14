@@ -112,10 +112,6 @@ function testPointInsidePlane() {
         new PlaneMetadata(blueStyle, SideType.FRONT, 'NONE'), canvas);
 
     // assuming 100x100 pixels
-    console.log(point1.actualX(canvas), point1.actualY(canvas));
-    console.log(point2.actualX(canvas), point2.actualY(canvas));
-    console.log(point3.actualX(canvas), point3.actualY(canvas));
-    console.log(point4.actualX(canvas), point4.actualY(canvas));
     assertTrue(plane.isInside(50, 50), "The point is inside the plane");
     assertFalse(plane.isInside(80, 80), "The point is outside the plane");
     assertFalse(plane.isInside(71, 21), "The point is outside the plane");

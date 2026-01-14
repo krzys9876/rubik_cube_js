@@ -3,7 +3,7 @@ import { Movement } from "../main/cube.js";
 import { SideType } from "../main/common.js";
 
 function testDummyTranslation() {
-    const codes = ['U','U1','D','D1'];
+    const codes = ['U','U\'','D','D\''];
     codes.forEach(c => {
        const movement = Movement.from(c);
        const translated = movement.translate(SideType.FRONT);
@@ -30,9 +30,9 @@ function testVerticalSidesTranslation() {
         const movement = Movement.from(code);
         const translatedCode = movement.translate(frontSide).toCode();
         assertEquals(translatedCode, expected[i], 'Should translate (rotate) move according to selected front side');
-        const movement1 = Movement.from(code+"1");
+        const movement1 = Movement.from(code+"\'");
         const translatedCode1 = movement1.translate(frontSide).toCode();
-        assertEquals(translatedCode1, expected[i]+"1", 'Should translate (rotate) move according to selected front side');
+        assertEquals(translatedCode1, expected[i]+"\'", 'Should translate (rotate) move according to selected front side');
     }
 }
 
