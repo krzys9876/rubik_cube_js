@@ -8,45 +8,48 @@ import {
 } from "./common.js";
 import {Movement} from "./cube.js";
 
+class RubikSolverStage {
+    name;
+    stageFunction;
+    result = [];
+    debug;
+
+    constructor(name, stageFunction, debug = true) {
+        this.name = name;
+        this.stageFunction = stageFunction;
+        this.debug = debug;
+    }
+
+    run() {
+        if(this.debug) console.log(`${this.name} stage`);
+        this.result = this.stageFunction();
+    }
+}
+
 export class RubikSolver {
     cube;
     debug;
+    stagesLBL = [];
 
     constructor(cube, debug) {
         this.cube = cube;
         this.debug = debug;
+
+        this.stagesLBL.push(new RubikSolverStage("White cross", this.solveWhiteCross.bind(this), this.debug));
+        this.stagesLBL.push(new RubikSolverStage("White corners", this.solveWhiteCorners.bind(this), this.debug));
+        this.stagesLBL.push(new RubikSolverStage("Middle layer", this.solveMidLayer.bind(this), this.debug));
+        this.stagesLBL.push(new RubikSolverStage("Yellow cross", this.solveYellowCross.bind(this), this.debug));
+        this.stagesLBL.push(new RubikSolverStage("Yellow layer", this.solveYellowLayer.bind(this), this.debug));
+        this.stagesLBL.push(new RubikSolverStage("Yellow corners", this.solveYellowCorners.bind(this), this.debug));
+        this.stagesLBL.push(new RubikSolverStage("Yellow edges", this.solveYellowEdges.bind(this), this.debug));
     }
 
     // LBL method (layer by layer)
     solveLBL() {
-        if(this.debug) console.log("White cross stage");
-        const whiteCrossMovements = this.solveWhiteCross();
-        if(whiteCrossMovements.length > 0) return whiteCrossMovements;
-
-        if(this.debug) console.log("White corners stage");
-        const whiteCornersMovements = this.solveWhiteCorners();
-        if(whiteCornersMovements.length > 0) return whiteCornersMovements;
-
-        if(this.debug) console.log("Middle layer stage");
-        const midLayerMovements = this.solveMidLayer();
-        if(midLayerMovements.length > 0) return midLayerMovements;
-
-        if(this.debug) console.log("Yellow cross stage");
-        const yellowCrossMovements = this.solveYellowCross();
-        if(yellowCrossMovements.length > 0) return yellowCrossMovements;
-
-        if(this.debug) console.log("Yellow layer stage");
-        const yellowLayerMovements = this.solveYellowLayer();
-        if(yellowLayerMovements.length > 0) return yellowLayerMovements;
-
-        if(this.debug) console.log("Yellow corners stage");
-        const yellowCornersMovements = this.solveYellowCorners();
-        if(yellowCornersMovements.length > 0) return yellowCornersMovements;
-
-        if(this.debug) console.log("Yellow edges stage");
-        const yellowEdgesMovements = this.solveYellowEdges();
-        if(yellowEdgesMovements.length > 0) return yellowEdgesMovements;
-
+        for(let stage of this.stagesLBL) {
+            stage.run();
+            if(stage.result.length > 0) return stage.result;
+        }
         return [];
     }
 
