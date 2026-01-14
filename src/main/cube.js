@@ -267,7 +267,18 @@ export class Movement {
         else return Movement.#codeToMovement.has(code) ? Movement.#codeToMovement.get(code).withType(type) : null;
     }
 
+    static replaceDoubles(codes) {
+        return codes
+            .replaceAll("F2","F F")
+            .replaceAll("R2","R R")
+            .replaceAll("B2","B B")
+            .replaceAll("L2","L L")
+            .replaceAll("U2","U U")
+            .replaceAll("D2","D D")
+    }
+
     static fromText(codes, type = MoveType.MANUAL) {
+        codes = Movement.replaceDoubles(codes)
         const movements = [];
         codes.split(" ").forEach(code => {
             const movement = Movement.from(code);

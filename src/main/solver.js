@@ -83,10 +83,10 @@ export class RubikSolver {
             // NOTE: the ther side must exist, hence [0]
             const otherSide = edge.getSides().filter(e => e.metadata.orientation !== SideType.DOWN)[0];
             const targetSide = styleSide(otherSide.metadata.style);
-            this.#translateSequence('F F', otherSide.metadata.orientation).forEach(m => movements.push(m));
+            this.#translateSequence('F2', otherSide.metadata.orientation).forEach(m => movements.push(m));
             const distance = sideDistance(SideType.UP, otherSide.metadata.orientation,targetSide);
             distance.forEach(d => movements.push(new Movement(SideType.UP, d, MoveType.SOLVING)));
-            this.#translateSequence('F F', targetSide).forEach(m => movements.push(m));
+            this.#translateSequence('F2', targetSide).forEach(m => movements.push(m));
             return movements;
         }
 
@@ -99,7 +99,7 @@ export class RubikSolver {
             const targetSide = styleSide(otherSide.metadata.style);
             const distance = sideDistance(SideType.UP, otherSide.metadata.orientation,targetSide);
             distance.forEach(d => movements.push(new Movement(SideType.UP, d, MoveType.SOLVING)));
-            this.#translateSequence('F F', targetSide).forEach(m => movements.push(m));
+            this.#translateSequence('F2', targetSide).forEach(m => movements.push(m));
             return movements;
         }
 
@@ -212,14 +212,14 @@ export class RubikSolver {
 
             if(distanceLeft.length === 2) Movement.fromText("U\'", MoveType.SOLVING).forEach(m => movements.push(m));
             else if(distanceRight.length === 2) Movement.fromText("U", MoveType.SOLVING).forEach(m => movements.push(m));
-            else if(distanceLeft[0] === MoveDirection.CLOCKWISE) Movement.fromText("U U", MoveType.SOLVING).forEach(m => movements.push(m));
+            else if(distanceLeft[0] === MoveDirection.CLOCKWISE) Movement.fromText("U2", MoveType.SOLVING).forEach(m => movements.push(m));
 
             // Now we have the corner prepared for a sequence from the guide
             if(movements.length >0 ) return movements;
 
-            // R U U R' U' R U R' where front is the left side
+            // R U2 R' U' R U R' where front is the left side
             const frontSide = nextSide(SideType.UP, otherSideRight.metadata.orientation, MoveDirection.CLOCKWISE);
-            return this.#translateSequence("R U U R\' U\' R U R\'", frontSide);
+            return this.#translateSequence("R U2 R\' U\' R U R\'", frontSide);
         }
 
         // case 3, 4
@@ -455,7 +455,7 @@ export class RubikSolver {
         }
 
         // For each case we follow the sequence from the guide:
-        // R U R' U R U U R', front is determined by top yellow pattern
+        // R U R' U R U2 R', front is determined by top yellow pattern
 
         // case 2
         const topCornersYellow = corners.filter(c => c.metadata.coords.y === 1 && c.hasSide(SideType.UP, sideStyles.get(SideType.UP)));
@@ -493,8 +493,8 @@ export class RubikSolver {
     }
 
     #solveYellowLayer(frontSide) {
-        // R U R' U R U U R', front is determined by top yellow pattern
-        return this.#translateSequence("R U R\' U R U U R\'", frontSide);
+        // R U R' U R U2 R', front is determined by top yellow pattern
+        return this.#translateSequence("R U R\' U R U2 R\'", frontSide);
     }
 
     solveYellowCorners() {
@@ -516,7 +516,7 @@ export class RubikSolver {
         }
 
         // For each case we follow the sequence from the guide:
-        // R B' R F F R' B R F F R R, front is determined by corners layout
+        // R B' R F2 R' B R F2 R2, front is determined by corners layout
 
         // case 2
         // Try to find a pair with the same color
@@ -554,8 +554,8 @@ export class RubikSolver {
     }
 
     #solveYellowCorners(frontSide) {
-        // R B' R F F R' B R F F R R, front is determined by corners layout
-        return this.#translateSequence("R B\' R F F R\' B R F F R R", frontSide);
+        // R B' R F2 R' B R F2 R2, front is determined by corners layout
+        return this.#translateSequence("R B\' R F2 R\' B R F2 R2", frontSide);
     }
 
     solveYellowEdges() {
@@ -620,13 +620,14 @@ export class RubikSolver {
     }
 
     #solveYellowEdges(frontSide, moveRight) {
-        // F F U/U' L R' F F L' R U/U' F F, front is determined by edges layout
-        const sequence = moveRight ? "F F U L R\' F F L\' R U F F" : "F F U\' L R\' F F L\' R U\' F F";
+        // F2 U/U' L R' F2 L' R U/U' F2, front is determined by edges layout
+        const sequence = moveRight ? "F2 U L R\' F2 L\' R U F2" : "F2 U\' L R\' F2 L\' R U\' F2";
         return this.#translateSequence(sequence, frontSide);
     }
 
     #translateSequence(sequence, frontSide) {
         const movements = [];
+        sequence = Movement.replaceDoubles(sequence);
         sequence.split(" ").forEach(code => movements.push(Movement.from(code).translate(frontSide)));
 
         return movements;

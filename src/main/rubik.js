@@ -466,3 +466,6 @@ if(params.has("speed") && params.get("speed") >= "1" && params.get("speed") <= "
 console.log("END (init)");
 
 drawLoop();
+
+// sample URL parameters:
+// ?moves=B%20R%27%20B%20L%27%20R%27%20D%27%20L%20R%20F%20R2%20U%27%20B%20D%20F2%20D2%20F%27%20D2%20B%27%20D%27%20L2%20D%27%20B%27%20R%20D%27%20B&solve=1&speed=5
