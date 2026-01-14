@@ -7,6 +7,9 @@ import {RubikSolver} from "./solver.js";
 
 console.log("START");
 
+const params = new URLSearchParams(window.location.search);
+for(let p of params.entries()) console.log(p);
+
 class Task {
     startCall;
     stopCall;
@@ -314,7 +317,7 @@ document.getElementById('speedSlider').addEventListener('input', (event) => {
             break;
     }
     SideAnimation.setSpeed(speed);
-    console.log(`Animation speed set to: ${speed} (step: ${SideAnimation.animationStep})`);
+    console.log(`Animation speed set to: ${speed} (step: ${`SideAnimation`.animationStep})`);
 });
 
 document.getElementById('ySlider').addEventListener('input', (event) => {
@@ -450,6 +453,14 @@ function resizeCanvas() {
     document.getElementById('moveLogList').style.height = size + 'px';
 
     forceRefresh = true;
+}
+
+if(params.has("moves")) planMoves(Movement.fromText(params.get("moves")));
+if(params.has("solve") && params.get("solve") === "1") updateSolve(true);
+if(params.has("speed") && params.get("speed") >= "1" && params.get("speed") <= "5") {
+    const slider = document.getElementById('speedSlider');
+    slider.value = params.get("speed");
+    SideAnimation.setSpeed(parseInt(slider.value));
 }
 
 drawLoop();

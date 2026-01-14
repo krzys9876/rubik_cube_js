@@ -270,8 +270,8 @@ export class Movement {
     static fromText(codes, type = MoveType.MANUAL) {
         const movements = [];
         codes.split(" ").forEach(code => {
-            const movement = Movement.from(code).withType(type);
-            if (movement) movements.push(movement)
+            const movement = Movement.from(code);
+            if (movement) movements.push(movement.withType(type))
         });
         return movements;
     }
