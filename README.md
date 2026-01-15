@@ -42,3 +42,16 @@ somebody else's code ;)
 
 For the same reason I did not want to generate any of the code. Of course, I use LLM assisted coding
 but this time it was only for educational purposes. 
+
+---
+
+## MCP integration
+
+To have even more fun I write a simple MCP server (pair programming with my friend Claude Code).
+It generates a URL and launches default web browser with the application.
+
+I can ask to generate a scramble sequence, set animation speed and optionally start solving.
+I tested it with Claude Code and it works great. Not that this is the most useful thing when you think of 
+a Rubik's Cube...
+
+<img src="mcp_02.png" alt="" width="600"/>
