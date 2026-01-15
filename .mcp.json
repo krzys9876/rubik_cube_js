@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "simulation": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "python",
+        "mcp/mcp_rubikcube_server.py"
+      ]
+    }
+  }
+}

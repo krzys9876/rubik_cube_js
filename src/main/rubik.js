@@ -469,3 +469,5 @@ drawLoop();
 
 // sample URL parameters:
 // ?moves=B%20R%27%20B%20L%27%20R%27%20D%27%20L%20R%20F%20R2%20U%27%20B%20D%20F2%20D2%20F%27%20D2%20B%27%20D%27%20L2%20D%27%20B%27%20R%20D%27%20B&solve=1&speed=5
+// A sequence found by Claude Code and launched by MCP Server
+// http://localhost:8000/rubik.html?speed=1&moves=D%2527%2B2R%2BD%2B2B%2BU%2527%2B2L%2B2B%2B2R%2B2D%2BR%2BB%2527%2BD%2527%2B2F%2BD%2527%2B2L%2BR%2BF%2527&solve=1
