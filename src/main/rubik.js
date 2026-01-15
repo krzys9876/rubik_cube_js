@@ -204,7 +204,7 @@ document.getElementById('processButton').addEventListener('click', () => {
     console.log("Processing: ", text);
     const toProcess = Movement.fromText(text);
     planMoves(toProcess);
-    input.value='';
+    //input.value='';
 });
 
 document.getElementById('shuffleButton').addEventListener('click', () => {
@@ -455,7 +455,13 @@ function resizeCanvas() {
     forceRefresh = true;
 }
 
-if(params.has("moves")) planMoves(Movement.fromText(params.get("moves")));
+if(params.has("moves")) {
+    planMoves(Movement.fromText(params.get("moves")));
+    document.getElementById('textMovements').value =
+        params.get("moves")
+            .replaceAll("+"," ")
+            .replaceAll("%27","\'");
+}
 if(params.has("solve") && params.get("solve") === "1") updateSolve(true);
 if(params.has("speed") && params.get("speed") >= "1" && params.get("speed") <= "5") {
     const slider = document.getElementById('speedSlider');
