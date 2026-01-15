@@ -5,24 +5,24 @@ import {Point3D} from "../main/geometry.js";
 
 function testSolverE2E() {
     const solvedMoves = [];
-    const steps = 1000;
+    const runs = 1000;
     const startTime = new Date().getTime();
-    for(let i=0; i<steps; i++) solvedMoves.push(doTestSolverE2EOne(100, 500));
+    for(let i=0; i<runs; i++) solvedMoves.push(doTestSolverE2EOne(100, 500));
     const endTime = new Date().getTime();
     const diffMs = (endTime - startTime);
     const diffS = diffMs/1000;
 
-    console.log(`Tested ${steps} runs in ${Math.round(diffS*100)/100} s, ${Math.round(diffMs/steps)} ms/run`);
+    console.log(`Tested ${runs} runs in ${Math.round(diffS*100)/100} s, ${Math.round(diffMs/runs)} ms/run`);
     solvedMoves.sort((a, b) => a - b);
     const minMoves = solvedMoves.reduce((acc,curr) => curr < acc ? curr : acc, 9999);
     const maxMoves = solvedMoves.reduce((acc,curr) => curr > acc ? curr : acc, 0);
-    console.log(`Max moves ${maxMoves}, min moves ${minMoves} median ${solvedMoves[Math.round(steps/2)]}`);
+    console.log(`Max moves ${maxMoves}, min moves ${minMoves} median ${solvedMoves[Math.round(runs/2)]}`);
     const deciles = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
     for(let d of deciles) {
-        const dslice = solvedMoves.slice(d * solvedMoves.length/10, (d+1)*solvedMoves.length/10);
-        const dmin = dslice.reduce((acc,curr) => curr < acc ? curr : acc, 9999);
-        const dmax = dslice.reduce((acc,curr) => curr > acc ? curr : acc, 0);
-        console.log(`Decile ${(d+1)}: min ${dmin} max ${dmax}`);
+        const dSlice = solvedMoves.slice(d * solvedMoves.length/10, (d+1)*solvedMoves.length/10);
+        const dMin = dSlice.reduce((acc,curr) => curr < acc ? curr : acc, 9999);
+        const dMax = dSlice.reduce((acc,curr) => curr > acc ? curr : acc, 0);
+        console.log(`Decile ${(d+1)}: min ${dMin} max ${dMax}`);
     }
 }
 

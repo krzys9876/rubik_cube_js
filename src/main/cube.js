@@ -271,6 +271,8 @@ export class Movement {
         // NOTE: this actually makes the solving process longer by a few ms per each dry run (w/o display), from ~7ms to ~10ms
         // but this is not important when comparing to time needed to draw the cube. It makes solver a little more elegant
         // and also allows using scrumble sequences from the internet.
+        if(!codes.includes("2")) return codes;
+
         return codes
             .replaceAll("F2","F F")
             .replaceAll("R2","R R")
