@@ -278,13 +278,19 @@ export class Movement {
             .replaceAll("L2","L L")
             .replaceAll("U2","U U")
             .replaceAll("D2","D D")
+            .replaceAll("2F","F F")
+            .replaceAll("2R","R R")
+            .replaceAll("2B","B B")
+            .replaceAll("2L","L L")
+            .replaceAll("2U","U U")
+            .replaceAll("2D","D D")
     }
 
     static fromText(codes, type = MoveType.MANUAL) {
-        codes = Movement.replaceDoubles(codes)
         const movements = [];
         codes.split(/[\s+]/).forEach(code => {
-            const movement = Movement.from(code);
+            let movement = Movement.from(code);
+            if(!movement) movement = Movement.from(Movement.replaceDoubles(codes));
             if (movement) movements.push(movement.withType(type))
         });
         return movements;
