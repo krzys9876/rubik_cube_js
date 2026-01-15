@@ -283,7 +283,7 @@ export class Movement {
     static fromText(codes, type = MoveType.MANUAL) {
         codes = Movement.replaceDoubles(codes)
         const movements = [];
-        codes.split(" ").forEach(code => {
+        codes.split(/[\s+]/).forEach(code => {
             const movement = Movement.from(code);
             if (movement) movements.push(movement.withType(type))
         });
