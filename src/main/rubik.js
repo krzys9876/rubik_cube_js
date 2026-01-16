@@ -84,8 +84,6 @@ let forceRefresh = false;
 
 const tasks = [];
 
-const bkStyle = 'lightgray';
-
 let currentMoveNo = 1;
 // Set initial point of view
 scene.rotate(-15,30,-5);
@@ -126,8 +124,7 @@ function drawLoop() {
     }
 
     if(shouldRefresh) {
-        ctx.fillStyle = bkStyle;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         scene.rotate(rotate.get(Axis.X), rotate.get(Axis.Y), rotate.get(Axis.Z));
 

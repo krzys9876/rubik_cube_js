@@ -463,6 +463,7 @@ body::before {
 
 /* Canvas - elegant gold frame */
 #drawing {
+    background-color: var(--luxury-bg-deep);
     border: 2px solid var(--gold-primary);
     border-radius: 0;
     box-shadow:

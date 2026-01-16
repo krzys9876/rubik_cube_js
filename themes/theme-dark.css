@@ -402,6 +402,7 @@ body {
 
 /* Canvas - glowing border */
 #drawing {
+    background-color: var(--dark-bg-primary);
     border: 2px solid var(--neon-cyan);
     border-radius: 12px;
     box-shadow:
