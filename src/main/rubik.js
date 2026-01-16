@@ -4,47 +4,13 @@ import {Point3D, Vector3D} from './geometry.js';
 import {Movement, Rotation, RubikCube, SideAnimation} from './cube.js';
 import { scene } from './scene.js';
 import {RubikSolver} from "./solver.js";
+import {FlagController, Task} from "./task";
 
 console.log("START");
 
 const params = new URLSearchParams(window.location.search);
 for(let p of params.entries()) console.log(p);
 
-class Task {
-    startCall;
-    stopCall;
-    endCall;
-    running = false;
-    constructor(startCall, stopCall, endCall) {
-        this.startCall = startCall;
-        this.stopCall = stopCall;
-        this.endCall = endCall;
-    }
-
-    start() {
-        this.running = true;
-        this.startCall();
-    }
-
-    stop() {
-        this.stopCall();
-    }
-
-    tryEnd() {
-        if(this.endCall()) this.running = false;
-    }
-}
-
-class FlagController {
-    active = false;
-    start() { this.active = true; }
-    stop() { this.active = false; }
-    end() { return !this.active; }
-
-    static createTask(flag) {
-        return new Task(flag.start.bind(flag), flag.stop.bind(flag), flag.end.bind(flag));
-    }
-}
 
 const rotationCenter = new Point3D(0,0,3);
 const observer = new Point3D(0,0,-Point3D.focalLength);
