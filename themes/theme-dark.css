@@ -25,6 +25,16 @@
     --glow-cyan: 0 0 10px #00fff7, 0 0 20px #00fff755, 0 0 30px #00fff733;
     --glow-magenta: 0 0 10px #ff00ff, 0 0 20px #ff00ff55, 0 0 30px #ff00ff33;
     --glow-purple: 0 0 10px #bf00ff, 0 0 20px #bf00ff55;
+
+    /* Cube colors - neon cyberpunk style */
+    --cube-line-color: #00fff7;
+    --cube-line-selected: #ff00ff;
+    --cube-face-red: #ff2244;
+    --cube-face-yellow: #ffee00;
+    --cube-face-blue: #0066ff;
+    --cube-face-white: #c0c0d0;
+    --cube-face-green: #00cc66;
+    --cube-face-orange: #ff6600;
 }
 
 /* Base body - dark with subtle animated gradient */

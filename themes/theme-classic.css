@@ -1,5 +1,17 @@
 /* Classic Theme - Light background with traditional styling */
 
+:root {
+    /* Cube colors - classic Rubik's cube */
+    --cube-line-color: black;
+    --cube-line-selected: pink;
+    --cube-face-red: red;
+    --cube-face-yellow: yellow;
+    --cube-face-blue: blue;
+    --cube-face-white: white;
+    --cube-face-green: green;
+    --cube-face-orange: orange;
+}
+
 body {
     background-color: #ffffff;
     color: #000000;

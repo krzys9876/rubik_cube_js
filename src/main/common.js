@@ -25,6 +25,30 @@ export const whiteStyle = new Style('black', 'black', 'pink', 'white', 'WHITE', 
 export const greenStyle = new Style('black', 'black', 'pink', 'green', 'GREEN', 'G');
 export const orangeStyle = new Style('black', 'black', 'pink', 'orange', 'ORANGE', 'O');
 
+// Updates all style objects from CSS custom properties (for theme switching)
+export function updateStylesFromCSS() {
+    const styles = getComputedStyle(document.documentElement);
+    const getCSSVar = (name) => styles.getPropertyValue(name).trim();
+
+    const lineColor = getCSSVar('--cube-line-color') || 'black';
+    const lineSelected = getCSSVar('--cube-line-selected') || 'pink';
+
+    // Update line colors for all styles
+    const allStyles = [globalStyle, redStyle, yellowStyle, blueStyle, whiteStyle, greenStyle, orangeStyle];
+    allStyles.forEach(style => {
+        style.lineStyle = lineColor;
+        style.lineStyleSelected = lineSelected;
+    });
+
+    // Update face colors
+    redStyle.fillStyle = getCSSVar('--cube-face-red') || 'red';
+    yellowStyle.fillStyle = getCSSVar('--cube-face-yellow') || 'yellow';
+    blueStyle.fillStyle = getCSSVar('--cube-face-blue') || 'blue';
+    whiteStyle.fillStyle = getCSSVar('--cube-face-white') || 'white';
+    greenStyle.fillStyle = getCSSVar('--cube-face-green') || 'green';
+    orangeStyle.fillStyle = getCSSVar('--cube-face-orange') || 'orange';
+}
+
 export const SideType = {
     UP: "U", DOWN: "D", FRONT: "F", BACK: "B", LEFT: "L", RIGHT: "R"
 };

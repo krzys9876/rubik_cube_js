@@ -29,6 +29,16 @@
     --gold-gradient: linear-gradient(135deg, #d4af37 0%, #f4d160 50%, #d4af37 100%);
     --rose-gradient: linear-gradient(135deg, #b76e79 0%, #e8b4bc 50%, #b76e79 100%);
     --shimmer: linear-gradient(90deg, transparent 0%, rgba(255, 248, 220, 0.3) 50%, transparent 100%);
+
+    /* Cube colors - luxurious jewel tones */
+    --cube-line-color: #d4af37;
+    --cube-line-selected: #e8b4bc;
+    --cube-face-red: #9b2335;
+    --cube-face-yellow: #d4af37;
+    --cube-face-blue: #1e3a5f;
+    --cube-face-white: #f5f0eb;
+    --cube-face-green: #2d5a4a;
+    --cube-face-orange: #c65d3b;
 }
 
 /* Elegant background with animated gradient */

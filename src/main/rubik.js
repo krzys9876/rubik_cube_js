@@ -1,4 +1,4 @@
-import {MoveDirection, SideType, Axis} from './common.js';
+import {MoveDirection, SideType, Axis, updateStylesFromCSS} from './common.js';
 import { canvas, ctx } from './common-dom.js';
 import {Point3D, Vector3D} from './geometry.js';
 import {Movement, Rotation, RubikCube, SideAnimation} from './cube.js';
@@ -466,8 +466,15 @@ if(params.has("speed") && params.get("speed") >= "1" && params.get("speed") <= "
 
 // Theme switching
 function setTheme(themeName) {
-    document.getElementById('theme-css').href = `themes/theme-${themeName}.css`;
+    const themeLink = document.getElementById('theme-css');
+    themeLink.href = `themes/theme-${themeName}.css`;
     localStorage.setItem('rubik-theme', themeName);
+
+    // Update cube colors after CSS loads
+    themeLink.onload = () => {
+        updateStylesFromCSS();
+        forceRefresh = true;
+    };
 }
 
 document.getElementById('themeSelector').addEventListener('change', (event) => {
@@ -480,6 +487,9 @@ if (savedTheme) {
     setTheme(savedTheme);
     document.getElementById('themeSelector').value = savedTheme;
 }
+
+// Initialize cube colors from CSS (for initial theme)
+updateStylesFromCSS();
 
 console.log("END (init)");
 
