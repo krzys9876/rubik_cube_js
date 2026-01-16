@@ -20,12 +20,24 @@ to it that makes me smile.
 
 ---
 
+<img src="images/solving02.gif" alt="" width="300"/>
 
-<img src="rubik01.png" alt="" width="300"/>
+---
+## Styling
+
+I am not good in visual design, I don't like CSS styling and anything related to setting colors and layout.
+I created a very 90's style page, but I also wanted to know, how quickly can I tweak the page look using 
+AI assistant. Leaving personal taste aside, the fact that I can generate new set of styles in a matter of minutes
+is a great relief for me as I may never again be forced to dig into CSS maze.
 
 ---
 
-<img src="solving02.gif" alt="" width="300"/>
+<img src="images/rubik_classic.png" alt="" width="200"/>
+<img src="images/rubik_dark.png" alt="" width="250"/>
+<img src="images/rubik_fancy.png" alt="" width="250"/>
+
+---
+
 
 ---
 ## Why vanilla JS?
@@ -40,8 +52,8 @@ I had to do all visuals by myself. This was actually much easier than I initiall
 trogonomethic functions, some matrices, generally primary school math. It would be almost improper to use
 somebody else's code ;)
 
-For the same reason I did not want to generate any of the code. Of course, I use LLM assisted coding
-but this time it was only for educational purposes. 
+For the same reason I did not want to generate any of the essential code (CSS excluded!). Of course, I use LLM assisted coding
+but this time it was only for educational purposes.
 
 ---
 
@@ -54,4 +66,4 @@ I can ask to generate a scramble sequence, set animation speed and optionally st
 I tested it with Claude Code and it works great. Not that this is the most useful thing when you think of 
 a Rubik's Cube...
 
-<img src="mcp_02.png" alt="" width="600"/>
+<img src="images/mcp_02.png" alt="" width="600"/>
