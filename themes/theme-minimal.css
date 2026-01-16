@@ -1,0 +1,435 @@
+/* Minimal Theme - Clean Banking Elegance */
+
+/* Import refined modern fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+/* CSS Custom Properties for refined theming */
+:root {
+    --minimal-bg-primary: #fafbfc;
+    --minimal-bg-secondary: #f4f5f7;
+    --minimal-bg-tertiary: #ebedf0;
+    --minimal-surface: #ffffff;
+    --minimal-surface-elevated: #ffffff;
+
+    --minimal-border: #e1e4e8;
+    --minimal-border-light: #eaecef;
+    --minimal-border-focus: #a0aec0;
+
+    --accent-primary: #4a5568;
+    --accent-secondary: #718096;
+    --accent-subtle: #a0aec0;
+    --accent-highlight: #2d3748;
+
+    --text-primary: #1a202c;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+    --text-light: #a0aec0;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.03);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.04), 0 4px 6px rgba(0, 0, 0, 0.02);
+    --shadow-focus: 0 0 0 3px rgba(74, 85, 104, 0.12);
+
+    /* Cube colors - refined, muted tones */
+    --cube-line-color: #2d3748;
+    --cube-line-selected: #4a5568;
+    --cube-face-red: #c53030;
+    --cube-face-yellow: #d69e2e;
+    --cube-face-blue: #2b6cb0;
+    --cube-face-white: #f7fafc;
+    --cube-face-green: #276749;
+    --cube-face-orange: #c05621;
+}
+
+/* Clean background */
+body {
+    background-color: var(--minimal-bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Theme bar - subtle and clean */
+#theme-bar {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: -0.01em;
+}
+
+#theme-bar label {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+/* Theme selector - refined dropdown */
+#themeSelector {
+    background-color: var(--minimal-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--minimal-border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+#themeSelector:hover {
+    border-color: var(--minimal-border-focus);
+}
+
+#themeSelector:focus {
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-focus);
+}
+
+#themeSelector option {
+    background: var(--minimal-surface);
+    color: var(--text-primary);
+    padding: 8px;
+}
+
+/* Controls panel - elevated card */
+#controls {
+    background: var(--minimal-surface-elevated);
+    border: 1px solid var(--minimal-border-light);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 16px;
+    box-shadow: var(--shadow-md);
+}
+
+/* Labels - clean and readable */
+#controls label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-right: 12px;
+}
+
+/* Input boxes - refined and minimal */
+.input-box {
+    background-color: var(--minimal-bg-secondary);
+    border: 1px solid var(--minimal-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    padding: 10px 14px;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.input-box:hover {
+    border-color: var(--minimal-border-focus);
+}
+
+.input-box:focus {
+    background-color: var(--minimal-surface);
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-focus);
+}
+
+.input-box::placeholder {
+    color: var(--text-light);
+}
+
+#shuffleNumber {
+    text-align: center;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Action buttons - clean and professional */
+.action-button {
+    background-color: var(--accent-highlight);
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.action-button:hover {
+    background-color: var(--text-primary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.action-button:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Solving state - subtle indication */
+.action-button.solving {
+    background-color: var(--accent-secondary);
+    animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+@keyframes subtle-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.85;
+    }
+}
+
+/* Side movement buttons - secondary style */
+.side-movement-button {
+    background-color: var(--minimal-bg-secondary);
+    border: 1px solid var(--minimal-border);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.side-movement-button:hover {
+    background-color: var(--minimal-bg-tertiary);
+    border-color: var(--minimal-border-focus);
+    color: var(--text-primary);
+}
+
+.side-movement-button:active {
+    background-color: var(--minimal-border);
+}
+
+/* Speed slider - refined track */
+#speedSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--minimal-border);
+    border-radius: 2px;
+    outline: none;
+    transition: background 0.2s ease;
+}
+
+#speedSlider:hover {
+    background: var(--accent-subtle);
+}
+
+#speedSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--minimal-surface);
+    border: 2px solid var(--accent-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+#speedSlider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-md);
+}
+
+#speedSlider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--minimal-surface);
+    border: 2px solid var(--accent-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+}
+
+#speedValue {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-left: 12px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Checkbox - minimal and clean */
+#stepByStepCheckbox {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--minimal-bg-secondary);
+    border: 1px solid var(--minimal-border);
+    border-radius: 4px;
+    cursor: pointer;
+    vertical-align: middle;
+    margin-left: 16px;
+    margin-right: 6px;
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+#stepByStepCheckbox:checked {
+    background: var(--accent-highlight);
+    border-color: var(--accent-highlight);
+}
+
+#stepByStepCheckbox:checked::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 6px;
+    width: 4px;
+    height: 8px;
+    border: solid #ffffff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+#stepByStepCheckbox:hover {
+    border-color: var(--accent-primary);
+}
+
+#stepByStepCheckbox:focus {
+    box-shadow: var(--shadow-focus);
+}
+
+/* X/Y/Z rotation sliders */
+#ySlider, #xSlider, #zSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 3px;
+    background: var(--minimal-border);
+    border-radius: 2px;
+    margin: 10px 15px;
+}
+
+#ySlider::-webkit-slider-thumb,
+#xSlider::-webkit-slider-thumb,
+#zSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--minimal-surface);
+    border: 2px solid var(--accent-secondary);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Canvas container */
+#canvas-container {
+    margin: 20px;
+}
+
+/* Canvas - subtle framing */
+#drawing {
+    background-color: var(--minimal-bg-secondary);
+    border: 1px solid var(--minimal-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+}
+
+/* Move log list - clean terminal style */
+#moveLogList {
+    background-color: var(--minimal-bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--minimal-border);
+    border-radius: 8px;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    font-size: 12px;
+    padding: 12px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+    scrollbar-width: thin;
+    scrollbar-color: var(--minimal-border-focus) var(--minimal-bg-secondary);
+}
+
+#moveLogList::-webkit-scrollbar {
+    width: 6px;
+}
+
+#moveLogList::-webkit-scrollbar-track {
+    background: var(--minimal-bg-secondary);
+    border-radius: 3px;
+}
+
+#moveLogList::-webkit-scrollbar-thumb {
+    background: var(--minimal-border-focus);
+    border-radius: 3px;
+}
+
+#moveLogList::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-secondary);
+}
+
+#moveLogList option {
+    padding: 3px 6px;
+    border-radius: 3px;
+}
+
+#moveLogList option:hover {
+    background: var(--minimal-border-light);
+}
+
+/* Rotation labels */
+body > div:last-of-type label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-left: 20px;
+}
+
+/* No decorative effects */
+body::before,
+body::after {
+    display: none;
+}
+
+/* Clean selection */
+::selection {
+    background: var(--accent-primary);
+    color: #ffffff;
+}
+
+/* Focus outline - subtle ring */
+*:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+}
+
+/* Smooth transitions globally */
+*, *::before, *::after {
+    transition-property: background-color, border-color, color, box-shadow, transform;
+    transition-duration: 0.15s;
+    transition-timing-function: ease;
+}
+
+/* Exception for animations */
+.action-button.solving,
+#speedSlider::-webkit-slider-thumb,
+#speedSlider::-moz-range-thumb {
+    transition-property: background-color, border-color, color, box-shadow;
+}

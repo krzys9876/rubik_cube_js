@@ -27,12 +27,12 @@ to it that makes me smile.
 
 I am not good in visual design, I don't like CSS styling and anything related to setting colors and layout.
 I created a very 90's style page, but I also wanted to know, how quickly can I tweak the page look using 
-AI assistant. Leaving personal taste aside, the fact that I can generate new set of styles in a matter of minutes
-is a great relief for me as I may never again be forced to dig into CSS maze.
+AI assistant. Leaving personal taste aside (check out the fancy theme...), the fact that I can generate 
+new set of styles in a matter of minutes is a great relief for me as I might never again be lost in CSS maze.
 
 ---
 
-<img src="images/rubik_classic.png" alt="" width="200"/><img src="images/rubik_dark.png" alt="" width="250"/><img src="images/rubik_fancy.png" alt="" width="250"/>
+<img src="images/rubik_minimal.png" alt="" width="250"/><img src="images/rubik_classic.png" alt="" width="250"/><img src="images/rubik_dark.png" alt="" width="250"/><img src="images/rubik_fancy.png" alt="" width="250"/>
 
 ---
 ## Why vanilla JS?
