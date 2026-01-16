@@ -469,6 +469,23 @@ if(params.has("speed") && params.get("speed") >= "1" && params.get("speed") <= "
     SideAnimation.setSpeed(parseInt(slider.value));
 }
 
+// Theme switching
+function setTheme(themeName) {
+    document.getElementById('theme-css').href = `themes/theme-${themeName}.css`;
+    localStorage.setItem('rubik-theme', themeName);
+}
+
+document.getElementById('themeSelector').addEventListener('change', (event) => {
+    setTheme(event.target.value);
+});
+
+// Load saved theme on startup
+const savedTheme = localStorage.getItem('rubik-theme');
+if (savedTheme) {
+    setTheme(savedTheme);
+    document.getElementById('themeSelector').value = savedTheme;
+}
+
 console.log("END (init)");
 
 drawLoop();

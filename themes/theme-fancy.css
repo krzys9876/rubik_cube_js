@@ -1,0 +1,23 @@
+/* Fancy Theme - Gradient background */
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+}
+
+#controls {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+#moveLogList {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    border-color: #ffd700;
+    border-width: 2px;
+}
+
+#drawing {
+    border-color: #ffd700;
+    border-width: 2px;
+}

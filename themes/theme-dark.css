@@ -1,0 +1,19 @@
+/* Dark Theme - Dark background */
+body {
+    background-color: #1a1a2e;
+    color: #eaeaea;
+}
+
+#controls {
+    background-color: #16213e;
+}
+
+#moveLogList {
+    background-color: #0f3460;
+    color: #eaeaea;
+    border-color: #e94560;
+}
+
+#drawing {
+    border-color: #e94560;
+}

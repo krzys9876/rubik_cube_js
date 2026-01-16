@@ -4,9 +4,18 @@
     <meta charset="UTF-8">
     <title>Rubik's Cube</title>
     <link rel="stylesheet" href="rubik.css">
+    <link rel="stylesheet" href="themes/theme-classic.css" id="theme-css">
     <link rel="icon" type="image/png" href="favicon.png">
 </head>
 <body>
+    <div id="theme-bar">
+        <label for="themeSelector">Theme:</label>
+        <select id="themeSelector">
+            <option value="classic">Classic</option>
+            <option value="dark">Dark</option>
+            <option value="fancy">Fancy</option>
+        </select>
+    </div>
     <div id="controls">
         <div>
             <label for="textMovements">Movements:</label>
