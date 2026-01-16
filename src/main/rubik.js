@@ -166,11 +166,9 @@ function drawLoop() {
 }
 
 document.addEventListener('keydown', (event) => {
-    if (document.activeElement.id === 'textMovements' ||
-        document.activeElement.id === 'speedSlider' ||
-        document.activeElement.id === 'ySlider' ||
-        document.activeElement.id === 'xSlider' ||
-        document.activeElement.id === 'zSlider') return;
+    // Keys should work only when canvas is selected so we should skip if any form control is focused
+    const activeEl = document.activeElement;
+    if (activeEl && activeEl.matches('input, button, select, textarea, [contenteditable]')) return;
 
     if (event.key === 'ArrowLeft') addRotation(Axis.Y, -1);
     if (event.key === 'ArrowRight') addRotation(Axis.Y, 1);
