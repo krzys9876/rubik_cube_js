@@ -1,0 +1,480 @@
+/* Play Theme - Inspired by play.pl telecom design */
+
+/* Import clean modern font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* CSS Custom Properties */
+:root {
+    --play-white: #ffffff;
+    --play-bg-light: #f5f5f7;
+    --play-bg-section: #f9f9fb;
+    --play-border: #e8e8ed;
+    --play-border-light: #f0f0f5;
+
+    --play-primary: #5a1a9e;
+    --play-primary-dark: #2D0066;
+    --play-primary-light: #7b3db8;
+    --play-primary-bg: rgba(90, 26, 158, 0.08);
+    --play-primary-bg-hover: rgba(90, 26, 158, 0.12);
+
+    --play-purple: #2D0066;
+    --play-purple-light: #5a1a9e;
+    --play-gradient: linear-gradient(135deg, #5a1a9e 0%, #2D0066 100%);
+    --play-gradient-light: linear-gradient(135deg, rgba(90, 26, 158, 0.1) 0%, rgba(45, 0, 102, 0.1) 100%);
+
+    --text-dark: #1a1a1a;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --text-muted: #999999;
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+
+    /* Cube colors - vibrant but balanced */
+    --cube-line-color: #1a1a1a;
+    --cube-line-selected: #5a1a9e;
+    --cube-face-red: #e53935;
+    --cube-face-yellow: #fdd835;
+    --cube-face-blue: #1e88e5;
+    --cube-face-white: #fafafa;
+    --cube-face-green: #43a047;
+    --cube-face-orange: #fb8c00;
+}
+
+/* Clean white background */
+body {
+    background-color: var(--play-bg-light);
+    color: var(--text-primary);
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Theme bar - clean with magenta accent */
+#theme-bar {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    padding: 12px 16px;
+    background: var(--play-white);
+    border-bottom: 1px solid var(--play-border);
+}
+
+#theme-bar label {
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+/* Theme selector dropdown */
+#themeSelector {
+    background-color: var(--play-white);
+    color: var(--text-primary);
+    border: 1px solid var(--play-border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+#themeSelector:hover {
+    border-color: var(--play-primary);
+}
+
+#themeSelector:focus {
+    border-color: var(--play-primary);
+    box-shadow: 0 0 0 3px var(--play-primary-bg);
+}
+
+#themeSelector option {
+    background: var(--play-white);
+    color: var(--text-primary);
+    padding: 8px;
+}
+
+/* Controls panel - white card style */
+#controls {
+    background: var(--play-white);
+    border: 1px solid var(--play-border-light);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin: 16px;
+    box-shadow: var(--shadow-card);
+}
+
+/* Labels */
+#controls label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-right: 12px;
+}
+
+/* Input boxes */
+.input-box {
+    background-color: var(--play-bg-section);
+    border: 1px solid var(--play-border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    padding: 12px 16px;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.input-box:hover {
+    border-color: var(--play-primary);
+    background-color: var(--play-white);
+}
+
+.input-box:focus {
+    background-color: var(--play-white);
+    border-color: var(--play-primary);
+    box-shadow: 0 0 0 3px var(--play-primary-bg);
+}
+
+.input-box::placeholder {
+    color: var(--text-muted);
+}
+
+#shuffleNumber {
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Action buttons - white with black text and purple icons */
+.action-button {
+    background: var(--play-white);
+    border: 1px solid #666666;
+    border-radius: 10px;
+    color: var(--text-dark);
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.action-button::before {
+    color: var(--play-primary);
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.action-button:hover {
+    background: var(--play-bg-section);
+    border-color: var(--play-primary);
+    box-shadow: var(--shadow-md);
+}
+
+.action-button:active {
+    background: var(--play-bg-light);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Button icons */
+#processButton::before {
+    content: "▶";
+}
+
+#shuffleButton::before {
+    content: "⟳";
+}
+
+#solveButton::before {
+    content: "✓";
+}
+
+#revertButton::before {
+    content: "↩";
+}
+
+#resetButton::before {
+    content: "↺";
+}
+
+/* Solving state */
+.action-button.solving {
+    background: var(--play-primary-bg);
+    border-color: var(--play-primary);
+    animation: play-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes play-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(90, 26, 158, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(90, 26, 158, 0);
+    }
+}
+
+/* Side movement buttons - outlined style */
+.side-movement-button {
+    background-color: var(--play-white);
+    border: 1px solid #666666;
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.side-movement-button:hover {
+    border-color: var(--play-primary);
+    color: var(--play-primary);
+    background-color: var(--play-primary-bg);
+}
+
+.side-movement-button:active {
+    background-color: var(--play-primary-bg-hover);
+}
+
+/* Speed slider - magenta track */
+#speedSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: var(--play-border);
+    border-radius: 3px;
+    outline: none;
+    transition: background 0.2s ease;
+}
+
+#speedSlider::-webkit-slider-runnable-track {
+    height: 6px;
+    background: linear-gradient(to right, var(--play-primary) 0%, var(--play-primary) var(--value, 50%), var(--play-border) var(--value, 50%), var(--play-border) 100%);
+    border-radius: 3px;
+}
+
+#speedSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--play-white);
+    border: 3px solid var(--play-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+    margin-top: -7px;
+}
+
+#speedSlider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-md);
+}
+
+#speedSlider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--play-white);
+    border: 3px solid var(--play-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+}
+
+#speedSlider::-moz-range-track {
+    height: 6px;
+    background: var(--play-border);
+    border-radius: 3px;
+}
+
+#speedValue {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--play-primary);
+    margin-left: 12px;
+}
+
+/* Checkbox - magenta style */
+#stepByStepCheckbox {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--play-white);
+    border: 2px solid var(--play-border);
+    border-radius: 6px;
+    cursor: pointer;
+    vertical-align: middle;
+    margin-left: 16px;
+    margin-right: 6px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+#stepByStepCheckbox:checked {
+    background: var(--play-primary);
+    border-color: var(--play-primary);
+}
+
+#stepByStepCheckbox:checked::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 6px;
+    width: 5px;
+    height: 9px;
+    border: solid #ffffff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+#stepByStepCheckbox:hover {
+    border-color: var(--play-primary);
+}
+
+#stepByStepCheckbox:focus {
+    box-shadow: 0 0 0 3px var(--play-primary-bg);
+}
+
+/* X/Y/Z rotation sliders */
+#ySlider, #xSlider, #zSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--play-border);
+    border-radius: 2px;
+    margin: 10px 15px;
+}
+
+#ySlider::-webkit-slider-thumb,
+#xSlider::-webkit-slider-thumb,
+#zSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--play-white);
+    border: 2px solid var(--play-purple);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+}
+
+#ySlider::-moz-range-thumb,
+#xSlider::-moz-range-thumb,
+#zSlider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--play-white);
+    border: 2px solid var(--play-purple);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* Canvas container */
+#canvas-container {
+    margin: 20px;
+}
+
+/* Canvas - clean white card */
+#drawing {
+    background-color: var(--play-white);
+    border: 1px solid var(--play-border-light);
+    border-radius: 16px;
+    box-shadow: var(--shadow-card);
+}
+
+/* Move log list */
+#moveLogList {
+    background-color: var(--play-bg-section);
+    color: var(--text-primary);
+    border: 1px solid var(--play-border);
+    border-radius: 10px;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+    font-size: 12px;
+    padding: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--play-primary) var(--play-bg-section);
+}
+
+#moveLogList::-webkit-scrollbar {
+    width: 6px;
+}
+
+#moveLogList::-webkit-scrollbar-track {
+    background: var(--play-bg-section);
+    border-radius: 3px;
+}
+
+#moveLogList::-webkit-scrollbar-thumb {
+    background: var(--play-primary);
+    border-radius: 3px;
+}
+
+#moveLogList::-webkit-scrollbar-thumb:hover {
+    background: var(--play-primary-dark);
+}
+
+#moveLogList option {
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+#moveLogList option:hover {
+    background: var(--play-primary-bg);
+}
+
+/* Rotation labels */
+body > div:last-of-type label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-left: 20px;
+}
+
+/* No decorative overlays */
+body::before,
+body::after {
+    display: none;
+}
+
+/* Selection - magenta */
+::selection {
+    background: var(--play-primary);
+    color: #ffffff;
+}
+
+/* Focus outline */
+*:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--play-primary-bg);
+}
+
+/* Smooth global transitions */
+*, *::before, *::after {
+    transition-property: background-color, border-color, color, box-shadow, transform;
+    transition-duration: 0.2s;
+    transition-timing-function: ease;
+}
+
+/* Exception for specific animations */
+.action-button.solving {
+    transition-property: background-color, border-color, color;
+}
