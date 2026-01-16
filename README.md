@@ -35,9 +35,6 @@ is a great relief for me as I may never again be forced to dig into CSS maze.
 <img src="images/rubik_classic.png" alt="" width="200"/><img src="images/rubik_dark.png" alt="" width="250"/><img src="images/rubik_fancy.png" alt="" width="250"/>
 
 ---
-
-
----
 ## Why vanilla JS?
 
 Well, I could choose any known language (mostly Scala, Java, Python) but I had little experience with JavaScript.
