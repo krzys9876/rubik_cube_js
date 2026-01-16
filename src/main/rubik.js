@@ -211,7 +211,9 @@ function shuffleNumber() {
 }
 
 document.getElementById('solveButton').addEventListener('click', () => {
-    if(isSolved()) tasks.push(new Task(startSolving, () => false, isSolved))
+    if(isSolved())
+        tasks.push(new Task(startSolving, () => false, isSolved));
+    else if(stepByStep) startSolving();
 });
 
 document.getElementById('revertButton').addEventListener('click', () => {
@@ -441,7 +443,7 @@ function resizeCanvas() {
 
     // Minimum size: 100, rectangular
     const availableWidth = Math.max(window.innerWidth * 0.8, 100);
-    const availableHeight = Math.max(window.innerHeight * 0.6, 100);
+    const availableHeight = Math.max(window.innerHeight * 0.55, 100);
     const size = Math.min(availableWidth, availableHeight)
     canvas.width = size;
     canvas.height = size;
