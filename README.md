@@ -32,8 +32,8 @@ new set of styles in a matter of minutes is a great relief for me as I might nev
 
 ---
 
-<img src="images/rubik_classic.png" alt="" width="300"/><img src="images/rubik_minimal.png" alt="" width="300"/>
-<img src="images/rubik_dark.png" alt="" width="300"/><img src="images/rubik_fancy.png" alt="" width="300"/>
+<img src="images/rubik_classic.png" alt="" width="300"/><img src="images/rubik_play.png" alt="" width="300"/>
+<img src="images/rubik_minimal.png" alt="" width="300"/><img src="images/rubik_dark.png" alt="" width="300"/>
 
 ---
 ## Why vanilla JS?
