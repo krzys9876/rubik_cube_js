@@ -31,7 +31,7 @@
     --shimmer: linear-gradient(90deg, transparent 0%, rgba(255, 248, 220, 0.3) 50%, transparent 100%);
 
     /* Cube colors - luxurious jewel tones */
-    --cube-line-color: #d4af37;
+    --cube-line-color: #f4d160;
     --cube-line-selected: #e8b4bc;
     --cube-face-red: #9b2335;
     --cube-face-yellow: #d4af37;
