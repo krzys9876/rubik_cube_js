@@ -4,7 +4,7 @@ import {Point3D, Vector3D} from './geometry.js';
 import {Movement, Rotation, RubikCube, SideAnimation} from './cube.js';
 import { scene } from './scene.js';
 import {RubikSolver} from "./solver.js";
-import {FlagController, Task} from "./task";
+import {FlagController, Task} from "./task.js";
 
 console.log("START");
 
