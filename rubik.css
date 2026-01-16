@@ -38,10 +38,6 @@ body {
     font-size: 14px;
     cursor: pointer;
 }
-.action-button.solving {
-    background-color: blue;
-    color: white;
-}
 .side-movement-button {
     margin-top: 10px;
     padding: 1px 1px;
@@ -65,15 +61,11 @@ body {
     margin-left: 10px;
 }
 #drawing {
-    border: 1px solid black;
 }
 #moveLogList {
     width: 75px;
     margin-left: 10px;
     font-size: 10px;
-    font-family: monospace;
     padding: 5px;
     resize: none;
-    background-color: lightgray;
-    border: 1px solid black;
 }
