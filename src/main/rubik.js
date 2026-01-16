@@ -443,8 +443,8 @@ function resizeCanvas() {
     const canvas = document.getElementById('drawing');
 
     // Minimum size: 100, rectangular
-    const availableWidth = Math.max(window.innerWidth * 0.9, 100);
-    const availableHeight = Math.max(window.innerHeight * 0.7, 100);
+    const availableWidth = Math.max(window.innerWidth * 0.8, 100);
+    const availableHeight = Math.max(window.innerHeight * 0.6, 100);
     const size = Math.min(availableWidth, availableHeight)
     canvas.width = size;
     canvas.height = size;
