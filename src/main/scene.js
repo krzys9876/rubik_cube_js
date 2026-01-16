@@ -79,5 +79,3 @@ export class Scene {
         return { x, y, z };
     }
 }
-
-export const scene = new Scene();

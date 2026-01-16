@@ -10,7 +10,7 @@ import {
     sideStyles,
     SideType, MoveType, nextStyle, Axis
 } from "./common.js";
-import {scene, Scene} from "./scene.js";
+import {Scene} from "./scene.js";
 
 // Using Coords3D may be an overkill (floating point operations for simple 1/-1 coords) but performance-wise it is irrelevant.
 // All we need are roundings
@@ -543,7 +543,7 @@ export class RubikCube {
         });
     }
 
-    draw(canvas, ctx, observer, rotationCenter) {
+    draw(canvas, ctx, scene, observer, rotationCenter) {
         this.animate();
 
         this.rotate(scene.rotationMatrix, rotationCenter, false);

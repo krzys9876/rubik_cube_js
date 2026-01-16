@@ -1,74 +1,40 @@
 import {MoveDirection, SideType, Axis, updateStylesFromCSS} from './common.js';
 import { canvas, ctx } from './common-dom.js';
-import {Point3D, Vector3D} from './geometry.js';
-import {Movement, Rotation, RubikCube, SideAnimation} from './cube.js';
-import { scene } from './scene.js';
+import {Movement, SideAnimation} from './cube.js';
+import {Scene} from './scene.js';
 import {RubikSolver} from "./solver.js";
 import {FlagController, Task} from "./task.js";
+import {createState} from "./state.js";
 
 console.log("START");
 
 const params = new URLSearchParams(window.location.search);
 for(let p of params.entries()) console.log(p);
 
+// Create state
+const scene = new Scene();
+const state = createState();
 
-const rotationCenter = new Point3D(0,0,3);
-const observer = new Point3D(0,0,-Point3D.focalLength);
-const cubeCenter = rotationCenter.clone().moveBy(new Vector3D(0, 0, 0));
-
-const cube = new RubikCube(cubeCenter, 1.6);
-
-let counter = 0;
-
-const shuffle = new FlagController();
-const solve = new FlagController();
-
-const rotate = new Rotation(9);
-
-function clearRotation() {
-    setRotation(Axis.Y, 0);
-    setRotation(Axis.X, 0);
-    setRotation(Axis.Z, 0);
-}
-
-function setRotation(axis, value) {
-    rotate.set(axis, value);
-    setSliderValue(axis, value);
-}
-
-function setSliderValue(axis, value) { getSlider(axis).value = value; }
-
-let stepByStep;
+// initialize controls
 setStepByStep(false);
-let runNextStep = false;
-let revertLast = false;
-let doubleClicked = {x: -1, y: -1};
-let singleClicked = {x: -1, y: -1};
-let dragStart = {x: -1, y: -1}
-let mouseDragging = false;
-let forceRefresh = false;
-
-const tasks = [];
-
-let currentMoveNo = 1;
 // Set initial point of view
 scene.rotate(-15,30,-5);
 
 function drawLoop() {
     // Let's not redraw the screen if nothing changed
-    let isAutoMoving = cube.hasPlannedMoves() || cube.animation.ongoing;
-    let clickEvent = doubleClicked.x > -1 || singleClicked.x > -1;
-    let shouldRefresh = forceRefresh || counter === 0 || rotate.isActive() || isAutoMoving || clickEvent || tasks.length > 0;
+    let isAutoMoving = state.cube.hasPlannedMoves() || state.cube.animation.ongoing;
+    let clickEvent = state.doubleClicked.x > -1 || state.singleClicked.x > -1;
+    let shouldRefresh = state.forceRefresh || state.counter === 0 || state.rotate.isActive() || isAutoMoving || clickEvent || state.tasks.length > 0;
 
-    if(tasks.length > 0 && !tasks[0].running) tasks[0].start();
+    if(state.tasks.length > 0 && !state.tasks[0].running) state.tasks[0].start();
 
-    if(solve.active && !isAutoMoving) {
+    if(state.solve.active && !isAutoMoving) {
         // Let's protect fron infinite solving loop (e.g. when colors are not properly set)
-        if(currentMoveNo > 500) {
+        if(state.currentMoveNo > 500) {
             console.log("Something went wrong, too many moves!");
             updateSolve(false);
         } else {
-            const solver = new RubikSolver(cube, true);
+            const solver = new RubikSolver(state.cube, true);
             const solvingMoves = solver.solveLBL();
             planMoves(solvingMoves);
             //cube.planMoves(solvingMoves);
@@ -77,56 +43,67 @@ function drawLoop() {
         }
     }
 
-    if(shuffle.active && !cube.animation.ongoing) {
-        cube.shuffle(shuffleNumber());
+    if(state.shuffle.active && !state.cube.animation.ongoing) {
+        state.cube.shuffle(shuffleNumber());
         shouldRefresh = true;
     }
 
-    if(revertLast) {
-        cube.revertOneMove();
-        revertLast = false;
+    if(state.revertLast) {
+        state.cube.revertOneMove();
+        state.revertLast = false;
         shouldRefresh = true;
-        if(stepByStep) runNextStep = true;
+        if(state.stepByStep) state.runNextStep = true;
     }
 
     if(shouldRefresh) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        scene.rotate(rotate.get(Axis.X), rotate.get(Axis.Y), rotate.get(Axis.Z));
+        scene.rotate(state.rotate.get(Axis.X), state.rotate.get(Axis.Y), state.rotate.get(Axis.Z));
 
-        cube.draw(canvas, ctx, observer, rotationCenter);
+        state.cube.draw(canvas, ctx, scene, state.observer, state.rotationCenter);
         if(clickEvent) {
             // Redraw full cube if selection or color changed (this happens only once, we can't redraw only selection)
-            if (cube.analyzeSelection(doubleClicked, singleClicked)) cube.draw(canvas, ctx, observer, rotationCenter);
-            doubleClicked.x = -1;
-            doubleClicked.y = -1;
-            singleClicked.x = -1;
-            singleClicked.y = -1;
+            if (state.cube.analyzeSelection(state.doubleClicked, state.singleClicked)) state.cube.draw(canvas, ctx, state.observer, state.rotationCenter);
+            state.doubleClicked = {x: -1, y: -1};
+            state.singleClicked = {x: -1, y: -1};
         }
 
-        if(cube.hasPlannedMoves() && !cube.animation.ongoing &&
-            (!solve || !stepByStep || runNextStep)) {
-            cube.startMoveSide();
-            const code = cube.getCurrentMove().toCode();
+        if(state.cube.hasPlannedMoves() && !state.cube.animation.ongoing &&
+            (!state.solve || !state.stepByStep || state.runNextStep)) {
+            state.cube.startMoveSide();
+            const code = state.cube.getCurrentMove().toCode();
             console.log("Current move: "+code);
-            logMove(`${currentMoveNo} ${code}`);
-            currentMoveNo+=1;
-            runNextStep = false;
+            logMove(`${state.currentMoveNo} ${code}`);
+            state.currentMoveNo+=1;
+            state.runNextStep = false;
         }
 
-        forceRefresh = false;
+        state.forceRefresh = false;
     }
 
-    if(tasks.length > 0) {
-        tasks[0].stop();
-        tasks[0].tryEnd();
-        if(!tasks[0].running) tasks.splice(0, 1);
+    if(state.tasks.length > 0) {
+        state.tasks[0].stop();
+        state.tasks[0].tryEnd();
+        if(!state.tasks[0].running) state.tasks.splice(0, 1);
     }
 
-    counter ++;
-    if(counter < 10000000000000) setTimeout(drawLoop, 1000 / 60);
+    state.counter ++;
+    if(state.counter < 10000000000000) setTimeout(drawLoop, 1000 / 60);
     else console.log("END (drawLoop)");
 }
+
+function clearRotation() {
+    setRotation(Axis.Y, 0);
+    setRotation(Axis.X, 0);
+    setRotation(Axis.Z, 0);
+}
+
+function setRotation(axis, value) {
+    state.rotate.set(axis, value);
+    setSliderValue(axis, value);
+}
+
+function setSliderValue(axis, value) { getSlider(axis).value = value; }
 
 document.addEventListener('keydown', (event) => {
     // Keys should work only when canvas is selected so we should skip if any form control is focused
@@ -152,9 +129,9 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'g') planMoveTask(new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE));
     if (event.key === 'y') planMoveTask(new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE));
     if (event.key === 'h') planMoveTask(new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE));
-    if (event.key === 'z') tasks.push(FlagController.createTask(shuffle));
-    if (event.key === 'x') if(isSolved()) tasks.push(new Task(startSolving, () => false, isSolved))
-    if (event.key === 'c') revertLast = true;
+    if (event.key === 'z') state.tasks.push(FlagController.createTask(state.shuffle));
+    if (event.key === 'x') if(isSolved()) state.tasks.push(new Task(startSolving, () => false, isSolved))
+    if (event.key === 'c') state.revertLast = true;
 });
 
 document.getElementById('processButton').addEventListener('click', () => {
@@ -169,7 +146,7 @@ document.getElementById('processButton').addEventListener('click', () => {
 });
 
 document.getElementById('shuffleButton').addEventListener('click', () => {
-    tasks.push(FlagController.createTask(shuffle));
+    state.tasks.push(FlagController.createTask(state.shuffle));
 });
 
 function shuffleNumber() {
@@ -177,18 +154,17 @@ function shuffleNumber() {
 }
 
 document.getElementById('solveButton').addEventListener('click', () => {
-    if(isSolved())
-        tasks.push(new Task(startSolving, () => false, isSolved));
-    else if(stepByStep) startSolving();
+    if(isSolved()) state.tasks.push(new Task(startSolving, () => false, isSolved));
+    else if(state.stepByStep) startSolving();
 });
 
 document.getElementById('revertButton').addEventListener('click', () => {
-    revertLast = true;
+    state.revertLast = true;
 });
 
 document.getElementById('resetButton').addEventListener('click', () => {
-    cube.reset();
-    forceRefresh = true;
+    state.cube.reset();
+    state.forceRefresh = true;
 });
 
 document.getElementById('fButton').addEventListener('click', () => {
@@ -229,32 +205,32 @@ document.getElementById('d1Button').addEventListener('click', () => {
 });
 
 function updateSolve(newSolve) {
-    if(solve.active === newSolve) return;
+    if(state.solve.active === newSolve) return;
 
-    if(newSolve) solve.start(); else solve.stop();
-    console.log(`Solve changed to: ${solve.active}`);
+    if(newSolve) state.solve.start(); else state.solve.stop();
+    console.log(`Solve changed to: ${state.solve.active}`);
 
     // Update buttons
     const button = document.getElementById('solveButton');
-    button.classList.toggle('solving', solve.active);
-    document.querySelectorAll('.side-movement-button').forEach(btn => btn.disabled = solve.active);
+    button.classList.toggle('solving', state.solve.active);
+    document.querySelectorAll('.side-movement-button').forEach(btn => btn.disabled = state.solve.active);
 }
 
-function isSolved() { return !solve.active; }
+function isSolved() { return !state.solve.active; }
 
 function startSolving() {
-    if(solve.active && !stepByStep) return;
-    cube.deselectPlanes();
-    if(cube.isSolved()) {
+    if(state.solve.active && !state.stepByStep) return;
+    state.cube.deselectPlanes();
+    if(state.cube.isSolved()) {
         console.log("Already solved")
         return;
     }
 
-    runNextStep = stepByStep; // This is only important when stepByStep is enabled
-    if(!solve.active) {
-        currentMoveNo = 1;
+    state.runNextStep = state.stepByStep; // This is only important when stepByStep is enabled
+    if(!state.solve.active) {
+        state.currentMoveNo = 1;
         clearMoveLog();
-        cube.clearHistory();
+        state.cube.clearHistory();
         updateSolve(true);
     }
 }
@@ -313,8 +289,7 @@ canvas.addEventListener('dblclick', (event) => {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    doubleClicked.x = x;
-    doubleClicked.y = y;
+    state.doubleClicked = { x: x, y: y};
 });
 
 canvas.addEventListener('click', (event) => {
@@ -322,47 +297,44 @@ canvas.addEventListener('click', (event) => {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    singleClicked.x = x;
-    singleClicked.y = y;
+    state.singleClicked = {x: x, y: y};
 });
 
 canvas.addEventListener('mousedown', (event) => {
     const rect = canvas.getBoundingClientRect();
-    mouseDragging = true;
-    dragStart.x = event.clientX - rect.left;
-    dragStart.y = event.clientY - rect.top;
+    state.mouseDragging = true;
+    state.dragStart = {x: event.clientX - rect.left, y: event.clientY - rect.top};
 });
 
 canvas.addEventListener('mousemove', (event) => {
-    if (!mouseDragging) return;
+    if (!state.mouseDragging) return;
 
     const rect = canvas.getBoundingClientRect();
     const currentX = event.clientX - rect.left;
     const currentY = event.clientY - rect.top;
 
-    const deltaX = currentX - dragStart.x;
-    const deltaY = currentY - dragStart.y;
+    const deltaX = currentX - state.dragStart.x;
+    const deltaY = currentY - state.dragStart.y;
 
     // Update drag start position for next move event
-    dragStart.x = currentX;
-    dragStart.y = currentY;
+    state.dragStart = { x: currentX, y: currentY};
 
-    rotate.rotateOneAxisWhenDragging(deltaX, Axis.Y, 2);
+    state.rotate.rotateOneAxisWhenDragging(deltaX, Axis.Y, 2);
     // ctrl - Z axis
-    if(event.ctrlKey) rotate.rotateOneAxisWhenDragging(deltaY, Axis.Z, 4);
-    else rotate.rotateOneAxisWhenDragging(deltaY, Axis.X, 2);
+    if(event.ctrlKey) state.rotate.rotateOneAxisWhenDragging(deltaY, Axis.Z, 4);
+    else state.rotate.rotateOneAxisWhenDragging(deltaY, Axis.X, 2);
 });
 
 canvas.addEventListener('mouseup', () => {
-    if (mouseDragging) stopDragging();
+    if (state.mouseDragging) stopDragging();
 });
 
 canvas.addEventListener('mouseleave', () => {
-    if (mouseDragging) stopDragging();
+    if (state.mouseDragging) stopDragging();
 });
 
 function stopDragging() {
-    mouseDragging = false;
+    state.mouseDragging = false;
     clearRotation();
 }
 
@@ -384,21 +356,21 @@ document.getElementById('stepByStepCheckbox').addEventListener('change', (event)
 });
 
 function setStepByStep(newStepByStep) {
-    stepByStep = newStepByStep;
-    document.getElementById('revertButton').disabled = !stepByStep;
-    console.log(`Step-by-step: ${stepByStep}`);
+    state.stepByStep = newStepByStep;
+    document.getElementById('revertButton').disabled = !state.stepByStep;
+    console.log(`Step-by-step: ${state.stepByStep}`);
 }
 
 function planMoveTask(m) {
-    tasks.push(new Task(() => planMoves([m]), () => false, noMoreMoves));
+    state.tasks.push(new Task(() => planMoves([m]), () => false, noMoreMoves));
 }
 function planMoves(m) {
-    cube.planMoves(m);
+    state.cube.planMoves(m);
     updateSolve(false);
 }
 
 function noMoreMoves() {
-    return !cube.hasPlannedMoves();
+    return !state.cube.hasPlannedMoves();
 }
 
 window.addEventListener('resize', resizeCanvas);
@@ -415,7 +387,7 @@ function resizeCanvas() {
     canvas.height = size;
     document.getElementById('moveLogList').style.height = size + 'px';
 
-    forceRefresh = true;
+    state.forceRefresh = true;
 }
 
 if(params.has("moves")) {
@@ -441,7 +413,7 @@ function setTheme(themeName) {
     // Update cube colors after CSS loads
     themeLink.onload = () => {
         updateStylesFromCSS();
-        forceRefresh = true;
+        state.forceRefresh = true;
     };
 }
 
