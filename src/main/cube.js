@@ -727,6 +727,7 @@ export class RubikCube {
     }
 
     reset() {
+        this.planned.splice(0, this.planned.length);
         this.cubes.forEach(c => c.planes.forEach(p => p.metadata.resetStyle()));
     }
 }

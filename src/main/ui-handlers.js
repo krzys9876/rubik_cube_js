@@ -225,8 +225,8 @@ export function setUIHandlers(state) {
         state.revertLast = true;
     });
     document.getElementById('resetButton').addEventListener('click', () => {
-        state.cube.reset();
-        state.forceRefresh = true;
+        state.reset();
+        updateSolve(false, state);
     });
     // Speed slider
     document.getElementById('speedSlider').addEventListener('input', (event) => {

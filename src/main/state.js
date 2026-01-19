@@ -1,4 +1,4 @@
-import {FlagController} from "./task.js";
+import {FlagController, Task} from "./task.js";
 import {Rotation, RubikCube} from "./cube.js";
 import {Point3D, Vector3D} from "./geometry.js";
 
@@ -77,4 +77,20 @@ export class State {
     }
 
     isSolved() { return !this.solve.active; }
+
+    doReset() {
+        if(this.cube.animation.ongoing) return false;
+
+        this.cube.reset();
+        this.forceRefresh = true;
+
+        return true;
+    }
+
+    reset() {
+        if(this.tasks.length > 0) {
+            this.tasks.splice(0, this.tasks.length - (this.tasks[0].running ? 0 : 1));
+        }
+        this.tasks.push(new Task(() => true, () => false, () => this.doReset() ));
+    }
 }
