@@ -1,11 +1,15 @@
-import {MoveDirection, SideType, Axis, updateStylesFromCSS} from './common.js';
+import {Axis, updateStylesFromCSS} from './common.js';
 import { canvas, ctx } from './common-dom.js';
 import {Movement, SideAnimation} from './cube.js';
 import {Scene} from './scene.js';
 import {RubikSolver} from "./solver.js";
-import {FlagController, Task} from "./task.js";
 import {State} from "./state.js";
-import {addRotation, clearRotation, setUIHandlers, updateSolveUI} from "./ui-handlers.js";
+import {
+    clearRotation,
+    planMoves,
+    setUIHandlers, shuffleNumber,
+    updateSolve
+} from "./ui-handlers.js";
 
 console.log("START");
 
@@ -34,12 +38,12 @@ function drawLoop() {
         // Let's protect fron infinite solving loop (e.g. when colors are not properly set)
         if(state.currentMoveNo > 500) {
             console.log("Something went wrong, too many moves!");
-            updateSolve(false);
+            updateSolve(false, state);
         } else {
             const solver = new RubikSolver(state.cube, true);
             const solvingMoves = solver.solveLBL();
-            planMoves(solvingMoves);
-            updateSolve(solvingMoves.length > 0);
+            planMoves(solvingMoves, state);
+            updateSolve(solvingMoves.length > 0, state);
         }
     }
 
@@ -87,35 +91,6 @@ function drawLoop() {
     else console.log("END (drawLoop)");
 }
 
-document.addEventListener('keydown', (event) => {
-    // Keys should work only when canvas is selected so we should skip if any form control is focused
-    const activeEl = document.activeElement;
-    if (activeEl && activeEl.matches('input, button, select, textarea, [contenteditable]')) return;
-
-    if (event.key === 'ArrowLeft') addRotation(Axis.Y, -1, state);
-    if (event.key === 'ArrowRight') addRotation(Axis.Y, 1, state);
-    if (event.key === 'ArrowUp') addRotation(Axis.X, 1, state);
-    if (event.key === 'ArrowDown') addRotation(Axis.X, -1, state);
-    if (event.key === ',') addRotation(Axis.Z, -1, state);
-    if (event.key === '.') addRotation(Axis.Z, 1, state);
-    if (event.key === " ") clearRotation(state);
-    if (event.key === 'q') planMoveTask(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-    if (event.key === 'w') planMoveTask(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-    if (event.key === 'a') planMoveTask(new Movement(SideType.DOWN, MoveDirection.CLOCKWISE));
-    if (event.key === 's') planMoveTask(new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE));
-    if (event.key === 'e') planMoveTask(new Movement(SideType.FRONT, MoveDirection.CLOCKWISE));
-    if (event.key === 'r') planMoveTask(new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE));
-    if (event.key === 'd') planMoveTask(new Movement(SideType.BACK, MoveDirection.CLOCKWISE));
-    if (event.key === 'f') planMoveTask(new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE));
-    if (event.key === 't') planMoveTask(new Movement(SideType.LEFT, MoveDirection.CLOCKWISE));
-    if (event.key === 'g') planMoveTask(new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE));
-    if (event.key === 'y') planMoveTask(new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE));
-    if (event.key === 'h') planMoveTask(new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE));
-    if (event.key === 'z') state.tasks.push(FlagController.createTask(state.shuffle));
-    if (event.key === 'x') if(state.isSolved()) state.tasks.push(new Task(startSolving, () => false, () => state.isSolved()))
-    if (event.key === 'c') state.revertLast = true;
-});
-
 document.getElementById('processButton').addEventListener('click', () => {
     const input = document.getElementById('textMovements');
     const text = input.value;
@@ -123,111 +98,7 @@ document.getElementById('processButton').addEventListener('click', () => {
 
     console.log("Processing: ", text);
     const toProcess = Movement.fromText(text);
-    planMoves(toProcess);
-});
-
-document.getElementById('shuffleButton').addEventListener('click', () => {
-    state.tasks.push(FlagController.createTask(state.shuffle));
-});
-
-function shuffleNumber() {
-    return parseInt(document.getElementById('shuffleNumber').value);
-}
-
-document.getElementById('solveButton').addEventListener('click', () => {
-    if(state.isSolved()) state.tasks.push(new Task(startSolving, () => false, () => state.isSolved()));
-    else if(state.stepByStep) startSolving();
-});
-
-document.getElementById('revertButton').addEventListener('click', () => {
-    state.revertLast = true;
-});
-
-document.getElementById('resetButton').addEventListener('click', () => {
-    state.cube.reset();
-    state.forceRefresh = true;
-});
-
-document.getElementById('fButton').addEventListener('click', () => {
-    planMoveTask(new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE));
-});
-document.getElementById('f1Button').addEventListener('click', () => {
-    planMoveTask(new Movement(SideType.FRONT, MoveDirection.CLOCKWISE));
-});
-document.getElementById('bButton').addEventListener('click', () => {
-    planMoveTask(new Movement(SideType.BACK, MoveDirection.CLOCKWISE));
-});
-document.getElementById('b1Button').addEventListener('click', () => {
-    planMoveTask(new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE));
-});
-document.getElementById('rButton').addEventListener('click', () => {
-    planMoveTask(new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE));
-});
-document.getElementById('r1Button').addEventListener('click', () => {
-    planMoveTask(new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE));
-});
-document.getElementById('lButton').addEventListener('click', () => {
-    planMoveTask(new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE));
-});
-document.getElementById('l1Button').addEventListener('click', () => {
-    planMoveTask(new Movement(SideType.LEFT, MoveDirection.CLOCKWISE));
-});
-document.getElementById('uButton').addEventListener('click', () => {
-    planMoveTask(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
-});
-document.getElementById('u1Button').addEventListener('click', () => {
-    planMoveTask(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
-});
-document.getElementById('dButton').addEventListener('click', () => {
-    planMoveTask(new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE));
-});
-document.getElementById('d1Button').addEventListener('click', () => {
-    planMoveTask(new Movement(SideType.DOWN, MoveDirection.CLOCKWISE));
-});
-
-function updateSolve(newSolve) {
-    if(state.updateSolve(newSolve)) updateSolveUI(newSolve);
-}
-
-function startSolving() {
-    if(state.solve.active && !state.stepByStep) return;
-    state.cube.deselectPlanes();
-    if(state.cube.isSolved()) {
-        console.log("Already solved")
-        return;
-    }
-
-    state.runNextStep = state.stepByStep; // This is only important when stepByStep is enabled
-    if(!state.solve.active) {
-        state.currentMoveNo = 1;
-        clearMoveLog();
-        state.cube.clearHistory();
-        updateSolve(true);
-    }
-}
-
-document.getElementById('speedSlider').addEventListener('input', (event) => {
-    const speed = parseInt(event.target.value);
-    const speedDisplay = document.getElementById('speedValue');
-    switch(speed) {
-        case 1:
-            speedDisplay.textContent = "slowest";
-            break;
-        case 2:
-            speedDisplay.textContent = "slow";
-            break;
-        case 3:
-            speedDisplay.textContent = "moderate";
-            break;
-        case 4:
-            speedDisplay.textContent = "fast";
-            break;
-        case 5:
-            speedDisplay.textContent = "fastest";
-            break;
-    }
-    SideAnimation.setSpeed(speed);
-    console.log(`Animation speed set to: ${speed} (step: ${`SideAnimation`.animationStep})`);
+    planMoves(toProcess, state);
 });
 
 canvas.addEventListener('dblclick', (event) => {
@@ -292,11 +163,6 @@ function logMove(message) {
     logBox.scrollTop = logBox.scrollHeight; // Auto-scroll to bottom
 }
 
-function clearMoveLog() {
-    const logBox = document.getElementById('moveLogList');
-    while (logBox.options.length > 0) logBox.options.remove(logBox.options.length - 1);
-}
-
 document.getElementById('stepByStepCheckbox').addEventListener('change', (event) => {
     setStepByStep(event.target.checked);
 });
@@ -305,14 +171,6 @@ function setStepByStep(newStepByStep) {
     state.stepByStep = newStepByStep;
     document.getElementById('revertButton').disabled = !state.stepByStep;
     console.log(`Step-by-step: ${state.stepByStep}`);
-}
-
-function planMoveTask(m) {
-    state.tasks.push(new Task(() => planMoves([m]), () => false, () => state.noMoreMoves()));
-}
-function planMoves(m) {
-    state.cube.planMoves(m);
-    updateSolve(false);
 }
 
 function resizeCanvas() {
@@ -331,13 +189,13 @@ function resizeCanvas() {
 
 function processAppParams() {
     if(params.has("moves")) {
-        planMoves(Movement.fromText(params.get("moves")));
+        planMoves(Movement.fromText(params.get("moves")), state);
         document.getElementById('textMovements').value =
             params.get("moves")
                 .replaceAll("+"," ")
                 .replaceAll("%27","\'");
     }
-    if(params.has("solve") && params.get("solve") === "1") updateSolve(true);
+    if(params.has("solve") && params.get("solve") === "1") updateSolve(true, state);
     if(params.has("speed") && params.get("speed") >= "1" && params.get("speed") <= "5") {
         const slider = document.getElementById('speedSlider');
         slider.value = params.get("speed");

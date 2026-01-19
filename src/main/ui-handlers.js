@@ -1,6 +1,8 @@
-import {Axis} from "./common.js";
+import {Axis, MoveDirection, SideType} from "./common.js";
+import {FlagController, Task} from "./task.js";
+import {Movement, SideAnimation} from "./cube.js";
 
-export function updateSolveUI(newSolve) {
+function updateSolveUI(newSolve) {
     // Update buttons
     const button = document.getElementById('solveButton');
     button.classList.toggle('solving', newSolve);
@@ -35,7 +37,47 @@ export function clearRotation(state) {
     setRotation(Axis.Z, 0, state);
 }
 
+export function updateSolve(newSolve, state) {
+    if(state.updateSolve(newSolve)) updateSolveUI(newSolve);
+}
+
+export function planMoves(m, state) {
+    state.cube.planMoves(m);
+    updateSolve(false, state);
+}
+
+export function planMoveTask(m, state) {
+    state.tasks.push(new Task(() => planMoves([m], state), () => false, () => state.noMoreMoves()));
+}
+
+function clearMoveLog() {
+    const logBox = document.getElementById('moveLogList');
+    while (logBox.options.length > 0) logBox.options.remove(logBox.options.length - 1);
+}
+
+export function startSolving(state) {
+    if(state.solve.active && !state.stepByStep) return;
+    state.cube.deselectPlanes();
+    if(state.cube.isSolved()) {
+        console.log("Already solved")
+        return;
+    }
+
+    state.runNextStep = state.stepByStep; // This is only important when stepByStep is enabled
+    if(!state.solve.active) {
+        state.currentMoveNo = 1;
+        clearMoveLog();
+        state.cube.clearHistory();
+        updateSolve(true, state);
+    }
+}
+
+export function shuffleNumber() {
+    return parseInt(document.getElementById('shuffleNumber').value);
+}
+
 export function setUIHandlers(state) {
+    // Rotation sliders
     document.getElementById('ySlider').addEventListener('input', (event) => {
         setRotation(Axis.Y, parseInt(event.target.value), state);
     });
@@ -44,5 +86,111 @@ export function setUIHandlers(state) {
     });
     document.getElementById('zSlider').addEventListener('input', (event) => {
         setRotation(Axis.Z, parseInt(event.target.value), state);
+    });
+    // Movement buttons
+    document.getElementById('fButton').addEventListener('click', () => {
+        planMoveTask(new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE), state);
+    });
+    document.getElementById('f1Button').addEventListener('click', () => {
+        planMoveTask(new Movement(SideType.FRONT, MoveDirection.CLOCKWISE), state);
+    });
+    document.getElementById('bButton').addEventListener('click', () => {
+        planMoveTask(new Movement(SideType.BACK, MoveDirection.CLOCKWISE), state);
+    });
+    document.getElementById('b1Button').addEventListener('click', () => {
+        planMoveTask(new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE), state);
+    });
+    document.getElementById('rButton').addEventListener('click', () => {
+        planMoveTask(new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE), state);
+    });
+    document.getElementById('r1Button').addEventListener('click', () => {
+        planMoveTask(new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE), state);
+    });
+    document.getElementById('lButton').addEventListener('click', () => {
+        planMoveTask(new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE), state);
+    });
+    document.getElementById('l1Button').addEventListener('click', () => {
+        planMoveTask(new Movement(SideType.LEFT, MoveDirection.CLOCKWISE), state);
+    });
+    document.getElementById('uButton').addEventListener('click', () => {
+        planMoveTask(new Movement(SideType.UP, MoveDirection.CLOCKWISE), state);
+    });
+    document.getElementById('u1Button').addEventListener('click', () => {
+        planMoveTask(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE), state);
+    });
+    document.getElementById('dButton').addEventListener('click', () => {
+        planMoveTask(new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE), state);
+    });
+    document.getElementById('d1Button').addEventListener('click', () => {
+        planMoveTask(new Movement(SideType.DOWN, MoveDirection.CLOCKWISE), state);
+    });
+    // Key bindings
+    document.addEventListener('keydown', (event) => {
+        // Keys should work only when canvas is selected so we should skip if any form control is focused
+        const activeEl = document.activeElement;
+        if (activeEl && activeEl.matches('input, button, select, textarea, [contenteditable]')) return;
+
+        if (event.key === 'ArrowLeft') addRotation(Axis.Y, -1, state);
+        if (event.key === 'ArrowRight') addRotation(Axis.Y, 1, state);
+        if (event.key === 'ArrowUp') addRotation(Axis.X, 1, state);
+        if (event.key === 'ArrowDown') addRotation(Axis.X, -1, state);
+        if (event.key === ',') addRotation(Axis.Z, -1, state);
+        if (event.key === '.') addRotation(Axis.Z, 1, state);
+        if (event.key === " ") clearRotation(state);
+        if (event.key === 'q') planMoveTask(new Movement(SideType.UP, MoveDirection.CLOCKWISE), state);
+        if (event.key === 'w') planMoveTask(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE), state);
+        if (event.key === 'a') planMoveTask(new Movement(SideType.DOWN, MoveDirection.CLOCKWISE), state);
+        if (event.key === 's') planMoveTask(new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE), state);
+        if (event.key === 'e') planMoveTask(new Movement(SideType.FRONT, MoveDirection.CLOCKWISE), state);
+        if (event.key === 'r') planMoveTask(new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE), state);
+        if (event.key === 'd') planMoveTask(new Movement(SideType.BACK, MoveDirection.CLOCKWISE), state);
+        if (event.key === 'f') planMoveTask(new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE), state);
+        if (event.key === 't') planMoveTask(new Movement(SideType.LEFT, MoveDirection.CLOCKWISE), state);
+        if (event.key === 'g') planMoveTask(new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE), state);
+        if (event.key === 'y') planMoveTask(new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE), state);
+        if (event.key === 'h') planMoveTask(new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE), state);
+        if (event.key === 'z') state.tasks.push(FlagController.createTask(state.shuffle));
+        if (event.key === 'x') if(state.isSolved()) state.tasks.push(
+            new Task(() => startSolving(state), () => false, () => state.isSolved()))
+        if (event.key === 'c') state.revertLast = true;
+    });
+    // ActionButtons
+    document.getElementById('shuffleButton').addEventListener('click', () => {
+        state.tasks.push(FlagController.createTask(state.shuffle));
+    });
+    document.getElementById('solveButton').addEventListener('click', () => {
+        if(state.isSolved()) state.tasks.push(new Task(() => startSolving(state), () => false, () => state.isSolved()));
+        else if(state.stepByStep) startSolving(state);
+    });
+    document.getElementById('revertButton').addEventListener('click', () => {
+        state.revertLast = true;
+    });
+    document.getElementById('resetButton').addEventListener('click', () => {
+        state.cube.reset();
+        state.forceRefresh = true;
+    });
+    // Speed slider
+    document.getElementById('speedSlider').addEventListener('input', (event) => {
+        const speed = parseInt(event.target.value);
+        const speedDisplay = document.getElementById('speedValue');
+        switch(speed) {
+            case 1:
+                speedDisplay.textContent = "slowest";
+                break;
+            case 2:
+                speedDisplay.textContent = "slow";
+                break;
+            case 3:
+                speedDisplay.textContent = "moderate";
+                break;
+            case 4:
+                speedDisplay.textContent = "fast";
+                break;
+            case 5:
+                speedDisplay.textContent = "fastest";
+                break;
+        }
+        SideAnimation.setSpeed(speed);
+        console.log(`Animation speed set to: ${speed} (step: ${`SideAnimation`.animationStep})`);
     });
 }
