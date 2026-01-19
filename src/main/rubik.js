@@ -356,7 +356,7 @@ function setStepByStep(newStepByStep) {
 }
 
 function planMoveTask(m) {
-    state.tasks.push(new Task(() => planMoves([m]), () => false, state.noMoreMoves()));
+    state.tasks.push(new Task(() => planMoves([m]), () => false, () => state.noMoreMoves()));
 }
 function planMoves(m) {
     state.cube.planMoves(m);
