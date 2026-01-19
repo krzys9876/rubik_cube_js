@@ -4,7 +4,7 @@ import {Movement, SideAnimation} from './cube.js';
 import {Scene} from './scene.js';
 import {RubikSolver} from "./solver.js";
 import {FlagController, Task} from "./task.js";
-import {createState} from "./state.js";
+import {State} from "./state.js";
 
 console.log("START");
 
@@ -13,7 +13,7 @@ for(let p of params.entries()) console.log(p);
 
 // Create state
 const scene = new Scene();
-const state = createState();
+const state = new State(scene);
 
 // initialize controls
 setStepByStep(false);
@@ -22,11 +22,12 @@ scene.rotate(-15,30,-5);
 
 function drawLoop() {
     // Let's not redraw the screen if nothing changed
-    let isAutoMoving = state.cube.hasPlannedMoves() || state.cube.animation.ongoing;
-    let clickEvent = state.doubleClicked.x > -1 || state.singleClicked.x > -1;
-    let shouldRefresh = state.forceRefresh || state.counter === 0 || state.rotate.isActive() || isAutoMoving || clickEvent || state.tasks.length > 0;
+    const isAutoMoving = state.isAutoMoving();
+    const clickEvent = state.isClickEvent();
+    let shouldRefresh = state.forceRefresh || state.counter === 0 || state.rotate.isActive() ||
+        isAutoMoving || clickEvent || state.tasks.length > 0;
 
-    if(state.tasks.length > 0 && !state.tasks[0].running) state.tasks[0].start();
+    state.startNextTaskIfReady();
 
     if(state.solve.active && !isAutoMoving) {
         // Let's protect fron infinite solving loop (e.g. when colors are not properly set)
@@ -37,9 +38,7 @@ function drawLoop() {
             const solver = new RubikSolver(state.cube, true);
             const solvingMoves = solver.solveLBL();
             planMoves(solvingMoves);
-            //cube.planMoves(solvingMoves);
             updateSolve(solvingMoves.length > 0);
-            //shouldRefresh = true;
         }
     }
 
@@ -60,12 +59,11 @@ function drawLoop() {
 
         scene.rotate(state.rotate.get(Axis.X), state.rotate.get(Axis.Y), state.rotate.get(Axis.Z));
 
-        state.cube.draw(canvas, ctx, scene, state.observer, state.rotationCenter);
+        state.redrawCube(canvas, ctx);
         if(clickEvent) {
             // Redraw full cube if selection or color changed (this happens only once, we can't redraw only selection)
-            if (state.cube.analyzeSelection(state.doubleClicked, state.singleClicked)) state.cube.draw(canvas, ctx, state.observer, state.rotationCenter);
-            state.doubleClicked = {x: -1, y: -1};
-            state.singleClicked = {x: -1, y: -1};
+            if (state.cubeClicked()) state.redrawCube(canvas, ctx);
+            state.clearClick();
         }
 
         if(state.cube.hasPlannedMoves() && !state.cube.animation.ongoing &&
@@ -81,11 +79,7 @@ function drawLoop() {
         state.forceRefresh = false;
     }
 
-    if(state.tasks.length > 0) {
-        state.tasks[0].stop();
-        state.tasks[0].tryEnd();
-        if(!state.tasks[0].running) state.tasks.splice(0, 1);
-    }
+    state.finalizeActiveTask();
 
     state.counter ++;
     if(state.counter < 10000000000000) setTimeout(drawLoop, 1000 / 60);
