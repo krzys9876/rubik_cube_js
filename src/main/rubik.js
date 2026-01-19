@@ -5,6 +5,7 @@ import {Scene} from './scene.js';
 import {RubikSolver} from "./solver.js";
 import {FlagController, Task} from "./task.js";
 import {State} from "./state.js";
+import {addRotation, clearRotation, setUIHandlers, updateSolveUI} from "./ui-handlers.js";
 
 console.log("START");
 
@@ -86,31 +87,18 @@ function drawLoop() {
     else console.log("END (drawLoop)");
 }
 
-function clearRotation() {
-    setRotation(Axis.Y, 0);
-    setRotation(Axis.X, 0);
-    setRotation(Axis.Z, 0);
-}
-
-function setRotation(axis, value) {
-    state.rotate.set(axis, value);
-    setSliderValue(axis, value);
-}
-
-function setSliderValue(axis, value) { getSlider(axis).value = value; }
-
 document.addEventListener('keydown', (event) => {
     // Keys should work only when canvas is selected so we should skip if any form control is focused
     const activeEl = document.activeElement;
     if (activeEl && activeEl.matches('input, button, select, textarea, [contenteditable]')) return;
 
-    if (event.key === 'ArrowLeft') addRotation(Axis.Y, -1);
-    if (event.key === 'ArrowRight') addRotation(Axis.Y, 1);
-    if (event.key === 'ArrowUp') addRotation(Axis.X, 1);
-    if (event.key === 'ArrowDown') addRotation(Axis.X, -1);
-    if (event.key === ',') addRotation(Axis.Z, -1);
-    if (event.key === '.') addRotation(Axis.Z, 1);
-    if (event.key === " ") clearRotation();
+    if (event.key === 'ArrowLeft') addRotation(Axis.Y, -1, state);
+    if (event.key === 'ArrowRight') addRotation(Axis.Y, 1, state);
+    if (event.key === 'ArrowUp') addRotation(Axis.X, 1, state);
+    if (event.key === 'ArrowDown') addRotation(Axis.X, -1, state);
+    if (event.key === ',') addRotation(Axis.Z, -1, state);
+    if (event.key === '.') addRotation(Axis.Z, 1, state);
+    if (event.key === " ") clearRotation(state);
     if (event.key === 'q') planMoveTask(new Movement(SideType.UP, MoveDirection.CLOCKWISE));
     if (event.key === 'w') planMoveTask(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE));
     if (event.key === 'a') planMoveTask(new Movement(SideType.DOWN, MoveDirection.CLOCKWISE));
@@ -124,7 +112,7 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'y') planMoveTask(new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE));
     if (event.key === 'h') planMoveTask(new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE));
     if (event.key === 'z') state.tasks.push(FlagController.createTask(state.shuffle));
-    if (event.key === 'x') if(isSolved()) state.tasks.push(new Task(startSolving, () => false, isSolved))
+    if (event.key === 'x') if(state.isSolved()) state.tasks.push(new Task(startSolving, () => false, () => state.isSolved()))
     if (event.key === 'c') state.revertLast = true;
 });
 
@@ -136,7 +124,6 @@ document.getElementById('processButton').addEventListener('click', () => {
     console.log("Processing: ", text);
     const toProcess = Movement.fromText(text);
     planMoves(toProcess);
-    //input.value='';
 });
 
 document.getElementById('shuffleButton').addEventListener('click', () => {
@@ -148,7 +135,7 @@ function shuffleNumber() {
 }
 
 document.getElementById('solveButton').addEventListener('click', () => {
-    if(isSolved()) state.tasks.push(new Task(startSolving, () => false, isSolved));
+    if(state.isSolved()) state.tasks.push(new Task(startSolving, () => false, () => state.isSolved()));
     else if(state.stepByStep) startSolving();
 });
 
@@ -199,18 +186,8 @@ document.getElementById('d1Button').addEventListener('click', () => {
 });
 
 function updateSolve(newSolve) {
-    if(state.solve.active === newSolve) return;
-
-    if(newSolve) state.solve.start(); else state.solve.stop();
-    console.log(`Solve changed to: ${state.solve.active}`);
-
-    // Update buttons
-    const button = document.getElementById('solveButton');
-    button.classList.toggle('solving', state.solve.active);
-    document.querySelectorAll('.side-movement-button').forEach(btn => btn.disabled = state.solve.active);
+    if(state.updateSolve(newSolve)) updateSolveUI(newSolve);
 }
-
-function isSolved() { return !state.solve.active; }
 
 function startSolving() {
     if(state.solve.active && !state.stepByStep) return;
@@ -252,31 +229,6 @@ document.getElementById('speedSlider').addEventListener('input', (event) => {
     SideAnimation.setSpeed(speed);
     console.log(`Animation speed set to: ${speed} (step: ${`SideAnimation`.animationStep})`);
 });
-
-document.getElementById('ySlider').addEventListener('input', (event) => {
-    setRotation(Axis.Y, parseInt(event.target.value));
-});
-document.getElementById('xSlider').addEventListener('input', (event) => {
-    setRotation(Axis.X, parseInt(event.target.value));
-});
-document.getElementById('zSlider').addEventListener('input', (event) => {
-    setRotation(Axis.Z, parseInt(event.target.value));
-});
-
-function addRotation(axis, step) {
-    const slider = getSlider(axis);
-    const newValue = parseInt(slider.value) + step;
-    slider.value = newValue;
-    setRotation(axis, newValue);
-}
-
-function getSlider(axis) {
-    switch(axis) {
-        case Axis.Y: return document.getElementById('ySlider');
-        case Axis.X: return document.getElementById('xSlider');
-        case Axis.Z: return document.getElementById('zSlider');
-    }
-}
 
 canvas.addEventListener('dblclick', (event) => {
     const rect = canvas.getBoundingClientRect();
@@ -329,7 +281,7 @@ canvas.addEventListener('mouseleave', () => {
 
 function stopDragging() {
     state.mouseDragging = false;
-    clearRotation();
+    clearRotation(state);
 }
 
 function logMove(message) {
@@ -414,6 +366,7 @@ document.getElementById('themeSelector').addEventListener('change', (event) => {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 processAppParams();
+setUIHandlers(state);
 
 // Load saved theme on startup
 const savedTheme = localStorage.getItem('rubik-theme');

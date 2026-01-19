@@ -66,4 +66,15 @@ export class State {
     noMoreMoves() {
         return !this.cube.hasPlannedMoves();
     }
+
+    updateSolve(newSolve) {
+        if(this.solve.active === newSolve) return false;
+
+        if(newSolve) this.solve.start();
+        else this.solve.stop();
+
+        return true;
+    }
+
+    isSolved() { return !this.solve.active; }
 }
