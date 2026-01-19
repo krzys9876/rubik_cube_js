@@ -356,19 +356,12 @@ function setStepByStep(newStepByStep) {
 }
 
 function planMoveTask(m) {
-    state.tasks.push(new Task(() => planMoves([m]), () => false, noMoreMoves));
+    state.tasks.push(new Task(() => planMoves([m]), () => false, state.noMoreMoves()));
 }
 function planMoves(m) {
     state.cube.planMoves(m);
     updateSolve(false);
 }
-
-function noMoreMoves() {
-    return !state.cube.hasPlannedMoves();
-}
-
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
 
 function resizeCanvas() {
     const canvas = document.getElementById('drawing');
@@ -383,6 +376,9 @@ function resizeCanvas() {
 
     state.forceRefresh = true;
 }
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
 
 if(params.has("moves")) {
     planMoves(Movement.fromText(params.get("moves")));

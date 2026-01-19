@@ -61,6 +61,9 @@ export class State {
             this.tasks[0].tryEnd();
             if(!this.tasks[0].running) this.tasks.splice(0, 1);
         }
+    }
 
+    noMoreMoves() {
+        return !this.cube.hasPlannedMoves();
     }
 }
