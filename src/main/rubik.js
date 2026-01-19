@@ -1,28 +1,16 @@
-import {Axis, updateStylesFromCSS} from './common.js';
+import {Axis} from './common.js';
 import { canvas, ctx } from './common-dom.js';
 import {Movement, SideAnimation} from './cube.js';
 import {Scene} from './scene.js';
 import {RubikSolver} from "./solver.js";
 import {State} from "./state.js";
-import {
-    planMoves,
-    setUIHandlers, shuffleNumber,
-    updateSolve
-} from "./ui-handlers.js";
+import {initTheme, logMove, planMoves, resizeCanvas, setStepByStep, setUIHandlers, shuffleNumber, updateSolve } from "./ui-handlers.js";
 
 console.log("START");
 
 const params = new URLSearchParams(window.location.search);
 for(let p of params.entries()) console.log(p);
 
-// Create state
-const scene = new Scene();
-const state = new State(scene);
-
-// initialize controls
-setStepByStep(false);
-// Set initial point of view
-scene.rotate(-15,30,-5);
 
 function drawLoop() {
     // Let's not redraw the screen if nothing changed
@@ -85,42 +73,10 @@ function drawLoop() {
 
     state.finalizeActiveTask();
 
+    // Just for debugging - stop after given number of steps
     state.counter ++;
     if(state.counter < 10000000000000) setTimeout(drawLoop, 1000 / 60);
     else console.log("END (drawLoop)");
-}
-
-
-function logMove(message) {
-    const logBox = document.getElementById('moveLogList');
-    const option = document.createElement('option');
-    option.text = message;
-    logBox.add(option);
-    logBox.scrollTop = logBox.scrollHeight; // Auto-scroll to bottom
-}
-
-document.getElementById('stepByStepCheckbox').addEventListener('change', (event) => {
-    setStepByStep(event.target.checked);
-});
-
-function setStepByStep(newStepByStep) {
-    state.stepByStep = newStepByStep;
-    document.getElementById('revertButton').disabled = !state.stepByStep;
-    console.log(`Step-by-step: ${state.stepByStep}`);
-}
-
-function resizeCanvas() {
-    const canvas = document.getElementById('drawing');
-
-    // Minimum size: 100, rectangular
-    const availableWidth = Math.max(window.innerWidth * 0.8, 100);
-    const availableHeight = Math.max(window.innerHeight * 0.55, 100);
-    const size = Math.min(availableWidth, availableHeight)
-    canvas.width = size;
-    canvas.height = size;
-    document.getElementById('moveLogList').style.height = size + 'px';
-
-    state.forceRefresh = true;
 }
 
 function processAppParams() {
@@ -140,37 +96,20 @@ function processAppParams() {
 
 }
 
-// Theme switching
-function setTheme(themeName) {
-    const themeLink = document.getElementById('theme-css');
-    themeLink.href = `themes/theme-${themeName}.css`;
-    localStorage.setItem('rubik-theme', themeName);
+// Create state
+const scene = new Scene();
+const state = new State(scene);
 
-    // Update cube colors after CSS loads
-    themeLink.onload = () => {
-        updateStylesFromCSS();
-        state.forceRefresh = true;
-    };
-}
+// initialize controls
+setStepByStep(false, state);
+// Set initial point of view
+scene.rotate(-15,30,-5);
 
-document.getElementById('themeSelector').addEventListener('change', (event) => {
-    setTheme(event.target.value);
-});
-
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
+// Initialize application
+initTheme(state);
+resizeCanvas(state);
 processAppParams();
 setUIHandlers(state);
-
-// Load saved theme on startup
-const savedTheme = localStorage.getItem('rubik-theme');
-if (savedTheme) {
-    setTheme(savedTheme);
-    document.getElementById('themeSelector').value = savedTheme;
-} else {
-    // Initialize cube colors from CSS (for initial theme)
-    updateStylesFromCSS();
-}
 
 console.log("END (init)");
 

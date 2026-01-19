@@ -1,4 +1,4 @@
-import {Axis, MoveDirection, SideType} from "./common.js";
+import {Axis, MoveDirection, SideType, updateStylesFromCSS} from "./common.js";
 import {FlagController, Task} from "./task.js";
 import {Movement, SideAnimation} from "./cube.js";
 import { canvas } from './common-dom.js';
@@ -75,6 +75,64 @@ export function startSolving(state) {
 
 export function shuffleNumber() {
     return parseInt(document.getElementById('shuffleNumber').value);
+}
+
+export function logMove(message) {
+    const logBox = document.getElementById('moveLogList');
+    const option = document.createElement('option');
+    option.text = message;
+    logBox.add(option);
+    logBox.scrollTop = logBox.scrollHeight; // Auto-scroll to bottom
+}
+
+function stopDragging(state) {
+    state.mouseDragging = false;
+    clearRotation(state);
+}
+
+export function resizeCanvas(state) {
+    const canvas = document.getElementById('drawing');
+
+    // Minimum size: 100, rectangular
+    const availableWidth = Math.max(window.innerWidth * 0.8, 100);
+    const availableHeight = Math.max(window.innerHeight * 0.55, 100);
+    const size = Math.min(availableWidth, availableHeight)
+    canvas.width = size;
+    canvas.height = size;
+    document.getElementById('moveLogList').style.height = size + 'px';
+
+    state.forceRefresh = true;
+}
+
+// Theme switching
+export function setTheme(themeName, state) {
+    const themeLink = document.getElementById('theme-css');
+    themeLink.href = `themes/theme-${themeName}.css`;
+    localStorage.setItem('rubik-theme', themeName);
+
+    // Update cube colors after CSS loads
+    themeLink.onload = () => {
+        updateStylesFromCSS();
+        state.forceRefresh = true;
+    };
+}
+
+export function initTheme(state) {
+// Load saved theme on startup
+    const savedTheme = localStorage.getItem('rubik-theme');
+    if (savedTheme) {
+        setTheme(savedTheme, state);
+        document.getElementById('themeSelector').value = savedTheme;
+    } else {
+        // Initialize cube colors from CSS (for initial theme)
+        updateStylesFromCSS();
+    }
+}
+
+export function setStepByStep(newStepByStep, state) {
+    state.stepByStep = newStepByStep;
+    document.getElementById('revertButton').disabled = !state.stepByStep;
+    console.log(`Step-by-step: ${state.stepByStep}`);
 }
 
 export function setUIHandlers(state) {
@@ -194,6 +252,11 @@ export function setUIHandlers(state) {
         SideAnimation.setSpeed(speed);
         console.log(`Animation speed set to: ${speed} (step: ${`SideAnimation`.animationStep})`);
     });
+    // Step by step control
+    document.getElementById('stepByStepCheckbox').addEventListener('change', (event) => {
+        setStepByStep(event.target.checked);
+    });
+
     // Process batch moves
     document.getElementById('processButton').addEventListener('click', () => {
         const input = document.getElementById('textMovements');
@@ -247,15 +310,16 @@ export function setUIHandlers(state) {
     });
 
     canvas.addEventListener('mouseup', () => {
-        if (state.mouseDragging) stopDragging();
+        if (state.mouseDragging) stopDragging(state);
     });
 
     canvas.addEventListener('mouseleave', () => {
-        if (state.mouseDragging) stopDragging();
+        if (state.mouseDragging) stopDragging(state);
+    });
+    // Window and app handlers
+    document.getElementById('themeSelector').addEventListener('change', (event) => {
+        setTheme(event.target.value, state);
     });
 
-    function stopDragging() {
-        state.mouseDragging = false;
-        clearRotation(state);
-    }
+    window.addEventListener('resize', () => resizeCanvas(state));
 }
