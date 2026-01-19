@@ -377,21 +377,21 @@ function resizeCanvas() {
     state.forceRefresh = true;
 }
 
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
+function processAppParams() {
+    if(params.has("moves")) {
+        planMoves(Movement.fromText(params.get("moves")));
+        document.getElementById('textMovements').value =
+            params.get("moves")
+                .replaceAll("+"," ")
+                .replaceAll("%27","\'");
+    }
+    if(params.has("solve") && params.get("solve") === "1") updateSolve(true);
+    if(params.has("speed") && params.get("speed") >= "1" && params.get("speed") <= "5") {
+        const slider = document.getElementById('speedSlider');
+        slider.value = params.get("speed");
+        SideAnimation.setSpeed(parseInt(slider.value));
+    }
 
-if(params.has("moves")) {
-    planMoves(Movement.fromText(params.get("moves")));
-    document.getElementById('textMovements').value =
-        params.get("moves")
-            .replaceAll("+"," ")
-            .replaceAll("%27","\'");
-}
-if(params.has("solve") && params.get("solve") === "1") updateSolve(true);
-if(params.has("speed") && params.get("speed") >= "1" && params.get("speed") <= "5") {
-    const slider = document.getElementById('speedSlider');
-    slider.value = params.get("speed");
-    SideAnimation.setSpeed(parseInt(slider.value));
 }
 
 // Theme switching
@@ -411,15 +411,19 @@ document.getElementById('themeSelector').addEventListener('change', (event) => {
     setTheme(event.target.value);
 });
 
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+processAppParams();
+
 // Load saved theme on startup
 const savedTheme = localStorage.getItem('rubik-theme');
 if (savedTheme) {
     setTheme(savedTheme);
     document.getElementById('themeSelector').value = savedTheme;
+} else {
+    // Initialize cube colors from CSS (for initial theme)
+    updateStylesFromCSS();
 }
-
-// Initialize cube colors from CSS (for initial theme)
-updateStylesFromCSS();
 
 console.log("END (init)");
 
