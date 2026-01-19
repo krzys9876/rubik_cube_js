@@ -30,6 +30,6 @@ export class FlagController {
     end() { return !this.active; }
 
     static createTask(flag) {
-        return new Task(flag.start.bind(flag), flag.stop.bind(flag), flag.end.bind(flag));
+        return new Task(() => flag.start(), () => flag.stop(), () => flag.end());
     }
 }
