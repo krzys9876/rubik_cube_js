@@ -1,6 +1,7 @@
 import {Axis, MoveDirection, SideType} from "./common.js";
 import {FlagController, Task} from "./task.js";
 import {Movement, SideAnimation} from "./cube.js";
+import { canvas } from './common-dom.js';
 
 function updateSolveUI(newSolve) {
     // Update buttons
@@ -193,4 +194,68 @@ export function setUIHandlers(state) {
         SideAnimation.setSpeed(speed);
         console.log(`Animation speed set to: ${speed} (step: ${`SideAnimation`.animationStep})`);
     });
+    // Process batch moves
+    document.getElementById('processButton').addEventListener('click', () => {
+        const input = document.getElementById('textMovements');
+        const text = input.value;
+        if(!text) return;
+
+        console.log("Processing: ", text);
+        const toProcess = Movement.fromText(text);
+        planMoves(toProcess, state);
+    });
+    // Mouse events
+    canvas.addEventListener('dblclick', (event) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        state.doubleClicked = { x: x, y: y};
+    });
+
+    canvas.addEventListener('click', (event) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        state.singleClicked = {x: x, y: y};
+    });
+
+    canvas.addEventListener('mousedown', (event) => {
+        const rect = canvas.getBoundingClientRect();
+        state.mouseDragging = true;
+        state.dragStart = {x: event.clientX - rect.left, y: event.clientY - rect.top};
+    });
+
+    canvas.addEventListener('mousemove', (event) => {
+        if (!state.mouseDragging) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const currentX = event.clientX - rect.left;
+        const currentY = event.clientY - rect.top;
+
+        const deltaX = currentX - state.dragStart.x;
+        const deltaY = currentY - state.dragStart.y;
+
+        // Update drag start position for next move event
+        state.dragStart = { x: currentX, y: currentY};
+
+        state.rotate.rotateOneAxisWhenDragging(deltaX, Axis.Y, 2);
+        // ctrl - Z axis
+        if(event.ctrlKey) state.rotate.rotateOneAxisWhenDragging(deltaY, Axis.Z, 4);
+        else state.rotate.rotateOneAxisWhenDragging(deltaY, Axis.X, 2);
+    });
+
+    canvas.addEventListener('mouseup', () => {
+        if (state.mouseDragging) stopDragging();
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        if (state.mouseDragging) stopDragging();
+    });
+
+    function stopDragging() {
+        state.mouseDragging = false;
+        clearRotation(state);
+    }
 }
