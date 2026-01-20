@@ -4,7 +4,10 @@ import {Movement, SideAnimation} from './cube.js';
 import {Scene} from './scene.js';
 import {RubikSolver} from "./solver.js";
 import {State} from "./state.js";
-import {initTheme, logMove, planMoves, resizeCanvas, setStepByStep, setUIHandlers, shuffleNumber, updateSolve } from "./ui-handlers.js";
+import {
+    initTheme, logMove, planMoves, resizeCanvas, setStepByStep, setUIHandlers, shuffleNumber, updateSolve,
+    updateSpeed
+} from "./ui-handlers.js";
 
 console.log("START");
 
@@ -100,8 +103,6 @@ function processAppParams() {
 const scene = new Scene();
 const state = new State(scene);
 
-// initialize controls
-setStepByStep(false, state);
 // Set initial point of view
 scene.rotate(-15,30,-5);
 
@@ -110,6 +111,9 @@ initTheme(state);
 resizeCanvas(state);
 processAppParams();
 setUIHandlers(state);
+// initialize controls
+setStepByStep(false, state);
+updateSpeed();
 
 console.log("END (init)");
 

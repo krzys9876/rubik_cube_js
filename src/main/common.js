@@ -157,3 +157,6 @@ export function nextSide(turn, source, moveDirection) {
 
     return sideOrder[targetIndex % 4];
 }
+
+// Speed labels
+export const speedLabels = new Map([[1, "slowest"], [2, "slow"], [3, "moderate"], [4, "fast"], [5, "fastest"]]);

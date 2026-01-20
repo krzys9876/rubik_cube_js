@@ -1,4 +1,4 @@
-import {Axis, MoveDirection, SideType, updateStylesFromCSS} from "./common.js";
+import {Axis, MoveDirection, SideType, speedLabels, updateStylesFromCSS} from "./common.js";
 import {FlagController, Task} from "./task.js";
 import {Movement, SideAnimation} from "./cube.js";
 import { canvas } from './common-dom.js';
@@ -135,6 +135,20 @@ export function setStepByStep(newStepByStep, state) {
     console.log(`Step-by-step: ${state.stepByStep}`);
 }
 
+export function updateSpeed() {
+    const speed = parseInt(document.getElementById('speedSlider').value);
+    const speedDisplay = document.getElementById('speedValue');
+    speedDisplay.textContent = speedLabels.get(speed);
+    SideAnimation.setSpeed(speed);
+    console.log(`Animation speed set to: ${speed} (step: ${`SideAnimation`.animationStep})`);
+}
+
+const moveButtons = [
+    ['fButton', 'F'], ['f1Button', 'F\''], ['bButton', 'B'], ['b1Button', 'B\''],
+    ['rButton', 'R'], ['r1Button', 'R\''], ['lButton', 'L'], ['l1Button', 'L\''],
+    ['uButton', 'U'], ['u1Button', 'U\''], ['dButton', 'D'], ['d1Button', 'D\'']
+];
+
 export function setUIHandlers(state) {
     // Rotation sliders
     document.getElementById('ySlider').addEventListener('input', (event) => {
@@ -147,41 +161,11 @@ export function setUIHandlers(state) {
         setRotation(Axis.Z, parseInt(event.target.value), state);
     });
     // Movement buttons
-    document.getElementById('fButton').addEventListener('click', () => {
-        planMoveTask(new Movement(SideType.FRONT, MoveDirection.COUNTERCLOCKWISE), state);
-    });
-    document.getElementById('f1Button').addEventListener('click', () => {
-        planMoveTask(new Movement(SideType.FRONT, MoveDirection.CLOCKWISE), state);
-    });
-    document.getElementById('bButton').addEventListener('click', () => {
-        planMoveTask(new Movement(SideType.BACK, MoveDirection.CLOCKWISE), state);
-    });
-    document.getElementById('b1Button').addEventListener('click', () => {
-        planMoveTask(new Movement(SideType.BACK, MoveDirection.COUNTERCLOCKWISE), state);
-    });
-    document.getElementById('rButton').addEventListener('click', () => {
-        planMoveTask(new Movement(SideType.RIGHT, MoveDirection.CLOCKWISE), state);
-    });
-    document.getElementById('r1Button').addEventListener('click', () => {
-        planMoveTask(new Movement(SideType.RIGHT, MoveDirection.COUNTERCLOCKWISE), state);
-    });
-    document.getElementById('lButton').addEventListener('click', () => {
-        planMoveTask(new Movement(SideType.LEFT, MoveDirection.COUNTERCLOCKWISE), state);
-    });
-    document.getElementById('l1Button').addEventListener('click', () => {
-        planMoveTask(new Movement(SideType.LEFT, MoveDirection.CLOCKWISE), state);
-    });
-    document.getElementById('uButton').addEventListener('click', () => {
-        planMoveTask(new Movement(SideType.UP, MoveDirection.CLOCKWISE), state);
-    });
-    document.getElementById('u1Button').addEventListener('click', () => {
-        planMoveTask(new Movement(SideType.UP, MoveDirection.COUNTERCLOCKWISE), state);
-    });
-    document.getElementById('dButton').addEventListener('click', () => {
-        planMoveTask(new Movement(SideType.DOWN, MoveDirection.COUNTERCLOCKWISE), state);
-    });
-    document.getElementById('d1Button').addEventListener('click', () => {
-        planMoveTask(new Movement(SideType.DOWN, MoveDirection.CLOCKWISE), state);
+    moveButtons.forEach(buttonDef => {
+        console.log(buttonDef);
+        document.getElementById(buttonDef[0]).addEventListener('click', () => {
+            planMoveTask(Movement.from(buttonDef[1]), state);
+        });
     });
     // Key bindings
     document.addEventListener('keydown', (event) => {
@@ -230,27 +214,7 @@ export function setUIHandlers(state) {
     });
     // Speed slider
     document.getElementById('speedSlider').addEventListener('input', (event) => {
-        const speed = parseInt(event.target.value);
-        const speedDisplay = document.getElementById('speedValue');
-        switch(speed) {
-            case 1:
-                speedDisplay.textContent = "slowest";
-                break;
-            case 2:
-                speedDisplay.textContent = "slow";
-                break;
-            case 3:
-                speedDisplay.textContent = "moderate";
-                break;
-            case 4:
-                speedDisplay.textContent = "fast";
-                break;
-            case 5:
-                speedDisplay.textContent = "fastest";
-                break;
-        }
-        SideAnimation.setSpeed(speed);
-        console.log(`Animation speed set to: ${speed} (step: ${`SideAnimation`.animationStep})`);
+        updateSpeed();
     });
     // Step by step control
     document.getElementById('stepByStepCheckbox').addEventListener('change', (event) => {
