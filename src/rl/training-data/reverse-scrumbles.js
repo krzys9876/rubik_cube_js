@@ -1,16 +1,16 @@
 import {RubikCube} from "../../main/cube.js";
 import {RubikSolver} from "../../main/solver.js";
 
-const SCRAMBLE_MOVES = 5;
+const SCRAMBLE_MOVES = 50;
 
 function getScrambled() {
     const cube = RubikCube.create();
-    console.log(cube.getState());
+    console.log(cube.getConsoleState());
 
     cube.shuffle(SCRAMBLE_MOVES);
     cube.history.forEach(h => console.log(`${h.toCode()}`));
 
-    console.log(cube.getState());
+    console.log(cube.getConsoleState());
 
     cube.clearHistory();
     return cube;
@@ -18,6 +18,7 @@ function getScrambled() {
 
 function generateWhiteCrossScramble() {
     const cube = getScrambled();
+    const initialState = cube.getCompactState();
     const solvingMoves = []
 
     const solver = new RubikSolver(cube, false);
@@ -45,10 +46,13 @@ function generateWhiteCrossScramble() {
         console.log(`${move.toCode()} / ${move.reverse().toCode()}`);
     })
 
-    const state = cube.getState();
-    console.log(state);
+    const solvedState = cube.getCompactState();
 
-    console.log(cube.getTextState());
+    console.log(cube.getConsoleState());
+    console.log(cube.getConsoleState());
+
+    return { scrambledState: initialState, solvedState: solvedState, solvingMoves: solvingMoves.map(m => m.toCode()), reversedMoves: reversed.map(m => m.toCode()) };
 }
 
-generateWhiteCrossScramble();
+const res = generateWhiteCrossScramble();
+console.log(res);

@@ -755,7 +755,7 @@ export class RubikCube {
         return frontPlanes.map(p => styleSide(p.metadata.style)).join("");
     }
 
-    getState() {
+    getRawState() {
         return [
             this.#sideState(SideType.FRONT, (a, b) => (b.metadata.cubeCoords.y - a.metadata.cubeCoords.y ) || (a.metadata.cubeCoords.x - b.metadata.cubeCoords.x )),
             this.#sideState(SideType.LEFT, (a, b) => (b.metadata.cubeCoords.y - a.metadata.cubeCoords.y ) || (b.metadata.cubeCoords.z - a.metadata.cubeCoords.z )),
@@ -766,9 +766,15 @@ export class RubikCube {
         ];
     }
 
-    getTextState() {
-        const state = this.getState();
+    getCompactState() {
+        return RubikCube.rawToCompactState(this.getRawState());
+    }
 
+    static rawToCompactState(rawState) {
+        return rawState.join("");
+    }
+
+    static getConsoleState(state) {
         return "    " + state[4].substring(0,3) + "\n" +
             "    " + state[4].substring(3,6) + "\n" +
             "    " + state[4].substring(6) + "\n" +
@@ -787,6 +793,10 @@ export class RubikCube {
             "    " + state[5].substring(0,3) + "\n" +
             "    " + state[5].substring(3,6) + "\n" +
             "    " + state[5].substring(6);
+    }
+
+    getConsoleState() {
+        return RubikCube.getConsoleState(this.getRawState());
     }
 }
 
