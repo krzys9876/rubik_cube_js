@@ -637,10 +637,13 @@ export class RubikCube {
     shuffle(moves) {
         this.deselectPlanes();
         for(let i = 0; i < moves; i++) {
-            const movement = Movement.random();
-            this.#moveSide(movement, 90);
-            this.#finishMoveSide(movement);
+            this.oneMove(Movement.random());
         }
+    }
+
+    oneMove(movement) {
+        this.#moveSide(movement, 90);
+        this.#finishMoveSide(movement);
     }
 
     getEdgeCubes() {
