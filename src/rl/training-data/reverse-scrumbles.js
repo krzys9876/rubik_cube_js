@@ -47,6 +47,8 @@ function generateWhiteCrossScramble() {
 
     const state = cube.getState();
     console.log(state);
+
+    console.log(cube.getTextState());
 }
 
 generateWhiteCrossScramble();

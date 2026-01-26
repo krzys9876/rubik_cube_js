@@ -1,14 +1,18 @@
 import {Coords3D, Plane3D, PlaneMetadata, Point3D, Vector3D} from "./geometry.js";
 import {
+    Axis,
     globalStyle,
     MoveDirection,
+    MoveType,
     nextSide,
+    nextStyle,
+    opposideSides,
     reverseDirection,
     sideAxis,
     sideDistance,
-    opposideSides,
     sideStyles,
-    SideType, MoveType, nextStyle, Axis, styleSide
+    SideType,
+    styleSide
 } from "./common.js";
 import {Scene} from "./scene.js";
 
@@ -748,7 +752,7 @@ export class RubikCube {
                 .forEach(p => { frontPlanes.push(p); });
         });
         frontPlanes.sort((a, b) => sortFunc(a, b));
-        return { side: side, planes: frontPlanes.map(p => styleSide(p.metadata.style))};
+        return frontPlanes.map(p => styleSide(p.metadata.style)).join("");
     }
 
     getState() {
@@ -760,6 +764,29 @@ export class RubikCube {
             this.#sideState(SideType.UP, (a, b) => (b.metadata.cubeCoords.z - a.metadata.cubeCoords.z ) || (a.metadata.cubeCoords.x - b.metadata.cubeCoords.x )),
             this.#sideState(SideType.DOWN, (a, b) => (a.metadata.cubeCoords.z - b.metadata.cubeCoords.z ) || (a.metadata.cubeCoords.x - b.metadata.cubeCoords.x ))
         ];
+    }
+
+    getTextState() {
+        const state = this.getState();
+
+        return "    " + state[4].substring(0,3) + "\n" +
+            "    " + state[4].substring(3,6) + "\n" +
+            "    " + state[4].substring(6) + "\n" +
+            state[1].substring(0,3) + " " +
+            state[0].substring(0,3) + " " +
+            state[3].substring(0,3) + " " +
+            state[2].substring(0,3) + "\n" +
+            state[1].substring(3,6) + " " +
+            state[0].substring(3,6) + " " +
+            state[3].substring(3,6) + " " +
+            state[2].substring(3,6) + "\n" +
+            state[1].substring(6) + " " +
+            state[0].substring(6) + " " +
+            state[3].substring(6) + " " +
+            state[2].substring(6) + "\n" +
+            "    " + state[5].substring(0,3) + "\n" +
+            "    " + state[5].substring(3,6) + "\n" +
+            "    " + state[5].substring(6);
     }
 }
 
