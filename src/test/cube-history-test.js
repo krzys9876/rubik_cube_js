@@ -1,13 +1,12 @@
 import {assertEquals, runTest} from "./common-test.js";
 import {Movement, RubikCube, SideAnimation} from "../main/cube.js";
-import {Point3D} from "../main/geometry.js";
 
 function testSimpleHistory() {
     const movesToTest = [];
     for(let i=0; i<100; i++) movesToTest.push(Movement.random());
 
     SideAnimation.animationStep = 90; // no animation
-    const cube = new RubikCube(new Point3D(0,0,0), 1);
+    const cube = RubikCube.create();
     cube.planMoves(movesToTest);
     applyAllPlannedMoves(cube);
 
@@ -21,7 +20,7 @@ function testHistoryWithReverts() {
     const movesToTest = Movement.fromText("F D U R L D B R F U");
 
     SideAnimation.animationStep = 90; // no animation
-    const cube = new RubikCube(new Point3D(0,0,0), 1);
+    const cube = RubikCube.create();
     cube.planMoves(movesToTest);
 
     applyOnePlannedMove(cube);

@@ -1,7 +1,6 @@
 import {assertTrue, runTest} from "./common-test.js";
 import {RubikCube, SideAnimation} from "../main/cube.js";
 import {RubikSolver} from "../main/solver.js";
-import {Point3D} from "../main/geometry.js";
 
 function testSolverE2E() {
     const solvedMoves = [];
@@ -27,7 +26,7 @@ function testSolverE2E() {
 }
 
 function doTestSolverE2EOne(shuffleMoves, maxMoves) {
-    const cube = new RubikCube(new Point3D(0,0,0), 1);
+    const cube = RubikCube.create();
     let moves = 0;
     SideAnimation.animationStep = 90; // no animation
     cube.shuffle(shuffleMoves);

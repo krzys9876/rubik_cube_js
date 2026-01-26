@@ -362,6 +362,10 @@ export class RubikCube {
     planned = [];
     planes = [];
 
+    static create() {
+        return new RubikCube(new Point3D(0,0,0), 1);
+    }
+
     constructor(center, size) {
         this.center = center;
         this.size = size;
