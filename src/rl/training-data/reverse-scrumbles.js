@@ -1,15 +1,17 @@
 import {RubikCube} from "../../main/cube.js";
 import {RubikSolver} from "../../main/solver.js";
-import {assertEquals} from "../../test/common-test.js";
 
-const SCRAMBLE_MOVES = 50;
+const SCRAMBLE_MOVES = 5;
 
 function getScrambled() {
     const cube = RubikCube.create();
+    console.log(cube.getState());
+
     cube.shuffle(SCRAMBLE_MOVES);
-    assertEquals(cube.history.length, SCRAMBLE_MOVES, "history should contain given number of moves");
-    //cube.history.forEach(h => console.log(`${h.toCode()}`));
-    //console.log("----------------------");
+    cube.history.forEach(h => console.log(`${h.toCode()}`));
+
+    console.log(cube.getState());
+
     cube.clearHistory();
     return cube;
 }
@@ -42,6 +44,9 @@ function generateWhiteCrossScramble() {
     reversed.forEach(move => {
         console.log(`${move.toCode()} / ${move.reverse().toCode()}`);
     })
+
+    const state = cube.getState();
+    console.log(state);
 }
 
 generateWhiteCrossScramble();

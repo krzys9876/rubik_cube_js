@@ -8,7 +8,7 @@ import {
     sideDistance,
     opposideSides,
     sideStyles,
-    SideType, MoveType, nextStyle, Axis
+    SideType, MoveType, nextStyle, Axis, styleSide
 } from "./common.js";
 import {Scene} from "./scene.js";
 
@@ -736,6 +736,30 @@ export class RubikCube {
     reset() {
         this.planned.splice(0, this.planned.length);
         this.cubes.forEach(c => c.planes.forEach(p => p.metadata.resetStyle()));
+    }
+
+    #sideState(side, sortFunc) {
+        const frontCubes = this.#sideCubes(side);
+
+        const frontPlanes = [];
+        frontCubes.forEach(c => {
+            c.planes
+                .filter(p => p.metadata.orientation === side)
+                .forEach(p => { frontPlanes.push(p); });
+        });
+        frontPlanes.sort((a, b) => sortFunc(a, b));
+        return { side: side, planes: frontPlanes.map(p => styleSide(p.metadata.style))};
+    }
+
+    getState() {
+        return [
+            this.#sideState(SideType.FRONT, (a, b) => (b.metadata.cubeCoords.y - a.metadata.cubeCoords.y ) || (a.metadata.cubeCoords.x - b.metadata.cubeCoords.x )),
+            this.#sideState(SideType.LEFT, (a, b) => (b.metadata.cubeCoords.y - a.metadata.cubeCoords.y ) || (b.metadata.cubeCoords.z - a.metadata.cubeCoords.z )),
+            this.#sideState(SideType.BACK, (a, b) => (b.metadata.cubeCoords.y - a.metadata.cubeCoords.y ) || (b.metadata.cubeCoords.x - a.metadata.cubeCoords.x )),
+            this.#sideState(SideType.RIGHT, (a, b) => (b.metadata.cubeCoords.y - a.metadata.cubeCoords.y ) || (a.metadata.cubeCoords.z - b.metadata.cubeCoords.z )),
+            this.#sideState(SideType.UP, (a, b) => (b.metadata.cubeCoords.z - a.metadata.cubeCoords.z ) || (a.metadata.cubeCoords.x - b.metadata.cubeCoords.x )),
+            this.#sideState(SideType.DOWN, (a, b) => (a.metadata.cubeCoords.z - b.metadata.cubeCoords.z ) || (a.metadata.cubeCoords.x - b.metadata.cubeCoords.x ))
+        ];
     }
 }
 
