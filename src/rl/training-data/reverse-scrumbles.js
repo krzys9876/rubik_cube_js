@@ -6,55 +6,8 @@ const SCRAMBLE_MOVES = 50;
 
 function getScrambled() {
     const cube = RubikCube.create();
-    //console.log(cube.getConsoleState());
     cube.shuffle(SCRAMBLE_MOVES);
-    //console.log(cube.getConsoleState());
     return cube;
-}
-
-function generateWhiteCrossScramble() {
-    const cube = getScrambled();
-    const initialState = cube.getCompactState();
-    const scrambleMoves = cube.history.map(m => m.toCode());
-    const solvingMoves = []
-
-    const solver = new RubikSolver(cube, false);
-    let solved = false;
-    let moves = solver.solveWhiteCross();
-
-    while(!solved) {
-        moves = solver.solveWhiteCross();
-        moves.forEach(move => {
-            //console.log(`${move.toCode()} / ${move.reverse().toCode()}`);
-            solvingMoves.push(move);
-            cube.oneMove(move);
-        });
-        solved = moves.length === 0;
-
-    }
-    //console.log(`--- Solved in ${solvingMoves.length} moves`);
-    //solvingMoves.forEach(move => console.log(`${move.toCode()} / ${move.reverse().toCode()}`));
-    //console.log(`--- reversed:`);
-    solvingMoves.reverse();
-    const reversed = solvingMoves.map(move => move.reverse());
-    //reversed.forEach(move => console.log(`${move.toCode()} / ${move.reverse().toCode()}`));
-
-    const solvedState = cube.getCompactState();
-
-    //console.log(cube.getConsoleState());
-    //console.log(cube.getConsoleState());
-
-    return { scrambleMoves: scrambleMoves, scrambledState: initialState, solvedState: solvedState,
-        solvingMoves: solvingMoves.map(m => m.toCode()), reversedMoves: reversed.map(m => m.toCode()) };
-}
-
-function generateWhiteCrossScrambles(num) {
-    const res = [];
-    for(let i=0; i<num; i++) {
-        res.push(generateWhiteCrossScramble());
-        if(i % 1000 === 0) console.log(i);
-    }
-    fs.writeFileSync('whiteCrossInput.json', JSON.stringify(res/*, null, 2*/));
 }
 
 function solveOneStage(cube, solveStage) {
@@ -70,6 +23,61 @@ function solveOneStage(cube, solveStage) {
     }
     return solvingMoves;
 }
+
+function generateWhiteLayerSolution() {
+    const cube = getScrambled();
+    const scrambleMoves = cube.history.map(m => m.toCode());
+
+    const initialState = cube.getCompactState();
+
+    const solver = new RubikSolver(cube, false);
+    const solvingMoves1 = solveOneStage(cube, () => solver.solveWhiteCross());
+    const solvingMoves2 = solveOneStage(cube, () => solver.solveWhiteCorners());
+    const solvingMoves = solvingMoves1.concat(solvingMoves2)
+    const solvedState = cube.getCompactState();
+
+    return { scrambleMoves: scrambleMoves.join(" "), scrambledState: initialState, solvedState: solvedState,
+        solvingMoves: solvingMoves.map(m => m.toCode()).join(" ") };
+}
+
+
+function generateWhiteLayerSolutions(num) {
+    const res = [];
+    for(let i=0; i<num; i++) {
+        res.push(generateWhiteLayerSolution());
+        if(i % 1000 === 0) console.log(i);
+    }
+    const resTxt = res.filter(r => r.solvingMoves.length > 0).map(r => r.scrambledState+"|"+r.solvingMoves+"|"+r.solvedState).join("\n");
+    fs.writeFileSync('whiteLayerInput.txt', resTxt);
+}
+
+function generateWhiteCornersSolution() {
+    const cube = getScrambled();
+    const scrambleMoves = cube.history.map(m => m.toCode());
+
+    const solverInit = new RubikSolver(cube, false);
+    solveOneStage(cube, () => solverInit.solveWhiteCross());
+    const initialState = cube.getCompactState();
+
+    const solver = new RubikSolver(cube, false);
+    const solvingMoves = solveOneStage(cube, () => solver.solveWhiteCorners());
+    const solvedState = cube.getCompactState();
+
+    return { scrambleMoves: scrambleMoves.join(" "), scrambledState: initialState, solvedState: solvedState,
+        solvingMoves: solvingMoves.map(m => m.toCode()).join(" ") };
+}
+
+
+function generateWhiteCornersSolutions(num) {
+    const res = [];
+    for(let i=0; i<num; i++) {
+        res.push(generateWhiteCornersSolution());
+        if(i % 1000 === 0) console.log(i);
+    }
+    const resTxt = res.filter(r => r.solvingMoves.length > 0).map(r => r.scrambledState+"|"+r.solvingMoves+"|"+r.solvedState).join("\n");
+    fs.writeFileSync('whiteCornersInput.txt', resTxt);
+}
+
 
 function generateYellowCrossSolution() {
     const cube = getScrambled();
@@ -130,5 +138,39 @@ function generateYellowLayerSolutions(num) {
     fs.writeFileSync('yellowLayerInput.txt', resTxt);
 }
 
+function generateUpperLayerSolution() {
+    const cube = getScrambled();
+    const scrambleMoves = cube.history.map(m => m.toCode());
+
+    const solverInit = new RubikSolver(cube, false);
+    solveOneStage(cube, () => solverInit.solveWhiteCross());
+    solveOneStage(cube, () => solverInit.solveWhiteCorners());
+    solveOneStage(cube, () => solverInit.solveMidLayer());
+    solveOneStage(cube, () => solverInit.solveYellowCross());
+    solveOneStage(cube, () => solverInit.solveYellowLayer());
+    const initialState = cube.getCompactState();
+
+    const solver = new RubikSolver(cube, false);
+    const solvingMoves1 = solveOneStage(cube, () => solver.solveYellowCorners());
+    const solvingMoves2 = solveOneStage(cube, () => solver.solveYellowEdges());
+    const solvedState = cube.getCompactState();
+
+    return { scrambleMoves: scrambleMoves.join(" "), scrambledState: initialState, solvedState: solvedState,
+        solvingMoves: (solvingMoves1.concat(solvingMoves2)).map(m => m.toCode()).join(" ") };
+}
+
+function generateUpperLayerSolutions(num) {
+    const res = [];
+    for(let i=0; i<num; i++) {
+        res.push(generateUpperLayerSolution());
+        if(i % 1000 === 0) console.log(i);
+    }
+    const resTxt = res.filter(r => r.solvingMoves.length > 0).map(r => r.scrambledState+"|"+r.solvingMoves+"|"+r.solvedState).join("\n");
+    fs.writeFileSync('upperLayerInput.txt', resTxt);
+}
+
+//generateWhiteLayerSolutions(100000) // too complex for monte carlo
+//generateWhiteCornersSolutions(100000)
 //generateYellowCrossSolutions(10000);
-generateYellowLayerSolutions(10000);
+//generateYellowLayerSolutions(100000);
+generateUpperLayerSolutions(100000);
