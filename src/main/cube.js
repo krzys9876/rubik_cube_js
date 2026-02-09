@@ -278,6 +278,18 @@ export class Movement {
         if(!codes.includes("2")) return codes;
 
         return codes
+            .replaceAll("F\'2","F\' F\'")
+            .replaceAll("R\'2","R\' R\'")
+            .replaceAll("B\'2","B\' B\'")
+            .replaceAll("L\'2","L\' L\'")
+            .replaceAll("U\'2","U\' U\'")
+            .replaceAll("D\'2","D\' D\'")
+            .replaceAll("2F\'","F\' F\'")
+            .replaceAll("2R\'","R\' R\'")
+            .replaceAll("2B\'","B\' B\'")
+            .replaceAll("2L\'","L\' L\'")
+            .replaceAll("2U\'","U\' U\'")
+            .replaceAll("2D\'","D\' D\'")
             .replaceAll("F2","F F")
             .replaceAll("R2","R R")
             .replaceAll("B2","B B")
@@ -294,9 +306,9 @@ export class Movement {
 
     static fromText(codes, type = MoveType.MANUAL) {
         const movements = [];
-        codes.split(/[\s+]/).forEach(code => {
+        const codesNoDoubles = Movement.replaceDoubles(codes);
+        codesNoDoubles.split(/[\s+]/).forEach(code => {
             let movement = Movement.from(code);
-            if(!movement) movement = Movement.from(Movement.replaceDoubles(codes));
             if (movement) movements.push(movement.withType(type))
         });
         return movements;
