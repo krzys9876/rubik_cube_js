@@ -169,8 +169,71 @@ function generateUpperLayerSolutions(num) {
     fs.writeFileSync('upperLayerInput.txt', resTxt);
 }
 
+function generateYellowCornersSolution() {
+    const cube = getScrambled();
+    const scrambleMoves = cube.history.map(m => m.toCode());
+
+    const solverInit = new RubikSolver(cube, false);
+    solveOneStage(cube, () => solverInit.solveWhiteCross());
+    solveOneStage(cube, () => solverInit.solveWhiteCorners());
+    solveOneStage(cube, () => solverInit.solveMidLayer());
+    solveOneStage(cube, () => solverInit.solveYellowCross());
+    solveOneStage(cube, () => solverInit.solveYellowLayer());
+    const initialState = cube.getCompactState();
+
+    const solver = new RubikSolver(cube, false);
+    const solvingMoves = solveOneStage(cube, () => solver.solveYellowCorners());
+    const solvedState = cube.getCompactState();
+
+    return { scrambleMoves: scrambleMoves.join(" "), scrambledState: initialState, solvedState: solvedState,
+        solvingMoves: solvingMoves.map(m => m.toCode()).join(" ") };
+}
+
+function generateYellowCornersSolutions(num) {
+    const res = [];
+    for(let i=0; i<num; i++) {
+        res.push(generateYellowCornersSolution());
+        if(i % 1000 === 0) console.log(i);
+    }
+    const resTxt = res.filter(r => r.solvingMoves.length > 0).map(r => r.scrambledState+"|"+r.solvingMoves+"|"+r.solvedState).join("\n");
+    fs.writeFileSync('yellowCornersInput.txt', resTxt);
+}
+
+function generateYellowEdgesSolution() {
+    const cube = getScrambled();
+    const scrambleMoves = cube.history.map(m => m.toCode());
+
+    const solverInit = new RubikSolver(cube, false);
+    solveOneStage(cube, () => solverInit.solveWhiteCross());
+    solveOneStage(cube, () => solverInit.solveWhiteCorners());
+    solveOneStage(cube, () => solverInit.solveMidLayer());
+    solveOneStage(cube, () => solverInit.solveYellowCross());
+    solveOneStage(cube, () => solverInit.solveYellowLayer());
+    solveOneStage(cube, () => solverInit.solveYellowCorners());
+    const initialState = cube.getCompactState();
+
+    const solver = new RubikSolver(cube, false);
+    const solvingMoves = solveOneStage(cube, () => solver.solveYellowEdges());
+    const solvedState = cube.getCompactState();
+
+    return { scrambleMoves: scrambleMoves.join(" "), scrambledState: initialState, solvedState: solvedState,
+        solvingMoves: solvingMoves.map(m => m.toCode()).join(" ") };
+}
+
+function generateYellowEdgesSolutions(num) {
+    const res = [];
+    for(let i=0; i<num; i++) {
+        res.push(generateYellowEdgesSolution());
+        if(i % 1000 === 0) console.log(i);
+    }
+    const resTxt = res.filter(r => r.solvingMoves.length > 0).map(r => r.scrambledState+"|"+r.solvingMoves+"|"+r.solvedState).join("\n");
+    fs.writeFileSync('yellowEdgesInput.txt', resTxt);
+}
+
 //generateWhiteLayerSolutions(100000) // too complex for monte carlo
 //generateWhiteCornersSolutions(100000)
 //generateYellowCrossSolutions(10000);
 //generateYellowLayerSolutions(100000);
-generateUpperLayerSolutions(100000);
+//generateUpperLayerSolutions(100000);
+//generateYellowCornersSolutions(100000);
+generateYellowEdgesSolutions(100000);
