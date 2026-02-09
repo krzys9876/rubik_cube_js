@@ -84,11 +84,11 @@ function drawLoop() {
 
 function processAppParams() {
     if(params.has("moves")) {
-        planMoves(Movement.fromText(params.get("moves")), state);
-        document.getElementById('textMovements').value =
-            params.get("moves")
-                .replaceAll("+"," ")
-                .replaceAll("%27","\'");
+        const movesDecoded = params.get("moves")
+            .replaceAll("+"," ")
+            .replaceAll("%27","\'");
+        planMoves(Movement.fromText(movesDecoded), state);
+        document.getElementById('textMovements').value = movesDecoded;
     }
     if(params.has("solve") && params.get("solve") === "1") updateSolve(true, state);
     if(params.has("speed") && params.get("speed") >= "1" && params.get("speed") <= "5") {
